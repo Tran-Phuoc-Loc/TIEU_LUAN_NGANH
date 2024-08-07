@@ -10,62 +10,68 @@ class PostController extends Controller
 {
     public function index()
     {
-        $posts = Post::all();
+        $posts = Post::with('user', 'categories')->get();
         return view('posts.index', compact('posts'));
     }
 
-    // Hiển thị danh sách bài viết với tìm kiếm và lọc
-    // public function index(Request $request)
-    // {
-    //     $query = Post::query();
+    public function show(Post $post)
+    {
+        $post->load('user', 'comments.user', 'categories');
+        return view('posts.show', compact('post'));
+    }
 
-    //     // Tìm kiếm theo tiêu đề bài viết
-    //     if ($request->has('search')) {
-    //         $query->where('title', 'like', '%' . $request->search . '%');
-    //     }
+    public function create()
+    {
+        $categories = Category::all();
+        return view('posts.create', compact('categories'));
+    }
 
-    //     // Lọc theo danh mục
-    //     if ($request->has('category')) {
-    //         $query->whereHas('categories', function ($q) use ($request) {
-    //             $q->where('name', $request->category);
-    //         });
-    //     }
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'body' => 'required|string',
+            'categories' => 'array'
+        ]);
 
-    //     $posts = $query->get();
+        $post = Post::create([
+            'user_id' => auth()->id(),
+            'title' => $validated['title'],
+            'body' => $validated['body'],
+        ]);
 
-    //     // Lấy danh mục để hiển thị trong form lọc
-    //     // $categories = Category::all();
+        $post->categories()->attach($validated['categories']);
 
-    //     // return view('posts.index', compact('posts', 'categories'));
-    //     return view('layouts.app');
-    // }
+        return redirect()->route('posts.index');
+    }
 
-    // // Hiển thị form tạo bài viết
-    // public function create()
-    // {
-    //     return view('posts.create');
-    // }
+    public function edit(Post $post)
+    {
+        $categories = Category::all();
+        return view('posts.edit', compact('post', 'categories'));
+    }
 
-    // // Lưu bài viết mới
-    // public function store(Request $request)
-    // {
-    //     $request->validate([
-    //         'title' => 'required',
-    //         'content' => 'required',
-    //     ]);
+    public function update(Request $request, Post $post)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'body' => 'required|string',
+            'categories' => 'array'
+        ]);
 
-    //     $post = new Post();
-    //     $post->title = $request->title;
-    //     $post->content = $request->content;
-    //     $post->user_id = auth()->id();
-    //     $post->save();
+        $post->update([
+            'title' => $validated['title'],
+            'body' => $validated['body'],
+        ]);
 
-    //     return redirect()->route('layouts.app');
-    // }
+        $post->categories()->sync($validated['categories']);
 
-    // // Hiển thị chi tiết bài viết
-    // public function show(Post $post)
-    // {
-    //     return view('posts.show', compact('post'));
-    // }
+        return redirect()->route('posts.index');
+    }
+
+    public function destroy(Post $post)
+    {
+        $post->delete();
+        return redirect()->route('posts.index');
+    }
 }

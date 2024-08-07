@@ -1,18 +1,25 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\CategoryController;
 
-// Route::get('/', [PostController::class, 'app']);
-// Trang chính
+Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
+
 Route::get('/', function () {
-    return view('home');
-})->name('home');
+    return view('welcome');
+});
 
-// Trang liên hệ
-Route::get('/contact', function () {
-    return view('contact');
-})->name('contact');
-Route::resource('posts', PostController::class);
-// Xử lý gửi thông tin liên hệ
-// Route::post('contact', [ContactController::class, 'send'])->name('contact.send');
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__.'/auth.php';
