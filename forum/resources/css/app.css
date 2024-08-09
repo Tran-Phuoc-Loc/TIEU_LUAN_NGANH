@@ -73,9 +73,9 @@ footer {
 }
 
 .user-circle {
-    width: 32px;
-    height: 32px;
-    background-color: #3498db;
+    width: 48px;
+    height: 48px;
+    background-image: url('/storage/images/avataricon.png');
     color: white;
     border-radius: 50%;
     display: flex;

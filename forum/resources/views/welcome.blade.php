@@ -39,7 +39,7 @@
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                                     <li><a class="dropdown-item" href="#">{{ Auth::user()->name }}</a></li>
-                                    <li><a class="dropdown-item" href="{{ route('users.edit', Auth::user()->id) }}">Edit Profile</a></li>
+                                    <!-- <li><a class="dropdown-item" href="{{ route('users.edit', Auth::user()->id) }}">Edit Profile</a></li> lỗi chưa có user.edit -->
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
