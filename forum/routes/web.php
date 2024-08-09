@@ -4,7 +4,9 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\UserController;
 
+Route::resource('users', UserController::class);
 Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
 Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
 
