@@ -22,9 +22,11 @@ footer {
 
 .navbar-brand img {
     margin-right: 10px; /* Khoảng cách giữa icon và chữ */
-    height: 30px; /* Chiều cao của icon */
 }
 
+.nav-link {
+    font-size: 20px;
+}
 
 .navbar-dark , 
 .navbar-dark .nav-link, 
@@ -66,12 +68,6 @@ footer {
     text-align: center;
 }
 
-.btn-primary {
-    background-color: #3498db;
-    border-color: #3498db;
-    margin: 20px 0;
-}
-
 .user-circle {
     width: 48px;
     height: 48px;
@@ -82,6 +78,7 @@ footer {
     align-items: center;
     justify-content: center;
     font-weight: bold;
+    margin-right: 5px;
 }
 
 .dropdown-menu {
@@ -97,4 +94,107 @@ footer {
     color: white;
     padding: 20px 0;
     text-align: center;
+}
+
+.login-container {
+    max-width: 900px;
+    width: 100%;
+    background-color: white;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-section {
+    background: linear-gradient(135deg, #5a00d6, #ff6e7f);
+    flex: 1;
+    position: relative;
+    padding: 50px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.welcome-section h3 {
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+
+.welcome-section p {
+    font-size: 16px;
+    opacity: 0.8;
+}
+
+.login-section {
+    flex: 1;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.login-section h3 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #333;
+}
+
+.form-control {
+    padding: 15px;
+    font-size: 16px;
+}
+
+.btn-primary {
+    padding: 15px;
+    font-size: 16px;
+    background: linear-gradient(135deg, #ff57b9, #a704fd);
+    border: none;
+    margin: 20px 0;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #a704fd, #ff57b9);
+}
+
+.card-footer {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.card-footer a {
+    text-decoration: none;
+    color: #5a00d6;
+}
+@media (max-width: 768px) {
+    .login-container {
+        flex-direction: column;
+        max-width: 100%;
+        height: auto;
+    }
+
+    .welcome-section,
+    .login-section {
+        padding: 20px; 
+    }
+
+    .welcome-section h3 {
+        font-size: 28px; 
+    }
+
+    .form-control {
+        padding: 10px;
+        font-size: 14px; /* Giảm kích thước font của input */
+    }
+
+    .btn-primary {
+        padding: 10px;
+        font-size: 14px; /* Giảm kích thước font của nút */
+    }
+
+    .card-footer a {
+        font-size: 14px; /* Giảm kích thước font của link */
+    }
 }
