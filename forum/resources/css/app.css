@@ -2,8 +2,14 @@ body {
     background-color: #f8f9fa;
 }
 
-header, footer {
-    background-color: #2f97be;
+header {
+    background: linear-gradient(56deg,
+            #00d2d3, 
+            #3a7bd5,
+            #673BAE,
+            #8948b2,
+            #FF00FF
+        );
 }
 
 footer {
@@ -14,24 +20,27 @@ footer {
 .navbar-brand {
     font-family: 'Raleway', sans-serif;
     font-weight: bold;
-    text-transform: uppercase; /* Chữ in hoa */
-    letter-spacing: 1.5px; /* Tăng khoảng cách giữa các ký tự */
+    text-transform: uppercase;
+    /* Chữ in hoa */
+    letter-spacing: 1.5px;
+    /* Tăng khoảng cách giữa các ký tự */
     display: flex;
-    align-items: center; 
+    align-items: center;
 }
 
 .navbar-brand img {
-    margin-right: 10px; /* Khoảng cách giữa icon và chữ */
+    margin-right: 10px;
+    /* Khoảng cách giữa icon và chữ */
 }
 
 .nav-link {
     font-size: 20px;
 }
 
-.navbar-dark , 
-.navbar-dark .nav-link, 
+.navbar-dark,
+.navbar-dark .nav-link,
 .navbar-dark .nav-item {
-    color: black !important;
+    color: #ffffff !important;
 }
 
 .navbar-dark .navbar-toggler {
@@ -44,23 +53,31 @@ footer {
 
 .welcome-content {
     text-align: center;
-    background-color: #2fa3cc;
+    background: linear-gradient(56deg,
+            #00d2d3, 
+            #3a7bd5,
+            #6d3db9,
+            #8948b2,
+            #FF00FF
+        );
     padding-top: 90px;
     padding-left: 100px;
     padding-right: 100px;
 }
 
-.welcome-content h1, 
-.welcome-content p, 
-.card-title, 
+.welcome-content h1,
+.welcome-content p
+{
+    color: #ffffff;
+}
+.card-title,
 .card-text {
-    color: #2c3e50;
+    color: #010101;
 }
 
-.welcome-content p,
-.card-text {
+.welcome-content p {
     font-size: 1.25rem;
-    color: #34495e;
+    color: #ffffff;
 }
 
 .search-bar {
@@ -168,6 +185,7 @@ footer {
     text-decoration: none;
     color: #5a00d6;
 }
+
 @media (max-width: 768px) {
     .login-container {
         flex-direction: column;
@@ -177,24 +195,27 @@ footer {
 
     .welcome-section,
     .login-section {
-        padding: 20px; 
+        padding: 20px;
     }
 
     .welcome-section h3 {
-        font-size: 28px; 
+        font-size: 28px;
     }
 
     .form-control {
         padding: 10px;
-        font-size: 14px; /* Giảm kích thước font của input */
+        font-size: 14px;
+        /* Giảm kích thước font của input */
     }
 
     .btn-primary {
         padding: 10px;
-        font-size: 14px; /* Giảm kích thước font của nút */
+        font-size: 14px;
+        /* Giảm kích thước font của nút */
     }
 
     .card-footer a {
-        font-size: 14px; /* Giảm kích thước font của link */
+        font-size: 14px;
+        /* Giảm kích thước font của link */
     }
 }
