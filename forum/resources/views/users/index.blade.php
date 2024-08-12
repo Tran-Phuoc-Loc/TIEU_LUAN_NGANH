@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to Forum</title>
+    <title>Chào Mừng Đến TeachTalks</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <!-- Link CSS file -->
+    <!-- Link CSS -->
     @vite('resources/js/app.js')
     @vite('resources/css/app.css')
 </head>
@@ -24,13 +24,13 @@
                     <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
                         <ul class="navbar-nav">
                             <li>
-                                <a class="nav-link" href="{{ url('/') }}">Home</a>
+                                <a class="nav-link" href="{{ url('/') }}">Trang Chủ</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('posts.index') }}">Posts</a>
+                                <a class="nav-link" href="{{ route('posts.index') }}">Bài Viết</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('categories.index') }}">Categories</a>
+                                <a class="nav-link" href="{{ route('categories.index') }}">Danh mục</a>
                             </li>
                             @auth
                             <li class="nav-item dropdown">
@@ -39,13 +39,13 @@
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                                     <li><a class="dropdown-item" href="#">{{ Auth::user()->name }}</a></li>
-                                    <li><a class="dropdown-item" href="{{ route('users.edit', Auth::user()->id) }}">Edit Profile</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('users.profile', Auth::user()->id) }}">Thông tin cá nhân</a></li>
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
                                     <li>
                                         <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                            Logout
+                                            Đăng Xuất
                                         </a>
                                         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                                             @csrf
@@ -55,7 +55,7 @@
                             </li>
                             @else
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('login') }}">Login</a>
+                                <a class="nav-link" href="{{ route('login') }}">Đăng Nhập</a>
                             </li>
                             @endauth
                         </ul>
@@ -73,7 +73,7 @@
             </div>
             <div class="search-bar">
                 <form class="d-flex">
-                    <input class="form-control me-2" type="search" placeholder="Search posts" aria-label="Search">
+                    <input class="form-control me-2" type="search" placeholder="Tìm kiếm bài viết" aria-label="Search">
                     <button class="btn btn-outline-success" type="submit"><i class="fas fa-search"></i>Search</button>
                 </form>
             </div>
@@ -98,15 +98,31 @@
                 </div>
             </div>
         </main>
-        <footer class="mt-4 text-center">
-            <p>&copy; {{ date('Y') }} Your Application Name. All rights reserved.</p>
+        <footer class="mt-5 py-4">
+            <div class="container text-center">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <h5>Liên hệ với chúng tôi</h5>
+                        <p>Email: <a href="mailto:ttp6889@gmail.com">ttp6889@gmail.com</a></p>
+                        <p>Phone: 038-531-5971</p>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <h5>TechTalks</h5>
+                        <p>&copy; {{ date('Y') }} TechTalks. All rights reserved.</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>Theo dõi chúng tôi</h5>
+                        <a href="#" class="text-white me-3"><i class="fab fa-facebook fa-2x"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-twitter fa-2x"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-linkedin fa-2x"></i></a>
+                    </div>
+                </div>
+                <hr class="my-4">
+                <p class="text-muted small">Trang web này được phát triển bởi TechTalks.</p>
+            </div>
         </footer>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </body>
 
 </html>
-
-
-
-
