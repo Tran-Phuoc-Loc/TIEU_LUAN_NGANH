@@ -18,10 +18,18 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+            
+            // Kiểm tra xem người dùng có đang hoạt động không
+            if ($user->status !== 'active') {
+                Auth::logout();
+                return back()->withErrors(['email' => 'Tài khoản của bạn không hoạt động.']);
+            }
+
             return redirect()->route('home');
         }
 
-        return back()->withErrors(['email' => 'Invalid credentials']);
+        return back()->withErrors(['email' => 'Thông tin xác thực không hợp lệ']);
     }
 
     public function showRegistrationForm()
@@ -41,6 +49,7 @@ class AuthController extends Controller
             'username' => $request->username,
             'email' => $request->email,
             'password' => bcrypt($request->password),
+            'status' => 'active', // Trạng thái mặc định đang hoạt động
         ]);
 
         return redirect()->route('login');
@@ -51,5 +60,19 @@ class AuthController extends Controller
         Auth::logout();
         return redirect()->route('home');
     }
-}
 
+    // Phương pháp vô hiệu hóa tài khoản người dùng
+    public function deactivateUser($userId)
+    {
+        $user = User::find($userId);
+        
+        if ($user) {
+            $user->status = 'inactive';
+            $user->save();
+            
+            return redirect()->back()->with('thành công', 'Người dùng đã vô hiệu hóa thành công.');
+        }
+        
+        return redirect()->back()->withErrors(['User không tìm thấy.']);
+    }
+}

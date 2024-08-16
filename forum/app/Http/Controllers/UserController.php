@@ -5,9 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Policies\UserPolicy;
 
 class UserController extends Controller
 {
+    use \Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+
     public function index()
     {
         $users = User::all();
@@ -40,9 +44,11 @@ class UserController extends Controller
         return view('users.profile', compact('user', 'posts'));
     }
 
-    public function edit($id)
+    public function edit(User $user)
     {
-        $user = User::findOrFail($id);
+        // Sử dụng policy để kiểm tra quyền
+        $this->authorize('edit', $user);
+
         return view('users.edit', compact('user'));
     }
 

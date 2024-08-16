@@ -12,11 +12,6 @@ header {
         );
 }
 
-footer {
-    color: black;
-    padding: 1rem 0;
-}
-
 .navbar-brand {
     font-family: 'Raleway', sans-serif;
     font-weight: bold;
@@ -106,13 +101,56 @@ footer {
     margin-top: 0 !important;
 }
 
-footer {
-    background-color: #2c3e50;
-    color: white;
-    padding: 20px 0;
-    text-align: center;
+/* Định dạng cho hình ảnh avatar */
+img.img-thumbnail {
+    border: 3px solid #90b2d6;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+    width: 320px; /* Đặt kích thước chiều rộng cố định */
+    height: auto; /* Đặt kích thước chiều cao cố định */
+    object-fit: cover; /* Đảm bảo ảnh được cắt vừa khung mà không bị biến dạng */
+    border-radius: 50%;
+    margin-bottom: 20px;
 }
 
+img.img-thumbnail:hover {
+    transform: scale(1.05);
+}
+
+.form-label {
+    font-weight: bold;
+    color: #495057;
+}
+
+/* Định dạng cho danh sách bài viết */
+.list-group-item {
+    border: none;
+    border-bottom: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 15px 20px;
+    transition: background-color 0.3s ease;
+}
+
+.list-group-item:last-child {
+    border-bottom: none;
+}
+
+.list-group-item:hover {
+    background-color: #f1f3f5;
+}
+
+.list-group-item a {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.list-group-item a:hover {
+    text-decoration: underline;
+}
+
+/* login and register */
 .login-container,
 .register-container {
     max-width: 900px;
@@ -167,6 +205,7 @@ footer {
     font-size: 16px;
 }
 
+/* Nút bấm */
 .btn-primary {
     padding: 15px;
     font-size: 16px;
@@ -179,6 +218,27 @@ footer {
     background: linear-gradient(135deg, #a704fd, #ff57b9);
 }
 
+.btn-secondary {
+    padding: 15px;
+    font-size: 16px;
+    background-color: #6c757d;
+    border-color: #6c757d;
+    transition: background-color 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+/* footer */
+footer {
+    background-color: #2c3e50;
+    color: white;
+    padding: 20px 0;
+    text-align: center;
+}
+
 .card-footer {
     text-align: center;
     margin-top: 20px;
@@ -189,6 +249,7 @@ footer {
     color: #5a00d6;
 }
 
+/* dùng cho màn hình nhỏ */
 @media (max-width: 768px) {
     .login-container,
     .register-container {
@@ -221,5 +282,17 @@ footer {
     .card-footer a {
         font-size: 14px;
         /* Giảm kích thước font của link */
+    }
+    .img-thumbnail {
+        width: 150px !important; /* Kích thước nhỏ hơn cho màn hình nhỏ */
+        height: 150px !important;
+    }
+
+}
+
+@media (max-width: 480px) {
+    .img-thumbnail {
+        width: 120px !important; /* Kích thước nhỏ hơn nữa cho màn hình rất nhỏ */
+        height: 120px !important;
     }
 }
