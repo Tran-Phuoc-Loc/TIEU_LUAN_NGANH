@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -26,12 +27,17 @@ class UserController extends Controller
         if (!$user) {
             abort(404); //  Kích hoạy lỗi 404
         }
+        // Kiểm tra nếu người dùng đang đăng nhập cố gắng truy cập hồ sơ của chính mình
+        if (Auth::id() !== $user->id) {
+            // Tùy chọn, bạn có thể hiển thị lỗi 403
+            abort(403, 'Hành động không được phép.');
+        }
 
         $posts = $user->posts ?: collect(); // Khởi tạo với một tập hợp rỗng nếu không có bài viết
 
+
         // Trả về view và truyền dữ liệu người dùng cùng các bài viết của họ
         return view('users.profile', compact('user', 'posts'));
-        return view('users.show', compact('user'));
     }
 
     public function edit($id)

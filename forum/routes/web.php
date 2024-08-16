@@ -14,7 +14,7 @@ Route::post('/login', [LoginController::class, 'login']);
 // Route cho user
 Route::resource('users', UserController::class);
 Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
-Route::get('/users/{id}', [UserController::class, 'show'])->name('users.profile');
+
 
 // Roter cho categories vs posts
 Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
@@ -30,6 +30,7 @@ Route::get('/dashboard', function () {
 
 // Route cho phép người dùng xác thực rồi cho phép thực hiện các thao tác
 Route::middleware('auth')->group(function () {
+    Route::get('/users/{id}', [UserController::class, 'show'])->name('users.profile');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
