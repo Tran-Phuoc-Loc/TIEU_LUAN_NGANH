@@ -12,6 +12,9 @@
     @vite('resources/css/app.css')
 </head>
 <style>
+    body {
+        background: linear-gradient(135deg, #ffffff, #ffe6e6);
+    }
     /* Container chính bao gồm header, content và footer */
     body>div.container {
         min-height: 100vh;
