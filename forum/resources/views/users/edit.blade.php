@@ -36,7 +36,7 @@
                 <label for="avatar" class="form-label">Ảnh đại diện</label>
                 <input type="file" class="form-control" id="avatar" name="avatar">
                 @if($user->avatar)
-                <img src="{{ asset('storage/avatars/' . $user->avatar) }}" alt="Ảnh đại diện hiện tại" class="mt-2" style="max-width: 100px;">
+                <img src="{{ asset('storage/avatars/' . $user->avatar) }}" alt="Ảnh đại diện hiện tại" class="mt-2">
                 @endif
             </div>
 

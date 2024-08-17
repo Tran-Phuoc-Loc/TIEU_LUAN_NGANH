@@ -105,7 +105,7 @@ header {
 img.img-thumbnail {
     border: 3px solid #90b2d6;
     border-radius: 50%;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease; /*chuyển động mượt khi thay đổi kích thước */
     width: 320px; /* Đặt kích thước chiều rộng cố định */
     height: auto; /* Đặt kích thước chiều cao cố định */
     object-fit: cover; /* Đảm bảo ảnh được cắt vừa khung mà không bị biến dạng */

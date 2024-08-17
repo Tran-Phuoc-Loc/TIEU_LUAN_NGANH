@@ -11,6 +11,19 @@
     @vite('resources/js/app.js')
     @vite('resources/css/app.css')
 </head>
+<style>
+    /* Màu ban đầu của nút "Thích" là trắng */
+    .like-button {
+        color: black;
+        text-decoration: none; /* Loại bỏ gạch chân */
+    }
+
+    /* Khi nút được bấm, màu sẽ thay đổi sang màu xanh */
+    .like-button.liked {
+        color: blue;
+        /* Bạn có thể thay màu này theo ý thích */
+    }
+</style>
 
 <body>
     <div class="container">
@@ -97,6 +110,96 @@
                     </div>
                 </div>
             </div>
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">Cách Quản Lý Thời Gian Hiệu Quả Cho Sinh Viên</h5>
+                            <p class="card-text">Sinh viên thường phải đối mặt với nhiều nhiệm vụ cùng lúc. Bài viết này sẽ hướng dẫn bạn cách quản lý thời gian hiệu quả.</p>
+                            <a href="#" class="btn btn-primary">Đọc thêm</a>
+                        </div>
+                        <div class="card-footer d-flex justify-content-between align-items-center">
+                            <div>
+                                <button class="btn btn-link like-button"><i class="fas fa-thumbs-up"></i> Thích</button>
+                                <button class="btn btn-link"><i class="fas fa-bookmark"></i> Lưu</button>
+                            </div>
+                            <span><i class="fas fa-comments"></i> 10 Bình luận</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bài viết 2 -->
+                <div class="col-md-4">
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">Bí Quyết Học Tập Tốt Nhất Cho Các Kỳ Thi</h5>
+                            <p class="card-text">Kỳ thi luôn là thời điểm căng thẳng. Bài viết này cung cấp những bí quyết giúp bạn nắm bắt kiến thức tốt hơn và làm bài thi hiệu quả.</p>
+                            <a href="#" class="btn btn-primary">Đọc thêm</a>
+                        </div>
+                        <div class="card-footer d-flex justify-content-between align-items-center">
+                            <div>
+                                <button class="btn btn-link"><i class="fas fa-thumbs-up"></i> Thích</button>
+                                <button class="btn btn-link"><i class="fas fa-bookmark"></i> Lưu</button>
+                            </div>
+                            <span><i class="fas fa-comments"></i> 8 Bình luận</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bài viết số 3 -->
+                <div class="col-md-4">
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">Hướng Dẫn Săn Học Bổng Cho Sinh Viên</h5>
+                            <p class="card-text">Săn học bổng là một trong những cách tốt nhất để giảm gánh nặng tài chính khi học đại học. Bài viết này sẽ hướng dẫn bạn cách tìm kiếm và nộp đơn xin học bổng hiệu quả.</p>
+                            <a href="#" class="btn btn-primary">Đọc thêm</a>
+                        </div>
+                        <div class="card-footer d-flex justify-content-between align-items-center">
+                            <div>
+                                <button class="btn btn-link"><i class="fas fa-thumbs-up"></i> Thích</button>
+                                <button class="btn btn-link"><i class="fas fa-bookmark"></i> Lưu</button>
+                            </div>
+                            <span><i class="fas fa-comments"></i> 12 Bình luận</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bài viết 4 -->
+                <div class="col-md-4">
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">Những Ngành Nghề Hot Cho Sinh Viên CNTT Trong Tương Lai</h5>
+                            <p class="card-text">Ngành CNTT đang phát triển mạnh mẽ. Bài viết này sẽ điểm qua những ngành nghề hứa hẹn cho sinh viên CNTT.</p>
+                            <a href="#" class="btn btn-primary">Đọc thêm</a>
+                        </div>
+                        <div class="card-footer d-flex justify-content-between align-items-center">
+                            <div>
+                                <button class="btn btn-link"><i class="fas fa-thumbs-up"></i> Thích</button>
+                                <button class="btn btn-link"><i class="fas fa-bookmark"></i> Lưu</button>
+                            </div>
+                            <span><i class="fas fa-comments"></i> 25 Bình luận</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bài viết 5 -->
+                <div class="col-md-4">
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">Lợi Ích Của Việc Tham Gia Câu Lạc Bộ Sinh Viên</h5>
+                            <p class="card-text">Tham gia các câu lạc bộ sinh viên không chỉ giúp bạn phát triển kỹ năng mà còn tạo dựng mối quan hệ và trải nghiệm thú vị.</p>
+                            <a href="#" class="btn btn-primary">Đọc thêm</a>
+                        </div>
+                        <div class="card-footer d-flex justify-content-between align-items-center">
+                            <div>
+                                <button class="btn btn-link"><i class="fas fa-thumbs-up"></i> Thích</button>
+                                <button class="btn btn-link"><i class="fas fa-bookmark"></i> Lưu</button>
+                            </div>
+                            <span><i class="fas fa-comments"></i> 5 Bình luận</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
         <footer class="mt-5 py-4 ">
             <div class="container text-center">
@@ -122,6 +225,14 @@
             </div>
         </footer>
     </div>
+    <script>
+    // JavaScript để thay đổi màu sắc khi bấm nút "Thích"
+    document.querySelectorAll('.like-button').forEach(button => {
+        button.addEventListener('click', function() {
+            this.classList.toggle('liked');
+        });
+    });
+</script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </body>
 

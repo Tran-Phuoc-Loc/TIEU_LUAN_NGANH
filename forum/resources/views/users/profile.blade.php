@@ -15,6 +15,7 @@
     body {
         background: linear-gradient(135deg, #ffffff, #ffe6e6);
     }
+
     /* Container chính bao gồm header, content và footer */
     body>div.container {
         min-height: 100vh;
@@ -39,107 +40,157 @@
 </style>
 
 <body>
-    <div class="container mt-5">
-        <h1>Thông Tin Người Dùng</h1>
-
-        <!-- Nội dung của bạn ở đây -->
-        <div class="content">
-            <!-- Hiển thị thông báo thành công nếu có -->
-            @if (session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-            @endif
-
-            <!-- Hiển thị thông tin người dùng -->
-            <div class="row">
-                <div class="col-md-4">
-                    @if($user->avatar)
-                    <img src="{{ asset('storage/avatars/' . $user->avatar) }}" alt="Avatar" class="img-thumbnail">
-                    @else
-                    <img src="{{ asset('storage/images/avataricon.png') }}" alt="Avatar" class="img-thumbnail">
-                    @endif
-                </div>
-                <div class="col-md-8">
-                    <div class="mb-3">
-                        <label for="username" class="form-label">Tên:</label>
-                        <p>{{ $user->username }}</p>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email:</label>
-                        <p>{{ $user->email }}</p>
-                    </div>
-
-                    <!-- Hiển thị danh sách các bài viết của người dùng -->
-                    <div class="mb-3">
-                        <h5 class="mb-3">Bài Viết Của Tôi</h5>
-                        @if ($posts->isEmpty())
-                        <p class="text-muted">Chưa có bài viết nào.</p>
-                        @else
-                        <ul class="list-group">
-                            @foreach ($posts as $post)
-                            <li class="list-group-item d-flex justify-content-between align-items-start">
-                                <a href="{{ route('posts.show', $post->id) }}" class="text-decoration-none text-dark fw-bold">{{ $post->title }}</a>
-                                <p class="mb-1">{{ Str::limit($post->content, 100) }}</p>
+    <div class="container" style="background-color: #ffffff;">
+        <header class="p-3">
+            <nav class="navbar navbar-expand-lg navbar-dark">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="{{ url('/') }}"><img src="{{ asset('storage/images/bookicon.png') }}" alt="Description">TechTalks</a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                        <ul class="navbar-nav">
+                            <li>
+                                <a class="nav-link" href="{{ url('/') }}">Trang Chủ</a>
                             </li>
-                            @endforeach
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('posts.index') }}">Bài Viết</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('categories.index') }}">Danh Mục</a>
+                            </li>
+                            @auth
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <div class="user-circle">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                    <li><a class="dropdown-item" href="#">{{ Auth::user()->name }}</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('users.profile', Auth::user()->id) }}">Thông tin cá nhân</a></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                            Đăng Xuất
+                                        </a>
+                                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                            @csrf
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                            @else
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('login') }}">Đăng Nhập</a>
+                            </li>
+                            @endauth
                         </ul>
+                    </div>
+                </div>
+            </nav>
+        </header>
+        <div class="container mt-5">
+            <h1>Thông Tin Người Dùng</h1>
+
+            <!-- Nội dung của bạn ở đây -->
+            <div class="content">
+                <!-- Hiển thị thông báo thành công nếu có -->
+                @if (session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+                @endif
+
+                <!-- Hiển thị thông tin người dùng -->
+                <div class="row">
+                    <div class="col-md-4">
+                        @if($user->avatar)
+                        <img src="{{ asset('storage/avatars/' . $user->avatar) }}" alt="Avatar" class="img-thumbnail">
+                        @else
+                        <img src="{{ asset('storage/images/avataricon.png') }}" alt="Avatar" class="img-thumbnail">
                         @endif
                     </div>
-                    <div class="mb-3">
-                        <label for="create_at" class="form-label">Ngày tham gia:</label>
-                        <p>{{ $user->created_at ? $user->created_at->format('d/m/Y') : 'N/A' }}</p>
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Tên:</label>
+                            <p>{{ $user->username }}</p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email:</label>
+                            <p>{{ $user->email }}</p>
+                        </div>
+
+                        <!-- Hiển thị danh sách các bài viết của người dùng -->
+                        <div class="mb-3">
+                            <h5 class="mb-3">Bài Viết Của Tôi</h5>
+                            @if ($posts->isEmpty())
+                            <p class="text-muted">Chưa có bài viết nào.</p>
+                            @else
+                            <ul class="list-group">
+                                @foreach ($posts as $post)
+                                <li class="list-group-item d-flex justify-content-between align-items-start">
+                                    <a href="{{ route('posts.show', $post->id) }}" class="text-decoration-none text-dark fw-bold">{{ $post->title }}</a>
+                                    <p class="mb-1">{{ Str::limit($post->content, 100) }}</p>
+                                </li>
+                                @endforeach
+                            </ul>
+                            @endif
+                        </div>
+                        <div class="mb-3">
+                            <label for="create_at" class="form-label">Ngày tham gia:</label>
+                            <p>{{ $user->created_at ? $user->created_at->format('d/m/Y') : 'N/A' }}</p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Trạng thái tài khoản:</label>
+                            <p>{{ ucfirst($user->status) }}</p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="post_count" class="form-label">Số lượng bài viết:</label>
+                            <p>{{ $user->post_count }}</p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="favorite_posts" class="form-label">Bài viết yêu thích:</label>
+                            <p>{{ $user->favorite_posts ?? 'Chưa có bài viết yêu thích' }}</p>
+                        </div>
+
+                        <!-- Nút chỉnh sửa thông tin -->
+                        <a href="{{ route('users.edit', $user->id) }}" class="btn btn-primary">Chỉnh Sửa Thông Tin</a>
+
+                        <!-- Nút để quay lại trang trước -->
+                        <a href="{{ url()->previous() }}" class="btn btn-secondary">Quay lại</a>
                     </div>
-
-                    <div class="mb-3">
-                        <label for="status" class="form-label">Trạng thái tài khoản:</label>
-                        <p>{{ ucfirst($user->status) }}</p>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="post_count" class="form-label">Số lượng bài viết:</label>
-                        <p>{{ $user->post_count }}</p>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="favorite_posts" class="form-label">Bài viết yêu thích:</label>
-                        <p>{{ $user->favorite_posts ?? 'Chưa có bài viết yêu thích' }}</p>
-                    </div>
-
-                    <!-- Nút chỉnh sửa thông tin -->
-                    <a href="{{ route('users.edit', $user->id) }}" class="btn btn-primary">Chỉnh Sửa Thông Tin</a>
-
-                    <!-- Nút để quay lại trang trước -->
-                    <a href="{{ url()->previous() }}" class="btn btn-secondary">Quay lại</a>
                 </div>
             </div>
         </div>
-
-        <!-- Footer -->
-        <footer class="mt-5 py-4">
-            <div class="container text-center">
-                <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <h5>Liên hệ với chúng tôi</h5>
-                        <p>Email: <a href="mailto:ttp6889@gmail.com">ttp6889@gmail.com</a></p>
-                        <p>Phone: 038-531-5971</p>
+                    <!-- Footer -->
+                    <footer class="mt-5 py-4">
+                <div class="container text-center">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <h5>Liên hệ với chúng tôi</h5>
+                            <p>Email: <a href="mailto:ttp6889@gmail.com">ttp6889@gmail.com</a></p>
+                            <p>Phone: 038-531-5971</p>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <h5>TechTalks</h5>
+                            <p>&copy; {{ date('Y') }} TechTalks. All rights reserved.</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h5>Theo dõi chúng tôi</h5>
+                            <a href="#" class="text-white me-3"><i class="fab fa-facebook fa-2x"></i></a>
+                            <a href="#" class="text-white me-3"><i class="fab fa-twitter fa-2x"></i></a>
+                            <a href="#" class="text-white"><i class="fab fa-linkedin fa-2x"></i></a>
+                        </div>
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <h5>TechTalks</h5>
-                        <p>&copy; {{ date('Y') }} TechTalks. All rights reserved.</p>
-                    </div>
-                    <div class="col-md-4">
-                        <h5>Theo dõi chúng tôi</h5>
-                        <a href="#" class="text-white me-3"><i class="fab fa-facebook fa-2x"></i></a>
-                        <a href="#" class="text-white me-3"><i class="fab fa-twitter fa-2x"></i></a>
-                        <a href="#" class="text-white"><i class="fab fa-linkedin fa-2x"></i></a>
-                    </div>
+                    <hr class="my-4">
+                    <p class="text-muted small">Trang web này được phát triển bởi TechTalks.</p>
                 </div>
-                <hr class="my-4">
-                <p class="text-muted small">Trang web này được phát triển bởi TechTalks.</p>
-            </div>
-        </footer>
+            </footer>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
