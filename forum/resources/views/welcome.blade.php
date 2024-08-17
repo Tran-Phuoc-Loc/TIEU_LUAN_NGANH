@@ -12,10 +12,10 @@
     @vite('resources/css/app.css')
 </head>
 <style>
-    /* Màu ban đầu của nút "Thích" là trắng */
     .like-button {
         color: black;
-        text-decoration: none; /* Loại bỏ gạch chân */
+        text-decoration: none;
+        /* Loại bỏ gạch chân */
     }
 
     /* Khi nút được bấm, màu sẽ thay đổi sang màu xanh */
@@ -163,7 +163,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Bài viết 4 -->
                 <div class="col-md-4">
                     <div class="card mb-4 shadow-sm">
@@ -226,13 +226,13 @@
         </footer>
     </div>
     <script>
-    // JavaScript để thay đổi màu sắc khi bấm nút "Thích"
-    document.querySelectorAll('.like-button').forEach(button => {
-        button.addEventListener('click', function() {
-            this.classList.toggle('liked');
+        // JavaScript để thay đổi màu sắc khi bấm nút "Thích"
+        document.querySelectorAll('.like-button').forEach(button => {
+            button.addEventListener('click', function() {
+                this.classList.toggle('liked');
+            });
         });
-    });
-</script>
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </body>
 
