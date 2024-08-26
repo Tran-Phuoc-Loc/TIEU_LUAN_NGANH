@@ -3,15 +3,18 @@ body {
 }
 
 header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
     background: linear-gradient(56deg,
-            #00d2d3, 
+            #00d2d3,
             #3a7bd5,
             #673BAE,
             #8948b2,
-            #FF00FF
-        );
+            #FF00FF);
 }
 
+/* navbar */
 .navbar-brand {
     font-family: 'Raleway', sans-serif;
     font-weight: bold;
@@ -46,25 +49,25 @@ header {
     background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba%280, 0, 0, 0.5%29' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
 }
 
+/* wecome */
 .welcome-content {
     text-align: center;
     background: linear-gradient(56deg,
-            #00d2d3, 
+            #00d2d3,
             #3a7bd5,
             #6d3db9,
             #8948b2,
-            #FF00FF
-        );
+            #FF00FF);
     padding-top: 90px;
     padding-left: 100px;
     padding-right: 100px;
 }
 
 .welcome-content h1,
-.welcome-content p
-{
+.welcome-content p {
     color: #ffffff;
 }
+
 .card-title,
 .card-text {
     color: #010101;
@@ -105,10 +108,14 @@ header {
 img.img-thumbnail {
     border: 3px solid #90b2d6;
     border-radius: 50%;
-    transition: transform 0.3s ease; /*chuyển động mượt khi thay đổi kích thước */
-    width: 320px; /* Đặt kích thước chiều rộng cố định */
-    height: auto; /* Đặt kích thước chiều cao cố định */
-    object-fit: cover; /* Đảm bảo ảnh được cắt vừa khung mà không bị biến dạng */
+    transition: transform 0.3s ease;
+    /*chuyển động mượt khi thay đổi kích thước */
+    width: 320px;
+    /* Đặt kích thước chiều rộng cố định */
+    height: auto;
+    /* Đặt kích thước chiều cao cố định */
+    object-fit: cover;
+    /* Đảm bảo ảnh được cắt vừa khung mà không bị biến dạng */
     border-radius: 50%;
     margin-bottom: 20px;
 }
@@ -249,6 +256,11 @@ footer {
     color: #5a00d6;
 }
 
+.collapse.show {
+    display: block; /* Đảm bảo menu hiển thị đúng khi mở ra */
+}
+
+
 /* dùng cho màn hình nhỏ */
 @media (max-width: 768px) {
     .login-container,
@@ -283,16 +295,53 @@ footer {
         font-size: 14px;
         /* Giảm kích thước font của link */
     }
+
     .img-thumbnail {
-        width: 150px !important; /* Kích thước nhỏ hơn cho màn hình nhỏ */
+        width: 150px !important;
+        /* Kích thước nhỏ hơn cho màn hình nhỏ */
         height: 150px !important;
     }
 
+    .vertical-navbar {
+        width: 100%;
+        height: auto;
+        display: none; /* Ẩn đi menu chính */
+        position: relative;
+        overflow: visible;
+        /* Thay đổi chiều rộng và chiều cao của thanh điều hướng */
+    }
+
+    .row {
+        margin: auto !important;
+    }
+
+    .welcome-content{
+        margin-left: auto !important;
+    }
+    .navbar-collapse {
+        padding: 10px; /* Tạo khoảng cách giữa các mục */
+    }
+
+    .vertical-navbar .navbar-nav {
+        flex-direction: row;
+        margin: 0; /* Loại bỏ margin để không có khoảng trắng thừa */
+        /* Sắp xếp các liên kết theo hàng */
+    }
+
+    .vertical-navbar .nav-item {
+        margin-bottom: 0;
+    }
+
+    .vertical-navbar .nav-link {
+        padding: 10px 15px;
+        /* Thay đổi kích thước của các liên kết */
+    }
 }
 
 @media (max-width: 480px) {
     .img-thumbnail {
-        width: 120px !important; /* Kích thước nhỏ hơn nữa cho màn hình rất nhỏ */
+        width: 120px !important;
+        /* Kích thước nhỏ hơn nữa cho màn hình rất nhỏ */
         height: 120px !important;
     }
 }
