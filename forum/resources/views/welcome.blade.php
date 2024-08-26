@@ -7,23 +7,112 @@
     <title>Chào Mừng Đến TeachTalks</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <!-- Link CSS  -->
+    <!-- Link CSS -->
     @vite('resources/js/app.js')
     @vite('resources/css/app.css')
-</head>
-<style>
-    .like-button {
-        color: black;
-        text-decoration: none;
-        /* Loại bỏ gạch chân */
-    }
+    <style>
+        .like-button {
+            color: black;
+            text-decoration: none;
+        }
 
-    /* Khi nút được bấm, màu sẽ thay đổi sang màu xanh */
-    .like-button.liked {
-        color: blue;
-        /* Bạn có thể thay màu này theo ý thích */
-    }
-</style>
+        .like-button.liked {
+            color: blue;
+        }
+
+        .post-container {
+            margin: 0 auto;
+            padding: 0;
+            max-width: 100%;
+        }
+
+        .post-card {
+            display: flex;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            padding: 10px;
+            position: relative;
+            padding-top: 50px;
+            padding-left: 10px;
+        }
+
+        .vote-section {
+            width: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            margin-left: 60px;
+        }
+
+        .vote-section i {
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .post-content {
+            flex-grow: 1;
+        }
+
+        .post-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .post-description {
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .post-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .post-meta {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .post-author {
+            font-weight: bold;
+        }
+
+        .post-time {
+            color: #555;
+        }
+
+        .post-image {
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .post-image img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
 
 <body>
     <div class="container">
@@ -43,7 +132,7 @@
                                 <a class="nav-link" href="{{ route('posts.index') }}">Bài Viết</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('categories.index') }}">Danh Mục</a>
+                                <a class="nav-link" href="{{ route('categories.index') }}">Danh mục</a>
                             </li>
                             @auth
                             <li class="nav-item dropdown">
@@ -109,99 +198,72 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="row mt-4">
-                <div class="col-md-4">
-                    <div class="card mb-4 shadow-sm">
-                        <div class="card-body">
-                            <h5 class="card-title">Cách Quản Lý Thời Gian Hiệu Quả Cho Sinh Viên</h5>
-                            <p class="card-text">Sinh viên thường phải đối mặt với nhiều nhiệm vụ cùng lúc. Bài viết này sẽ hướng dẫn bạn cách quản lý thời gian hiệu quả.</p>
-                            <a href="#" class="btn btn-primary">Đọc thêm</a>
+                <div class="post-container">
+                    <!-- Bài viết 1 -->
+                    <div class="post-card">
+                        <div class="post-meta">
+                            <img src="{{ asset('storage/images/bookicon.png') }}" alt="Avatar" class="post-avatar">
+                            <span class="post-author">Đăng bởi: <strong>Nguyễn Văn A</strong></span> |
+                            <span class="post-time">2 giờ trước</span>
                         </div>
-                        <div class="card-footer d-flex justify-content-between align-items-center">
-                            <div>
-                                <button class="btn btn-link like-button"><i class="fas fa-thumbs-up"></i> Thích</button>
-                                <button class="btn btn-link"><i class="fas fa-bookmark"></i> Lưu</button>
+                        <div class="vote-section">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>10</span>
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <div class="post-content">
+                            <div class="post-title">Cách Quản Lý Thời Gian Hiệu Quả Cho Sinh Viên</div>
+                            <div class="post-description">Sinh viên thường phải đối mặt với nhiều nhiệm vụ cùng lúc. Bài viết này sẽ hướng dẫn bạn cách quản lý thời gian hiệu quả.</div>
+                            <!-- Hiển thị ảnh nếu người dùng đưa lên -->
+                            <div class="post-image">
+                                <img src="{{ asset('storage/images/abc.jpg') }}" alt="">
                             </div>
-                            <span><i class="fas fa-comments"></i> 10 Bình luận</span>
+                            <div class="post-footer">
+                                <div>
+                                    <span><i class="fas fa-comments"></i> 5 bình luận</span> |
+                                    <a href="#" class="like-button"><i class="fas fa-heart"></i> 50</a>
+                                    <button class="btn btn-link"><i class="fas fa-bookmark"></i> Lưu</button>
+                                    <button class="">
+                                            Chia sẻ
+                                        </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Bài viết 2 -->
+                    <div class="post-card">
+                        <div class="post-meta">
+                            <img src="{{ asset('storage/images/avataricon.png') }}" alt="Avatar" class="post-avatar">
+                            <span class="post-author">Đăng bởi: <strong>Nguyễn Văn B</strong></span> |
+                            <span class="post-time">3 giờ trước</span>
+                        </div>
+                        <div class="vote-section">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>20</span>
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <div class="post-content">
+                            <div class="post-title">Làm Thế Nào Để Tối Ưu Hóa Kỹ Năng Lập Trình</div>
+                            <div class="post-description">Kỹ năng lập trình là một yếu tố quan trọng trong ngành công nghệ thông tin. Bài viết này sẽ chia sẻ cách tối ưu hóa kỹ năng lập trình của bạn.</div>
+                            <!-- Hiển thị ảnh nếu người dùng đưa lên -->
+                            <div class="post-image">
+                                <img src="{{ asset('storage/images/abc.jpg') }}" alt="">
+                            </div>
+                            <div class="post-footer">
+                                <div>
+                                    <span><i class="fas fa-comments"></i> 8 bình luận</span> |
+                                    <a href="#" class="like-button"><i class="fas fa-heart"></i> 100</a>
+                                    <button class="btn btn-link"><i class="fas fa-bookmark"></i> Lưu</button>
+                                        <button class="">
+                                            Chia sẻ
+                                        </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Bài viết 2 -->
-                <div class="col-md-4">
-                    <div class="card mb-4 shadow-sm">
-                        <div class="card-body">
-                            <h5 class="card-title">Bí Quyết Học Tập Tốt Nhất Cho Các Kỳ Thi</h5>
-                            <p class="card-text">Kỳ thi luôn là thời điểm căng thẳng. Bài viết này cung cấp những bí quyết giúp bạn nắm bắt kiến thức tốt hơn và làm bài thi hiệu quả.</p>
-                            <a href="#" class="btn btn-primary">Đọc thêm</a>
-                        </div>
-                        <div class="card-footer d-flex justify-content-between align-items-center">
-                            <div>
-                                <button class="btn btn-link"><i class="fas fa-thumbs-up"></i> Thích</button>
-                                <button class="btn btn-link"><i class="fas fa-bookmark"></i> Lưu</button>
-                            </div>
-                            <span><i class="fas fa-comments"></i> 8 Bình luận</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Bài viết số 3 -->
-                <div class="col-md-4">
-                    <div class="card mb-4 shadow-sm">
-                        <div class="card-body">
-                            <h5 class="card-title">Hướng Dẫn Săn Học Bổng Cho Sinh Viên</h5>
-                            <p class="card-text">Săn học bổng là một trong những cách tốt nhất để giảm gánh nặng tài chính khi học đại học. Bài viết này sẽ hướng dẫn bạn cách tìm kiếm và nộp đơn xin học bổng hiệu quả.</p>
-                            <a href="#" class="btn btn-primary">Đọc thêm</a>
-                        </div>
-                        <div class="card-footer d-flex justify-content-between align-items-center">
-                            <div>
-                                <button class="btn btn-link"><i class="fas fa-thumbs-up"></i> Thích</button>
-                                <button class="btn btn-link"><i class="fas fa-bookmark"></i> Lưu</button>
-                            </div>
-                            <span><i class="fas fa-comments"></i> 12 Bình luận</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Bài viết 4 -->
-                <div class="col-md-4">
-                    <div class="card mb-4 shadow-sm">
-                        <div class="card-body">
-                            <h5 class="card-title">Những Ngành Nghề Hot Cho Sinh Viên CNTT Trong Tương Lai</h5>
-                            <p class="card-text">Ngành CNTT đang phát triển mạnh mẽ. Bài viết này sẽ điểm qua những ngành nghề hứa hẹn cho sinh viên CNTT.</p>
-                            <a href="#" class="btn btn-primary">Đọc thêm</a>
-                        </div>
-                        <div class="card-footer d-flex justify-content-between align-items-center">
-                            <div>
-                                <button class="btn btn-link"><i class="fas fa-thumbs-up"></i> Thích</button>
-                                <button class="btn btn-link"><i class="fas fa-bookmark"></i> Lưu</button>
-                            </div>
-                            <span><i class="fas fa-comments"></i> 25 Bình luận</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Bài viết 5 -->
-                <div class="col-md-4">
-                    <div class="card mb-4 shadow-sm">
-                        <div class="card-body">
-                            <h5 class="card-title">Lợi Ích Của Việc Tham Gia Câu Lạc Bộ Sinh Viên</h5>
-                            <p class="card-text">Tham gia các câu lạc bộ sinh viên không chỉ giúp bạn phát triển kỹ năng mà còn tạo dựng mối quan hệ và trải nghiệm thú vị.</p>
-                            <a href="#" class="btn btn-primary">Đọc thêm</a>
-                        </div>
-                        <div class="card-footer d-flex justify-content-between align-items-center">
-                            <div>
-                                <button class="btn btn-link"><i class="fas fa-thumbs-up"></i> Thích</button>
-                                <button class="btn btn-link"><i class="fas fa-bookmark"></i> Lưu</button>
-                            </div>
-                            <span><i class="fas fa-comments"></i> 5 Bình luận</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </main>
-        <footer class="mt-5 py-4 ">
+        <footer class="mt-5 py-4">
             <div class="container text-center">
                 <div class="row">
                     <div class="col-md-4 mb-3">
