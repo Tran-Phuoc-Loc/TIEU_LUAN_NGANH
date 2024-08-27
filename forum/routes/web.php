@@ -15,9 +15,13 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::resource('users', UserController::class);
 
 
-// Roter cho categories vs posts
+// Roter cho categories 
 Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
-Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
+// Route để hiển thị form tạo bài viết
+Route::get('posts/create', [PostController::class, 'create'])->name('posts.create');
+Route::resource('posts', PostController::class);
+// Route để lưu bài viết mới
+Route::post('posts', [PostController::class, 'store'])->name('posts.store');
 
 Route::get('/', function () {
     return view('welcome');

@@ -115,8 +115,6 @@
         .container {
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
-            /* Đảm bảo rằng container có chiều cao tối thiểu bằng chiều cao của viewport */
         }
 
         .main-content {
@@ -259,9 +257,9 @@
             <div class="col-md-4">
                 <div class="card mb-4 shadow-sm">
                     <div class="card-body">
-                        <h5 class="card-title">Bài viết mới</h5>
-                        <p class="card-text">Các cuộc thảo luận mới nhất trong diễn đàn.</p>
-                        <a href="{{ route('posts.index') }}" class="btn btn-primary">Xem Bài viết</a>
+                        <h5 class="card-title"> Tạo Bài viết mới</h5>
+                        <p class="card-text">Tham gia các cuộc thảo luận mới nhất trong diễn đàn.</p>
+                        <a href="{{ route('posts.create') }}" class="btn btn-primary">Tạo Bài viết</a>
                     </div>
                 </div>
             </div>
@@ -292,7 +290,7 @@
                         <div class="post-description">Sinh viên thường phải đối mặt với nhiều nhiệm vụ cùng lúc. Bài viết này sẽ hướng dẫn bạn cách quản lý thời gian hiệu quả.</div>
                         <!-- Hiển thị ảnh nếu người dùng đưa lên -->
                         <div class="post-image">
-                            <img src="{{ asset('storage/images/abc.jpg') }}" alt="">
+                            <img src="{{ asset('storage/images/') }}" alt="">
                         </div>
                         <div class="post-footer">
                             <div>
@@ -323,7 +321,7 @@
                         <div class="post-description">Kỹ năng lập trình là một yếu tố quan trọng trong ngành công nghệ thông tin. Bài viết này sẽ chia sẻ cách tối ưu hóa kỹ năng lập trình của bạn.</div>
                         <!-- Hiển thị ảnh nếu người dùng đưa lên -->
                         <div class="post-image">
-                            <img src="{{ asset('storage/images/abc.jpg') }}" alt="">
+                            <img src="{{ asset('storage/images/') }}" alt="">
                         </div>
                         <div class="post-footer">
                             <div>

@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Support\Facades\Auth;
+
 
 use App\Models\Post;
 use App\Models\Category;
@@ -11,7 +13,7 @@ class PostController extends Controller
     public function index()
     {
         $posts = Post::with('user', 'categories')->get();
-        return view('posts.index', compact('posts'));
+        return view('users.index', compact('posts'));
     }
 
     public function show(Post $post)
@@ -22,28 +24,38 @@ class PostController extends Controller
 
     public function create()
     {
-        $categories = Category::all();
-        return view('posts.create', compact('categories'));
+        return view('posts.create');
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'title' => 'required|string|max:255',
-            'body' => 'required|string',
-            'categories' => 'array'
+            'content' => 'required',
+            'file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048', // Ví dụ về validation cho file
         ]);
+
+        $userId = Auth::id(); // Lấy ID của người dùng hiện tại
 
         $post = Post::create([
-            'user_id' => auth()->id(),
-            'title' => $validated['title'],
-            'body' => $validated['body'],
+            'title' => $request->input('title'),
+            'content' => $request->input('content'),
+            'user_id' => $userId,
         ]);
 
-        $post->categories()->attach($validated['categories']);
+        // Xử lý file upload nếu có
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->storeAs('public/uploads', $filename); // Lưu file vào thư mục storage/app/public/uploads
 
-        return redirect()->route('posts.index');
+            // Lưu thông tin file vào bảng bài viết
+            $post->update(['file_path' => 'uploads/' . $filename]);
+        }
+
+        return redirect()->route('posts.index')->with('success', 'Post created successfully.');
     }
+
 
     public function edit(Post $post)
     {

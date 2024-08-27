@@ -115,8 +115,6 @@
         .container {
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
-            /* Đảm bảo rằng container có chiều cao tối thiểu bằng chiều cao của viewport */
         }
 
         .main-content {
@@ -147,6 +145,7 @@
             padding: 20px;
             flex: 1;
             position: relative;
+            background-color: #fff!important;
         }
 
         .row {
@@ -294,7 +293,7 @@
                         <div class="post-description">Sinh viên thường phải đối mặt với nhiều nhiệm vụ cùng lúc. Bài viết này sẽ hướng dẫn bạn cách quản lý thời gian hiệu quả.</div>
                         <!-- Hiển thị ảnh nếu người dùng đưa lên -->
                         <div class="post-image">
-                            <img src="{{ asset('storage/images/abc.jpg') }}" alt="">
+                            <img src="{{ asset('storage/images/') }}" alt="">
                         </div>
                         <div class="post-footer">
                             <div>
@@ -325,7 +324,7 @@
                         <div class="post-description">Kỹ năng lập trình là một yếu tố quan trọng trong ngành công nghệ thông tin. Bài viết này sẽ chia sẻ cách tối ưu hóa kỹ năng lập trình của bạn.</div>
                         <!-- Hiển thị ảnh nếu người dùng đưa lên -->
                         <div class="post-image">
-                            <img src="{{ asset('storage/images/abc.jpg') }}" alt="">
+                            <img src="{{ asset('storage/images/') }}" alt="">
                         </div>
                         <div class="post-footer">
                             <div>

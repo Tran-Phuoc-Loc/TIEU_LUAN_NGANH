@@ -126,7 +126,7 @@ img.img-thumbnail:hover {
 
 .form-label {
     font-weight: bold;
-    color: #495057;
+    color: #000000;
 }
 
 /* Định dạng cho danh sách bài viết */
@@ -315,7 +315,7 @@ footer {
         margin: auto !important;
     }
 
-    .welcome-content{
+    .welcome-content, .welcome-contents{
         margin-left: auto !important;
     }
     .navbar-collapse {
