@@ -12,9 +12,11 @@ class PostController extends Controller
 {
     public function index()
     {
-        $posts = Post::with('user', 'categories')->get();
-        return view('users.index', compact('posts'));
+        $posts = Post::all(); // Hoặc bất kỳ truy vấn nào bạn đang sử dụng
+        // dd($posts); // Kiểm tra lại dữ liệu
+        return view('posts.index', ['posts' => $posts]); // Trả về view posts.index cùng với biến $posts
     }
+    
 
     public function show(Post $post)
     {
@@ -47,13 +49,13 @@ class PostController extends Controller
         if ($request->hasFile('file')) {
             $file = $request->file('file');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $file->storeAs('public/uploads', $filename); // Lưu file vào thư mục storage/app/public/uploads
+            $file->storeAs('public/images', $filename); // Lưu file vào thư mục storage/app/public/
 
             // Lưu thông tin file vào bảng bài viết
-            $post->update(['file_path' => 'uploads/' . $filename]);
+            $post->update(['image_url' => 'images/' . $filename]);
         }
 
-        return redirect()->route('posts.index')->with('success', 'Post created successfully.');
+        return redirect()->route('users.index')->with('success', 'Post created successfully.');
     }
 
 
@@ -78,12 +80,7 @@ class PostController extends Controller
 
         $post->categories()->sync($validated['categories']);
 
-        return redirect()->route('posts.index');
+        return redirect()->route('users.index');
     }
 
-    public function destroy(Post $post)
-    {
-        $post->delete();
-        return redirect()->route('posts.index');
-    }
 }

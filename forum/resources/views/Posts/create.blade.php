@@ -214,7 +214,7 @@
                             <a class="nav-link" href="{{ url('/') }}">Trang Chủ</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('posts.index') }}">Bài Viết</a>
+                            <a class="nav-link" href="{{ route('users.index') }}">Bài Viết</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('categories.index') }}">Danh mục</a>
@@ -232,7 +232,7 @@
                             <a class="nav-link" href="{{ url('/') }}">Trang Chủ</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('posts.index') }}">Bài Viết</a>
+                            <a class="nav-link" href="{{ route('users.index') }}">Bài Viết</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('categories.index') }}">Danh mục</a>

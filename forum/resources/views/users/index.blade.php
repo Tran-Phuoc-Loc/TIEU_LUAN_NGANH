@@ -134,9 +134,12 @@
                     #673BAE,
                     #8948b2,
                     #FF00FF);
-            z-index: 1000; /*Đảm bảo phần tử luôn nằm trên các phần tử khác*/
-            overflow-y: auto; /*Cho phép thanh cuộn dọc xuất hiện nếu nội dung bên trong vượt quá chiều cao phần tử*/
-            flex-shrink: 0; /*Ngăn không cho phần tử bị co lại trong mô hình Flexbox, đảm bảo kích thước của nó không bị thay đổi*/
+            z-index: 1000;
+            /*Đảm bảo phần tử luôn nằm trên các phần tử khác*/
+            overflow-y: auto;
+            /*Cho phép thanh cuộn dọc xuất hiện nếu nội dung bên trong vượt quá chiều cao phần tử*/
+            flex-shrink: 0;
+            /*Ngăn không cho phần tử bị co lại trong mô hình Flexbox, đảm bảo kích thước của nó không bị thay đổi*/
             z-index: 1000;
             overflow-y: auto;
             flex-shrink: 0;
@@ -167,7 +170,6 @@
             background-color: #343a40;
             /* Màu nền đồng bộ với thanh điều hướng */
         }
-
     </style>
 </head>
 
@@ -224,7 +226,7 @@
                             <a class="nav-link" href="{{ url('/') }}">Trang Chủ</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('posts.index') }}">Bài Viết</a>
+                            <a class="nav-link" href="{{ route('users.index') }}">Bài Viết</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('categories.index') }}">Danh mục</a>
@@ -244,7 +246,7 @@
                             <a class="nav-link" href="{{ url('/') }}">Trang Chủ</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('posts.index') }}">Bài Viết</a>
+                            <a class="nav-link" href="{{ route('users.index') }}">Bài Viết</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('categories.index') }}">Danh mục</a>
@@ -272,6 +274,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="post-container">
                 <!-- Bài viết 1 -->
                 <div class="post-card">
@@ -336,6 +339,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
         </main>
         <footer class="mt-5 py-4">
