@@ -34,7 +34,7 @@ class PostController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required',
-            'file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048', // Ví dụ về validation cho file
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,pdf|max:2048', 
         ]);
 
         $userId = Auth::id(); // Lấy ID của người dùng hiện tại
@@ -46,16 +46,16 @@ class PostController extends Controller
         ]);
 
         // Xử lý file upload nếu có
-        if ($request->hasFile('file')) {
-            $file = $request->file('file');
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $file->storeAs('public/images', $filename); // Lưu file vào thư mục storage/app/public/
+            $file->storeAs('public/images/', $filename); // Lưu file vào thư mục storage/app/public/
 
             // Lưu thông tin file vào bảng bài viết
             $post->update(['image_url' => 'images/' . $filename]);
         }
 
-        return redirect()->route('users.index')->with('success', 'Post created successfully.');
+        return redirect()->route('posts.index')->with('success', 'bài viết đã lưu.');
     }
 
 

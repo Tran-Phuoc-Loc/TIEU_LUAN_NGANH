@@ -6,6 +6,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Models\Post;
 
 // Route cho đăng nhập
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -20,6 +21,8 @@ Route::get('/categories', [CategoryController::class, 'index'])->name('categorie
 // Route để hiển thị form tạo bài viết
 Route::get('posts/create', [PostController::class, 'create'])->name('posts.create');
 Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
+Route::get('/users', [UserController::class, 'index'])->name('users.index');
+
 
 Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
 
@@ -33,8 +36,10 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return view('users.index'); // Trỏ đến users/index.blade.php
+    $posts = Post::all(); // Lấy tất cả các bài viết
+    return view('users.index', compact('posts')); // Truyền biến $posts vào view
 })->middleware(['auth', 'verified'])->name('dashboard');
+
 
 // Route cho phép người dùng xác thực rồi cho phép thực hiện các thao tác
 Route::middleware('auth')->group(function () {

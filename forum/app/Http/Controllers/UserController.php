@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use App\Models\Post;
 use App\Policies\UserPolicy;
 
 class UserController extends Controller
@@ -15,30 +15,20 @@ class UserController extends Controller
     public function index()
     {
         $users = User::all();
-        return view('users.index', compact('users'));
+        $posts = Post::all(); // Truy xuất tất cả các bài viết từ database
+        return view('users.index', compact('users', 'posts')); // Truyền cả users và posts đến view
     }
 
     public function show($id)
     {
-        // Tìm người dùng theo ID
+        // Tìm người dùng theo ID và lấy bài viết của họ
         $user = User::findOrFail($id);
-
-        // Lấy các bài viết của người dùng
-        $posts = $user->posts; //  Quan hệ posts trong model User
-        $user = User::find($id);
-
-        // Kiểm tra tính tồn tại của user
-        if (!$user) {
-            abort(404); //  Kích hoạy lỗi 404
-        }
-        // Kiểm tra nếu người dùng đang đăng nhập cố gắng truy cập hồ sơ của chính mình
-        if (Auth::id() !== $user->id) {
-            // Tùy chọn, bạn có thể hiển thị lỗi 403
-            abort(403, 'Hành động không được phép.');
-        }
-
         $posts = $user->posts ?: collect(); // Khởi tạo với một tập hợp rỗng nếu không có bài viết
 
+        // Kiểm tra nếu người dùng đang đăng nhập cố gắng truy cập hồ sơ của chính mình
+        if (Auth::id() !== $user->id) {
+            abort(403, 'Hành động không được phép.');
+        }
 
         // Trả về view và truyền dữ liệu người dùng cùng các bài viết của họ
         return view('users.profile', compact('user', 'posts'));

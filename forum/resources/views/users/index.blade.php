@@ -103,11 +103,16 @@
         .post-image {
             margin: 10px 0;
             text-align: center;
+            width: 100%;
+            height: 400px;
+            overflow: hidden; /*đảm bảo kích thước không quá phần tử chứa*/
         }
 
         .post-image img {
             max-width: 100%;
-            height: auto;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /*căn chỉnh phù hợp khung chứa, giữ nguyên khung hình*/
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
@@ -255,92 +260,68 @@
                 </div>
             </nav>
         </div>
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card mb-4 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title"> Tạo Bài viết mới</h5>
-                        <p class="card-text">Tham gia các cuộc thảo luận mới nhất trong diễn đàn.</p>
-                        <a href="{{ route('posts.create') }}" class="btn btn-primary">Tạo Bài viết</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card mb-4 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">Danh mục phổ biến</h5>
-                        <p class="card-text">Khám phá các danh mục phổ biến nhất trong diễn đàn.</p>
-                        <a href="{{ route('categories.index') }}" class="btn btn-primary">Xem Danh Mục</a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="post-container">
-                <!-- Bài viết 1 -->
-                <div class="post-card">
-                    <div class="post-meta">
-                        <img src="{{ asset('storage/images/bookicon.png') }}" alt="Avatar" class="post-avatar">
-                        <span class="post-author">Đăng bởi: <strong>Nguyễn Văn A</strong></span> |
-                        <span class="post-time">2 giờ trước</span>
-                    </div>
-                    <div class="vote-section">
-                        <i class="fas fa-arrow-up"></i>
-                        <span>10</span>
-                        <i class="fas fa-arrow-down"></i>
-                    </div>
-                    <div class="post-content">
-                        <div class="post-title">Cách Quản Lý Thời Gian Hiệu Quả Cho Sinh Viên</div>
-                        <div class="post-description">Sinh viên thường phải đối mặt với nhiều nhiệm vụ cùng lúc. Bài viết này sẽ hướng dẫn bạn cách quản lý thời gian hiệu quả.</div>
-                        <!-- Hiển thị ảnh nếu người dùng đưa lên -->
-                        <div class="post-image">
-                            <img src="{{ asset('storage/images/') }}" alt="">
+        <main>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">Tạo Bài viết mới</h5>
+                            <p class="card-text">Tham gia các cuộc thảo luận mới nhất trong diễn đàn.</p>
+                            <a href="{{ route('posts.create') }}" class="btn btn-primary">Tạo Bài viết</a>
                         </div>
-                        <div class="post-footer">
-                            <div>
-                                <span><i class="fas fa-comments"></i> 5 bình luận</span> |
-                                <a href="#" class="like-button"><i class="fas fa-heart"></i> 50</a>
-                                <button class="btn btn-link"><i class="fas fa-bookmark"></i> Lưu</button>
-                                <button class="">
-                                    Chia sẻ
-                                </button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">Danh mục phổ biến</h5>
+                            <p class="card-text">Khám phá các danh mục phổ biến nhất trong diễn đàn.</p>
+                            <a href="{{ route('categories.index') }}" class="btn btn-primary">Xem Danh Mục</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="post-container">
+                    @if($posts->isEmpty())
+                    <p>Không có bài viết nào.</p>
+                    @else
+                    <!-- <p>Đã tìm thấy {{ $posts->count() }} bài viết.</p> -->
+                    @foreach ($posts as $post)
+                    <div class="post-card">
+                        <div class="post-meta">
+                            <img src="{{ asset('storage/images/avataricon.png') }}" alt="Avatar" class="post-avatar">
+                            <span class="post-author">Đăng bởi: <strong>{{ $post->user->name }}</strong></span> |
+                            <span class="post-time">{{ $post->created_at->diffForHumans() }}</span>
+                        </div>
+                        <div class="vote-section">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>{{ $post->votes_count }}</span>
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <div class="post-content">
+                            <div class="post-title">{{ $post->title }}</div>
+                            <div class="post-description">{{ $post->content }}</div>
+                            @if($post->image_url)
+                            <div class="post-image">
+                                <img src="{{ asset('storage/' . $post->image_url) }}" alt="">
+                            </div>
+                            @endif
+                            <div class="post-footer">
+                                <div>
+                                    <span><i class="fas fa-comments"></i> {{ $post->comments }} bình luận</span> |
+                                    <a href="#" class="like-button"><i class="fas fa-heart"></i> </a>
+                                    <button class="btn btn-link"><i class="fas fa-bookmark"></i> Lưu</button>
+                                    <button class="">
+                                        Chia sẻ
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <!-- Bài viết 2 -->
-                <div class="post-card">
-                    <div class="post-meta">
-                        <img src="{{ asset('storage/images/avataricon.png') }}" alt="Avatar" class="post-avatar">
-                        <span class="post-author">Đăng bởi: <strong>Nguyễn Văn B</strong></span> |
-                        <span class="post-time">3 giờ trước</span>
-                    </div>
-                    <div class="vote-section">
-                        <i class="fas fa-arrow-up"></i>
-                        <span>20</span>
-                        <i class="fas fa-arrow-down"></i>
-                    </div>
-                    <div class="post-content">
-                        <div class="post-title">Làm Thế Nào Để Tối Ưu Hóa Kỹ Năng Lập Trình</div>
-                        <div class="post-description">Kỹ năng lập trình là một yếu tố quan trọng trong ngành công nghệ thông tin. Bài viết này sẽ chia sẻ cách tối ưu hóa kỹ năng lập trình của bạn.</div>
-                        <!-- Hiển thị ảnh nếu người dùng đưa lên -->
-                        <div class="post-image">
-                            <img src="{{ asset('storage/images/') }}" alt="">
-                        </div>
-                        <div class="post-footer">
-                            <div>
-                                <span><i class="fas fa-comments"></i> 8 bình luận</span> |
-                                <a href="#" class="like-button"><i class="fas fa-heart"></i> 100</a>
-                                <button class="btn btn-link"><i class="fas fa-bookmark"></i> Lưu</button>
-                                <button class="">
-                                    Chia sẻ
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    @endforeach
+                    @endif
                 </div>
             </div>
-
-        </div>
         </main>
         <footer class="mt-5 py-4">
             <div class="container text-center">
