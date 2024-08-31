@@ -31,6 +31,10 @@
 5. **Tạo file .env và cấu hình kết nối cơ sở dữ liệu**:
    ```bash
    cp .env.example .env
+6. **Chạy để có cơ sở dữ liệu**:
+   ```bash
+   php artisan make:seeder UsersTableSeeder
+   php artisan db:seed
 7. **Chạy migrations để tạo các bảng trong cơ sở dữ liệu**:
    ```bash
    php artisan migrate
