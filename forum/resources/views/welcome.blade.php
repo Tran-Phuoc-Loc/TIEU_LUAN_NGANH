@@ -276,68 +276,7 @@
                 </div>
             </div>
             <div class="post-container">
-                <!-- Bài viết 1 -->
-                <div class="post-card">
-                    <div class="post-meta">
-                        <img src="{{ asset('storage/images/bookicon.png') }}" alt="Avatar" class="post-avatar">
-                        <span class="post-author">Đăng bởi: <strong>Nguyễn Văn A</strong></span> |
-                        <span class="post-time">2 giờ trước</span>
-                    </div>
-                    <div class="vote-section">
-                        <i class="fas fa-arrow-up"></i>
-                        <span>10</span>
-                        <i class="fas fa-arrow-down"></i>
-                    </div>
-                    <div class="post-content">
-                        <div class="post-title">Cách Quản Lý Thời Gian Hiệu Quả Cho Sinh Viên</div>
-                        <div class="post-description">Sinh viên thường phải đối mặt với nhiều nhiệm vụ cùng lúc. Bài viết này sẽ hướng dẫn bạn cách quản lý thời gian hiệu quả.</div>
-                        <!-- Hiển thị ảnh nếu người dùng đưa lên -->
-                        <div class="post-image">
-                            <img src="{{ asset('storage/images/') }}" alt="">
-                        </div>
-                        <div class="post-footer">
-                            <div>
-                                <span><i class="fas fa-comments"></i> 5 bình luận</span> |
-                                <a href="#" class="like-button"><i class="fas fa-heart"></i> 50</a>
-                                <button class="btn btn-link"><i class="fas fa-bookmark"></i> Lưu</button>
-                                <button class="">
-                                    Chia sẻ
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Bài viết 2 -->
-                <div class="post-card">
-                    <div class="post-meta">
-                        <img src="{{ asset('storage/images/avataricon.png') }}" alt="Avatar" class="post-avatar">
-                        <span class="post-author">Đăng bởi: <strong>Nguyễn Văn B</strong></span> |
-                        <span class="post-time">3 giờ trước</span>
-                    </div>
-                    <div class="vote-section">
-                        <i class="fas fa-arrow-up"></i>
-                        <span>20</span>
-                        <i class="fas fa-arrow-down"></i>
-                    </div>
-                    <div class="post-content">
-                        <div class="post-title">Làm Thế Nào Để Tối Ưu Hóa Kỹ Năng Lập Trình</div>
-                        <div class="post-description">Kỹ năng lập trình là một yếu tố quan trọng trong ngành công nghệ thông tin. Bài viết này sẽ chia sẻ cách tối ưu hóa kỹ năng lập trình của bạn.</div>
-                        <!-- Hiển thị ảnh nếu người dùng đưa lên -->
-                        <div class="post-image">
-                            <img src="{{ asset('storage/images/') }}" alt="">
-                        </div>
-                        <div class="post-footer">
-                            <div>
-                                <span><i class="fas fa-comments"></i> 8 bình luận</span> |
-                                <a href="#" class="like-button"><i class="fas fa-heart"></i> 100</a>
-                                <button class="btn btn-link"><i class="fas fa-bookmark"></i> Lưu</button>
-                                <button class="">
-                                    Chia sẻ
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+               
             </div>
         </div>
         </main>

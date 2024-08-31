@@ -20,7 +20,7 @@ class UsersTableSeeder extends Seeder
                 'username' => 'john_doe',
                 'email' => 'john@example.com',
                 'password' => Hash::make('password123'),
-                'profile_picture' => 'path/to/profile_picture1.jpg',
+                'profile_picture' => '',
             ]
         ]);
     }

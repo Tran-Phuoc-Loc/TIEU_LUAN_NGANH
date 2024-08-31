@@ -105,14 +105,16 @@
             text-align: center;
             width: 100%;
             height: 400px;
-            overflow: hidden; /*đảm bảo kích thước không quá phần tử chứa*/
+            overflow: hidden;
+            /*đảm bảo kích thước không quá phần tử chứa*/
         }
 
         .post-image img {
             max-width: 100%;
             width: 100%;
             height: 100%;
-            object-fit: cover; /*căn chỉnh phù hợp khung chứa, giữ nguyên khung hình*/
+            object-fit: cover;
+            /*căn chỉnh phù hợp khung chứa, giữ nguyên khung hình*/
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
@@ -238,6 +240,14 @@
                         </li>
                     </ul>
                 </nav>
+                <hr class="my-4">
+                <nav class="navbar navbar-dark flex-column">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a href="{{ route('posts.create') }}" class="btn btn-Success">Tạo Bài viết</a>
+                        </li>
+                    </ul>
+                </nav>
             </div>
 
             <!-- Menu điều hướng thu gọn cho màn hình nhỏ -->
@@ -262,7 +272,7 @@
         </div>
         <main>
             <div class="row">
-                <div class="col-md-4">
+                <!-- <div class="col-md-4">
                     <div class="card mb-4 shadow-sm">
                         <div class="card-body">
                             <h5 class="card-title">Tạo Bài viết mới</h5>
@@ -279,7 +289,7 @@
                             <a href="{{ route('categories.index') }}" class="btn btn-primary">Xem Danh Mục</a>
                         </div>
                     </div>
-                </div>
+                </div> -->
 
                 <div class="post-container">
                     @if($posts->isEmpty())
@@ -290,7 +300,7 @@
                     <div class="post-card">
                         <div class="post-meta">
                             <img src="{{ asset('storage/images/avataricon.png') }}" alt="Avatar" class="post-avatar">
-                            <span class="post-author">Đăng bởi: <strong>{{ $post->user->name }}</strong></span> |
+                            <span class="post-author">Đăng bởi: <strong>{{ $post->user->username }}</strong></span> |
                             <span class="post-time">{{ $post->created_at->diffForHumans() }}</span>
                         </div>
                         <div class="vote-section">

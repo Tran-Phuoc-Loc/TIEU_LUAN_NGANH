@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Support\Facades\Auth;
 
 
@@ -12,11 +13,12 @@ class PostController extends Controller
 {
     public function index()
     {
-        $posts = Post::all(); // Hoặc bất kỳ truy vấn nào bạn đang sử dụng
+        // Eager load thông tin người dùng cùng với bài viết
+        $posts = Post::with('user')->get();
         // dd($posts); // Kiểm tra lại dữ liệu
         return view('posts.index', ['posts' => $posts]); // Trả về view posts.index cùng với biến $posts
     }
-    
+
 
     public function show(Post $post)
     {
@@ -34,7 +36,7 @@ class PostController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,pdf|max:2048', 
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
         $userId = Auth::id(); // Lấy ID của người dùng hiện tại
@@ -82,5 +84,4 @@ class PostController extends Controller
 
         return redirect()->route('users.index');
     }
-
 }

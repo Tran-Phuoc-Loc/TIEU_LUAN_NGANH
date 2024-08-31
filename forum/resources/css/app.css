@@ -225,6 +225,17 @@ img.img-thumbnail:hover {
     background: linear-gradient(135deg, #a704fd, #ff57b9);
 }
 
+.btn-Success {
+    font-size: 16px;
+    background: linear-gradient(135deg, #ff57b9, #a704fd);
+    border: none;
+    color: #ffff;
+}
+
+.btn-Success:hover {
+    background: linear-gradient(135deg, #a704fd, #ff57b9);
+}
+
 .btn-secondary {
     padding: 15px;
     font-size: 16px;
