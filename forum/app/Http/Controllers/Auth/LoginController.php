@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
 {
@@ -27,20 +28,23 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
-        // Xác thực thông tin đăng nhập
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
-
-        // Thử đăng nhập
+    
         if (Auth::attempt($credentials, $request->remember)) {
             $request->session()->regenerate();
-
-            return redirect()->intended('/');
+    
+            $user = Auth::user();
+            Log::info('User role:', ['role' => $user->role]); // Ghi giá trị role vào log
+            if ($user->role === 'admin') {
+                return redirect('/admin/dashboard');
+            }
+    
+            return redirect('/');
         }
-
-        // Nếu thông tin không đúng, trả về lỗi
+    
         throw ValidationException::withMessages([
             'email' => __('auth.failed'),
         ]);
@@ -62,4 +66,3 @@ class LoginController extends Controller
         return redirect('/');
     }
 }
-

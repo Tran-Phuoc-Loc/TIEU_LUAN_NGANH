@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('profile_picture')->nullable();
             $table->string('status')->default('active');
+            $table->string('role')->default('user');
             $table->timestamps();
         });
     }

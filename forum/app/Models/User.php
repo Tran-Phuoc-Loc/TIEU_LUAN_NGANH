@@ -20,6 +20,7 @@ class User extends Authenticatable
         'username',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -52,5 +53,16 @@ class User extends Authenticatable
     public function getPostCountAttribute()
     {
         return $this->posts()->count();
+    }
+
+    // Mối quan hệ với bảng role
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'role_user');
+    }
+    public function hasRole($role)
+    {
+        // Vai trò người dùng trong cột 'role' trong bảng 'users'
+        return $this->role === $role;
     }
 }
