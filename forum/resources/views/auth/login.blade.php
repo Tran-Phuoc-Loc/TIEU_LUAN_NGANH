@@ -14,7 +14,6 @@
 <style>
     body {
         background: linear-gradient(135deg, #ffffff, #ffe6e6);
-        /* background-image: url('/storage/images/login.png'); */
         font-family: 'Arial', sans-serif;
         margin: 0;
         display: flex;

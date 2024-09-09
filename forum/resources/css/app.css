@@ -1,358 +1,317 @@
+/* Cài đặt chung */
 body {
-    background-color: #f8f9fa;
+    background-color: #f8f9fa; /* Màu nền chính của trang */
 }
 
+/* Header */
 header {
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    background: linear-gradient(56deg,
-            #00d2d3,
-            #3a7bd5,
-            #673BAE,
-            #8948b2,
-            #FF00FF);
+    position: sticky; /* Giữ header cố định khi cuộn */
+    top: 0; /* Đặt vị trí ở trên cùng */
+    z-index: 1000; /* Đảm bảo header nằm trên các phần tử khác */
+    background: linear-gradient(56deg, #00d2d3, #3a7bd5, #673BAE, #8948b2, #FF00FF); /* Gradient màu cho header */
 }
 
-/* navbar */
+/* Navbar */
 .navbar-brand {
-    font-family: 'Raleway', sans-serif;
-    font-weight: bold;
-    text-transform: uppercase;
-    /* Chữ in hoa */
-    letter-spacing: 1.5px;
-    /* Tăng khoảng cách giữa các ký tự */
-    display: flex;
-    align-items: center;
+    font-family: 'Raleway', sans-serif; /* Font chữ cho nhãn thương hiệu */
+    font-weight: bold; /* In đậm */
+    text-transform: uppercase; /* Chữ in hoa */
+    letter-spacing: 1.5px; /* Tăng khoảng cách giữa các ký tự */
+    display: flex; /* Sử dụng flexbox */
+    align-items: center; /* Căn giữa theo chiều dọc */
 }
 
 .navbar-brand img {
-    margin-right: 10px;
-    /* Khoảng cách giữa icon và chữ */
+    margin-right: 10px; /* Khoảng cách giữa icon và chữ */
 }
 
 .nav-link {
-    font-size: 20px;
+    font-size: 20px; /* Kích thước font cho liên kết */
 }
 
 .navbar-dark,
 .navbar-dark .nav-link,
 .navbar-dark .nav-item {
-    color: #ffffff !important;
+    color: #ffffff !important; /* Màu chữ trắng cho các phần tử trong navbar tối */
 }
 
 .navbar-dark .navbar-toggler {
-    border-color: black;
+    border-color: black; /* Màu viền cho nút toggler */
 }
 
 .navbar-dark .navbar-toggler-icon {
-    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba%280, 0, 0, 0.5%29' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba%280, 0, 0, 0.5%29' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E"); /* Hình ảnh cho nút toggler */
 }
 
-/* wecome */
+/* Welcome Section */
 .welcome-content {
-    text-align: center;
-    background: linear-gradient(56deg,
-            #00d2d3,
-            #3a7bd5,
-            #6d3db9,
-            #8948b2,
-            #FF00FF);
-    padding-top: 90px;
-    padding-left: 100px;
-    padding-right: 100px;
+    text-align: center; /* Căn giữa nội dung */
+    background: linear-gradient(56deg, #00d2d3, #3a7bd5, #6d3db9, #8948b2, #FF00FF); /* Gradient cho phần chào mừng */
+    padding-top: 90px; /* Khoảng cách trên */
+    padding-left: 100px; /* Khoảng cách bên trái */
+    padding-right: 100px; /* Khoảng cách bên phải */
 }
 
 .welcome-content h1,
 .welcome-content p {
-    color: #ffffff;
-}
-
-.card-title,
-.card-text {
-    color: #010101;
+    color: #ffffff; /* Màu chữ trắng */
 }
 
 .welcome-content p {
-    font-size: 1.25rem;
-    color: #ffffff;
+    font-size: 1.25rem; /* Kích thước chữ cho đoạn văn */
 }
 
-.search-bar {
-    margin: 20px 0;
-    text-align: center;
-}
-
+/* Avatar Styles */
 .user-circle {
-    width: 48px;
-    height: 48px;
-    background-image: url('/storage/images/avataricon.png');
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    margin-right: 5px;
-}
-
-.dropdown-menu {
-    min-width: 200px;
-}
-
-.mt-4 {
-    margin-top: 0 !important;
+    width: 48px; /* Chiều rộng của hình tròn đại diện */
+    height: 48px; /* Chiều cao của hình tròn đại diện */
+    background-image: url('/storage/images/avataricon.png'); /* Hình ảnh cho avatar */
+    color: white; /* Màu chữ trắng */
+    border-radius: 50%; /* Bo tròn hình tròn */
+    display: flex; /* Sử dụng flexbox */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    justify-content: center; /* Căn giữa theo chiều ngang */
+    font-weight: bold; /* In đậm chữ */
+    margin-right: 5px; /* Khoảng cách bên phải */
 }
 
 /* Định dạng cho hình ảnh avatar */
 img.img-thumbnail {
-    border: 3px solid #90b2d6;
-    border-radius: 50%;
-    transition: transform 0.3s ease;
-    /*chuyển động mượt khi thay đổi kích thước */
-    width: 320px;
-    /* Đặt kích thước chiều rộng cố định */
-    height: auto;
-    /* Đặt kích thước chiều cao cố định */
-    object-fit: cover;
-    /* Đảm bảo ảnh được cắt vừa khung mà không bị biến dạng */
-    border-radius: 50%;
-    margin-bottom: 20px;
+    border: 3px solid #90b2d6; /* Viền cho ảnh thumbnail */
+    border-radius: 50%; /* Bo tròn ảnh */
+    transition: transform 0.3s ease; /* Chuyển động mượt khi thay đổi kích thước */
+    width: 320px; /* Đặt kích thước chiều rộng cố định */
+    height: auto; /* Chiều cao tự động */
+    object-fit: cover; /* Đảm bảo ảnh được cắt vừa khung mà không bị biến dạng */
+    margin-bottom: 20px; /* Khoảng cách dưới ảnh */
 }
 
 img.img-thumbnail:hover {
-    transform: scale(1.05);
+    transform: scale(1.05); /* Phóng to ảnh khi hover */
 }
 
+/* Form Styles */
 .form-label {
-    font-weight: bold;
-    color: #000000;
+    font-weight: bold; /* In đậm cho nhãn */
+    color: #000000; /* Màu chữ đen */
 }
 
-/* Định dạng cho danh sách bài viết */
+/* Danh sách bài viết */
 .list-group-item {
-    border: none;
-    border-bottom: 1px solid #e9ecef;
-    border-radius: 8px;
-    padding: 15px 20px;
-    transition: background-color 0.3s ease;
+    border: none; /* Không có viền */
+    border-bottom: 1px solid #e9ecef; /* Viền dưới cho từng mục */
+    border-radius: 8px; /* Bo tròn viền */
+    padding: 15px 20px; /* Padding cho từng mục */
+    transition: background-color 0.3s ease; /* Hiệu ứng chuyển màu nền khi hover */
 }
 
 .list-group-item:last-child {
-    border-bottom: none;
+    border-bottom: none; /* Không có viền dưới cho mục cuối cùng */
 }
 
 .list-group-item:hover {
-    background-color: #f1f3f5;
+    background-color: #f1f3f5; /* Màu nền khi hover */
 }
 
 .list-group-item a {
-    font-size: 1.2em;
-    font-weight: bold;
-    color: #007bff;
-    text-decoration: none;
+    font-size: 1.2em; /* Kích thước chữ cho liên kết */
+    font-weight: bold; /* In đậm chữ */
+    color: #007bff; /* Màu chữ cho liên kết */
+    text-decoration: none; /* Không gạch chân */
 }
 
 .list-group-item a:hover {
-    text-decoration: underline;
+    text-decoration: underline; /* Gạch chân khi hover */
 }
 
-/* login and register */
+/* Login and Register */
 .login-container,
 .register-container {
-    max-width: 900px;
-    width: 100%;
-    background-color: white;
-    border-radius: 10px;
-    overflow: hidden;
-    display: flex;
-    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
-    margin-top: auto;
-    margin-bottom: auto;
+    max-width: 900px; /* Chiều rộng tối đa */
+    width: 100%; /* Chiều rộng 100% */
+    background-color: white; /* Màu nền trắng */
+    border-radius: 10px; /* Bo tròn viền */
+    overflow: hidden; /* Ẩn phần thừa */
+    display: flex; /* Sử dụng flexbox */
+    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1); /* Đổ bóng */
+    margin: auto; /* Căn giữa */
 }
 
 .welcome-section {
-    background: linear-gradient(135deg, #5a00d6, #ff6e7f);
-    flex: 1;
-    position: relative;
-    padding: 50px;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    background: linear-gradient(135deg, #5a00d6, #ff6e7f); /* Gradient cho phần chào mừng */
+    flex: 1; /* Chiếm không gian còn lại */
+    position: relative; /* Vị trí tương đối */
+    padding: 50px; /* Padding cho phần chào mừng */
+    color: white; /* Màu chữ trắng */
+    display: flex; /* Sử dụng flexbox */
+    flex-direction: column; /* Sắp xếp theo chiều dọc */
+    justify-content: center; /* Căn giữa theo chiều dọc */
+    align-items: center; /* Căn giữa theo chiều ngang */
 }
 
 .welcome-section h3 {
-    font-size: 36px;
-    margin-bottom: 20px;
+    font-size: 36px; /* Kích thước chữ cho tiêu đề */
+    margin-bottom: 20px; /* Khoảng cách dưới tiêu đề */
 }
 
 .welcome-section p {
-    font-size: 16px;
-    opacity: 0.8;
+    font-size: 16px; /* Kích thước chữ cho đoạn văn */
+    opacity: 0.8; /* Độ mờ cho đoạn văn */
 }
 
 .login-section {
-    flex: 1;
-    padding: 50px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    flex: 1; /* Chiếm không gian còn lại */
+    padding: 50px; /* Padding cho phần đăng nhập */
+    display: flex; /* Sử dụng flexbox */
+    flex-direction: column; /* Sắp xếp theo chiều dọc */
+    justify-content: center; /* Căn giữa theo chiều dọc */
 }
 
 .login-section h3 {
-    text-align: center;
-    margin-bottom: 30px;
-    color: #333;
+    text-align: center; /* Căn giữa tiêu đề */
+    margin-bottom: 30px; /* Khoảng cách dưới tiêu đề */
+    color: #333; /* Màu chữ cho tiêu đề */
 }
 
 .form-control {
-    padding: 15px;
-    font-size: 16px;
+    padding: 15px; /* Padding cho input */
+    font-size: 16px; /* Kích thước font cho input */
 }
 
-/* Nút bấm */
+/* Button Styles */
 .btn-primary {
-    padding: 15px;
-    font-size: 16px;
-    background: linear-gradient(135deg, #ff57b9, #a704fd);
-    border: none;
-    margin: 20px 0;
+    padding: 15px; /* Padding cho nút chính */
+    font-size: 16px; /* Kích thước font cho nút chính */
+    background: linear-gradient(135deg, #ff57b9, #a704fd); /* Gradient cho nút chính */
+    border: none; /* Không có viền */
+    margin: 20px 0; /* Khoảng cách trên và dưới */
 }
 
 .btn-primary:hover {
-    background: linear-gradient(135deg, #a704fd, #ff57b9);
+    background: linear-gradient(135deg, #a704fd, #ff57b9); /* Gradient khi hover */
 }
 
-.btn-Success {
-    font-size: 16px;
-    background: linear-gradient(135deg, #ff57b9, #a704fd);
-    border: none;
-    color: #ffff;
+.btn-success {
+    font-size: 16px; /* Kích thước font cho nút thành công */
+    background: linear-gradient(135deg, #ff57b9, #a704fd); /* Gradient cho nút thành công */
+    border: none; /* Không có viền */
+    color: #ffff; /* Màu chữ trắng */
 }
 
-.btn-Success:hover {
-    background: linear-gradient(135deg, #a704fd, #ff57b9);
+.btn-success:hover {
+    background: linear-gradient(135deg, #a704fd, #ff57b9); /* Gradient khi hover */
 }
 
 .btn-secondary {
-    padding: 15px;
-    font-size: 16px;
-    background-color: #6c757d;
-    border-color: #6c757d;
-    transition: background-color 0.3s ease;
+    padding: 15px; /* Padding cho nút phụ */
+    font-size: 16px; /* Kích thước font cho nút phụ */
+    background-color: #6c757d; /* Màu nền cho nút phụ */
+    border-color: #6c757d; /* Màu viền cho nút phụ */
+    transition: background-color 0.3s ease; /* Hiệu ứng chuyển màu nền khi hover */
 }
 
 .btn-secondary:hover {
-    background-color: #5a6268;
-    border-color: #545b62;
+    background-color: #5a6268; /* Màu nền khi hover */
+    border-color: #545b62; /* Màu viền khi hover */
 }
 
-/* footer */
+/* Footer */
 footer {
-    background-color: #2c3e50;
-    color: white;
-    padding: 20px 0;
-    text-align: center;
+    background-color: #2c3e50; /* Màu nền cho footer */
+    color: white; /* Màu chữ trắng */
+    padding: 20px 0; /* Padding cho footer */
+    text-align: center; /* Căn giữa nội dung */
 }
 
 .card-footer {
-    text-align: center;
-    margin-top: 20px;
+    text-align: center; /* Căn giữa cho footer của card */
+    margin-top: 20px; /* Khoảng cách trên */
 }
 
 .card-footer a {
-    text-decoration: none;
-    color: #5a00d6;
+    text-decoration: none; /* Không gạch chân cho liên kết */
+    color: #5a00d6; /* Màu chữ cho liên kết trong footer */
 }
 
+/* Collapse */
 .collapse.show {
     display: block; /* Đảm bảo menu hiển thị đúng khi mở ra */
 }
 
-
-/* dùng cho màn hình nhỏ */
+/* Dùng cho màn hình nhỏ */
 @media (max-width: 768px) {
     .login-container,
     .register-container {
-        flex-direction: column;
-        max-width: 100%;
-        height: auto;
+        flex-direction: column; /* Sắp xếp theo chiều dọc */
+        max-width: 100%; /* Chiều rộng 100% */
+        height: auto; /* Chiều cao tự động */
     }
 
     .welcome-section,
     .login-section {
-        padding: 20px;
+        padding: 20px; /* Padding nhỏ hơn cho màn hình nhỏ */
     }
 
     .welcome-section h3 {
-        font-size: 28px;
+        font-size: 28px; /* Kích thước chữ nhỏ hơn cho tiêu đề */
     }
 
     .form-control {
-        padding: 10px;
-        font-size: 14px;
-        /* Giảm kích thước font của input */
+        padding: 10px; /* Padding nhỏ hơn cho input */
+        font-size: 14px; /* Kích thước font nhỏ hơn cho input */
     }
 
     .btn-primary {
-        padding: 10px;
-        font-size: 14px;
-        /* Giảm kích thước font của nút */
+        padding: 10px; /* Padding nhỏ hơn cho nút chính */
+        font-size: 14px; /* Kích thước font nhỏ hơn cho nút chính */
     }
 
     .card-footer a {
-        font-size: 14px;
-        /* Giảm kích thước font của link */
+        font-size: 14px; /* Kích thước font nhỏ hơn cho liên kết */
     }
 
     .img-thumbnail {
-        width: 150px !important;
-        /* Kích thước nhỏ hơn cho màn hình nhỏ */
-        height: 150px !important;
+        width: 150px !important; /* Kích thước nhỏ hơn cho ảnh thumbnail */
+        height: 150px !important; /* Kích thước nhỏ hơn cho ảnh thumbnail */
     }
 
     .vertical-navbar {
-        width: 100%;
-        height: auto;
-        display: none; /* Ẩn đi menu chính */
-        position: relative;
-        overflow: visible;
-        /* Thay đổi chiều rộng và chiều cao của thanh điều hướng */
+        width: 100%; /* Chiều rộng 100% cho navbar dọc */
+        height: auto; /* Chiều cao tự động */
+        display: none; /* Ẩn menu chính */
+        position: relative; /* Vị trí tương đối */
+        overflow: visible; /* Thay đổi chiều rộng và chiều cao của thanh điều hướng */
     }
 
     .row {
-        margin: auto !important;
+        margin: auto !important; /* Căn giữa cho hàng */
     }
 
-    .welcome-content, .welcome-contents{
-        margin-left: auto !important;
+    .welcome-content, .welcome-contents {
+        margin-left: auto !important; /* Căn lề trái cho nội dung chào mừng */
     }
+
     .navbar-collapse {
         padding: 10px; /* Tạo khoảng cách giữa các mục */
     }
 
     .vertical-navbar .navbar-nav {
-        flex-direction: row;
-        margin: 0; /* Loại bỏ margin để không có khoảng trắng thừa */
-        /* Sắp xếp các liên kết theo hàng */
+        flex-direction: row; /* Sắp xếp các liên kết theo hàng */
+        margin: 0; /* Loại bỏ margin thừa */
     }
 
     .vertical-navbar .nav-item {
-        margin-bottom: 0;
+        margin-bottom: 0; /* Không có margin dưới cho mục */
     }
 
     .vertical-navbar .nav-link {
-        padding: 10px 15px;
-        /* Thay đổi kích thước của các liên kết */
+        padding: 10px 15px; /* Thay đổi kích thước của các liên kết */
     }
 }
 
 @media (max-width: 480px) {
     .img-thumbnail {
-        width: 120px !important;
-        /* Kích thước nhỏ hơn nữa cho màn hình rất nhỏ */
-        height: 120px !important;
+        width: 120px !important; /* Kích thước nhỏ hơn nữa cho ảnh thumbnail */
+        height: 120px !important; /* Kích thước nhỏ hơn nữa cho ảnh thumbnail */
     }
 }

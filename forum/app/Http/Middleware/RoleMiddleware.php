@@ -21,24 +21,25 @@ class RoleMiddleware
     {
         // kiểm tra lỗi
         // dd('RoleMiddleware is being executed');
+        
+        // Kiểm tra người dùng đã đăng nhập hay chưa
         if (!Auth::check()) {
-            // Lỗi được ghi vào logs -> laravel.log
             // Log::info('Người dùng chưa được xác thực');
             return redirect('login');
         }
 
         $user = Auth::user();
-        // Lỗi được ghi vào logs -> laravel.log
-        // Log::info('User role:', ['user_id' => $user->id, 'role' => $user->role]);
 
+        // Kiểm tra xem người dùng có vai trò cần thiết hay không
         if ($user->role !== $role) {
-            // Lỗi được ghi vào logs -> laravel.log
-            // Log::warning('Người dùng không có vai trò cần thiết', ['user_id' => $user->id, 'required_role' => $role]);
             abort(403, 'Bạn không có quyền truy cập trang này.');
         }
 
-        // Lỗi được ghi vào logs -> laravel.log
-        // Log::info('Người dùng có vai trò cần thiết', ['user_id' => $user->id, 'role' => $role]);
+        // Chặn truy cập vào các route admin nếu người dùng không phải là admin
+        if ($user->role !== 'admin' && $request->is('admin/*')) {
+            abort(403, 'Bạn không có quyền truy cập trang này.');
+        }
+
         return $next($request);
     }
 }

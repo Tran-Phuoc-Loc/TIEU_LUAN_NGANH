@@ -16,6 +16,8 @@ Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 
 // Route cho đăng xuất
+Route::post('logout', [LoginController::class, 'logout'])->name('logout');
+// Route cho đăng ký
 Route::get('register', [RegisterController::class, 'create'])->name('register');
 Route::post('register', [RegisterController::class, 'store']);
 
