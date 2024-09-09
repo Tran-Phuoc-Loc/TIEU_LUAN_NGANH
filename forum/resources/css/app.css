@@ -11,6 +11,12 @@ header {
     background: linear-gradient(56deg, #00d2d3, #3a7bd5, #673BAE, #8948b2, #FF00FF); /* Gradient màu cho header */
 }
 
+/* Main */
+.main {
+    display: flex; /* Thay đổi từ block sang flex */
+    flex: 1;
+}
+
 /* Navbar */
 .navbar-brand {
     font-family: 'Raleway', sans-serif; /* Font chữ cho nhãn thương hiệu */
@@ -37,6 +43,7 @@ header {
 
 .navbar-dark .navbar-toggler {
     border-color: black; /* Màu viền cho nút toggler */
+    margin-right: 10px;
 }
 
 .navbar-dark .navbar-toggler-icon {
@@ -195,11 +202,17 @@ img.img-thumbnail:hover {
     font-size: 16px; /* Kích thước font cho nút thành công */
     background: linear-gradient(135deg, #ff57b9, #a704fd); /* Gradient cho nút thành công */
     border: none; /* Không có viền */
-    color: #ffff; /* Màu chữ trắng */
+    color: #fff; /* Màu chữ trắng */
+    padding: 10px 15px; /* Khoảng cách bên trong nút */
+    border-radius: 5px; /* Bo góc cho nút */
+    transition: background 0.3s, transform 0.3s; /* Hiệu ứng chuyển màu và phóng to */
+    text-decoration: none; /* Không có gạch chân */
+    display: inline-block; /* Đảm bảo nút hiển thị đúng */
 }
 
 .btn-success:hover {
     background: linear-gradient(135deg, #a704fd, #ff57b9); /* Gradient khi hover */
+    transform: scale(1.05); /* Phóng to nút khi hover */
 }
 
 .btn-secondary {
@@ -213,6 +226,22 @@ img.img-thumbnail:hover {
 .btn-secondary:hover {
     background-color: #5a6268; /* Màu nền khi hover */
     border-color: #545b62; /* Màu viền khi hover */
+}
+
+.table {
+    width: 100%; /* Đặt độ rộng của bảng là 100% */
+    table-layout: auto; /* Cho phép tự động điều chỉnh độ rộng cột */
+    border-collapse: collapse; /* Gộp các đường biên của bảng */
+}
+
+.table th, .table td {
+    border: 1px solid #ddd; /* Đường biên cho các ô */
+    padding: 8px; /* Khoảng cách trong các ô */
+}
+
+.table th {
+    background-color: #f2f2f2; /* Màu nền cho tiêu đề bảng */
+    text-align: left; /* Căn trái cho tiêu đề */
 }
 
 /* Footer */

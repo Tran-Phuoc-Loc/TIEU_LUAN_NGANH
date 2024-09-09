@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Nơi chia sẻ và thảo luận về công nghệ.">
+    <meta name="keywords" content="TechTalks, công nghệ, thảo luận">
     <title>@yield('title', 'Chào Mừng Đến TeachTalks')</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
@@ -128,6 +130,13 @@
             flex-direction: row;
             flex: 1;
         }
+        .welcome-contents {
+            margin-left: 200px;
+            padding: 20px;
+            flex: 1;
+            position: relative;
+            max-width: 1200px; /* Đặt độ rộng tối đa cho container */
+        }
 
         .vertical-navbar {
             width: 200px;
@@ -243,7 +252,10 @@
                 <nav class="navbar navbar-dark flex-column">
                     <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a href="{{ route('posts.create') }}" class="btn btn-Success">Tạo Bài viết</a>
+                            <a href="{{ route('posts.create') }}" class="btn btn-success">Tạo Bài viết</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('posts.drafts') }}" class="btn btn-success">Trạng thái bài viết</a>
                         </li>
                     </ul>
                 </nav>
@@ -269,7 +281,7 @@
                 </div>
             </nav>
 
-            <main>
+            <main class="main">
                 @yield('content')
             </main>
         </div>
@@ -277,6 +289,7 @@
         @include('layouts.partials.footer')
     </div>
     <script>
+        // JavaScript để thay đổi màu sắc khi bấm nút "Thích"
         document.querySelectorAll('.like-button').forEach(button => {
             button.addEventListener('click', function() {
                 this.classList.toggle('liked');
