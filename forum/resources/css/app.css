@@ -13,7 +13,6 @@ header {
 
 /* Main */
 .main {
-    display: flex; /* Thay đổi từ block sang flex */
     flex: 1;
 }
 
