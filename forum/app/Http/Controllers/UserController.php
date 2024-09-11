@@ -15,7 +15,10 @@ class UserController extends Controller
     public function index()
     {
         $users = User::all();
-        $posts = Post::all(); // Truy xuất tất cả các bài viết từ database
+        // Lấy tất cả bài viết đã xuất bản
+        $posts = Post::with('user')
+            ->where('status', 'published')
+            ->get();
         return view('users.index', compact('users', 'posts')); // Truyền cả users và posts đến view
     }
 
@@ -23,7 +26,8 @@ class UserController extends Controller
     {
         // Tìm người dùng theo ID và lấy bài viết của họ
         $user = User::findOrFail($id);
-        $posts = $user->posts ?: collect(); // Khởi tạo với một tập hợp rỗng nếu không có bài viết
+        $publishedCount = Post::where('user_id', $id)->where('status', 'published')->count(); // Đếm số lượng bài viết đã xuất bản
+        $draftCount = Post::where('user_id', $id)->where('status', 'draft')->count(); // Đếm số lượng bài viết ở dạng draft
 
         // Kiểm tra nếu người dùng đang đăng nhập cố gắng truy cập hồ sơ của chính mình
         if (Auth::id() !== $user->id) {
@@ -31,7 +35,7 @@ class UserController extends Controller
         }
 
         // Trả về view và truyền dữ liệu người dùng cùng các bài viết của họ
-        return view('users.profile', compact('user', 'posts'));
+        return view('users.profile', compact('user', 'publishedCount', 'draftCount'));
     }
 
     public function edit(User $user)

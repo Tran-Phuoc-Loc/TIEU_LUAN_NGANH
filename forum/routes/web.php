@@ -40,22 +40,26 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin'])->group(function ()
 
 // Route cho người dùng
 Route::middleware(['auth'])->group(function () {
+    // Route cho trang dashboard
     Route::get('/dashboard', function () {
-        $posts = Post::all();
-        return view('users.index', compact('posts'));
+        $posts = Post::all(); // Lấy tất cả bài viết
+        return view('users.index', compact('posts')); // Hiển thị trang người dùng với danh sách bài viết
     })->name('dashboard');
 
-    Route::get('/users/{id}', [UserController::class, 'show'])->name('users.profile');
-    Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+    // Route cho hồ sơ người dùng
+    Route::get('/users/{id}', [UserController::class, 'show'])->name('users.profile'); // Hiển thị hồ sơ người dùng
+    Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit'); // Hiển thị trang chỉnh sửa hồ sơ người dùng
+    Route::get('/users/posts', [UserController::class, 'index'])->name('users.posts'); // Hiển thị danh sách bài viết của người dùng
 
     // Route để quản lý bài viết
-    Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');
-    Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
-    Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
-    Route::get('/posts/drafts', [PostController::class, 'drafts'])->name('posts.drafts');
-    Route::post('/posts/{id}/publish', [PostController::class, 'publish'])->name('posts.publish'); // Route xuất bản bài viết
-    Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
-    Route::get('/posts/{post}/edit', [PostController::class, 'edit'])->name('posts.edit');
-    Route::put('/posts/{post}', [PostController::class, 'update'])->name('posts.update');
-    Route::delete('/posts/{id}', [PostController::class, 'destroy'])->name('posts.destroy');     // Route để xóa bài viết
+    Route::prefix('posts')->group(function () {
+        Route::get('/create', [PostController::class, 'create'])->name('posts.create'); // Hiển thị trang tạo bài viết
+        Route::post('/', [PostController::class, 'store'])->name('posts.store'); // Xử lý lưu bài viết mới
+        Route::get('/drafts', [PostController::class, 'drafts'])->name('posts.drafts'); // Hiển thị danh sách bài viết ở trạng thái draft
+        Route::post('{id}/publish', [PostController::class, 'publish'])->name('posts.publish'); // Xuất bản bài viết
+        Route::get('{post}/edit', [PostController::class, 'edit'])->name('posts.edit'); // Hiển thị trang chỉnh sửa bài viết
+        Route::put('{post}', [PostController::class, 'update'])->name('posts.update'); // Cập nhật bài viết
+        Route::delete('{id}', [PostController::class, 'destroy'])->name('posts.destroy'); // Xóa bài viết
+        Route::get('/published', [PostController::class, 'published'])->name('posts.published'); // Hiển thị danh sách bài viết đã xuất bản
+    });
 });

@@ -211,6 +211,8 @@
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                         <li><a class="dropdown-item" href="#">{{ Auth::user()->name }}</a></li>
                         <li><a class="dropdown-item" href="{{ route('users.profile', Auth::user()->id) }}">Thông tin cá nhân</a></li>
+                        <li><a class="dropdown-item" href="{{ route('posts.published') }}">Bài Viết Đã Xuất Bản</a></li>
+                        </li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>
@@ -253,9 +255,6 @@
                     <ul class="navbar-nav">
                         <li class="nav-item">
                             <a href="{{ route('posts.create') }}" class="btn btn-success">Tạo Bài viết</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ route('posts.drafts') }}" class="btn btn-success">Trạng thái bài viết</a>
                         </li>
                     </ul>
                 </nav>

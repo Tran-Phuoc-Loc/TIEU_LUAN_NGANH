@@ -54,7 +54,7 @@
                                 <a class="nav-link" href="{{ url('/') }}">Trang Chủ</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('posts.index') }}">Bài Viết</a>
+                                <a class="nav-link" href="{{ route('users.index') }}">Bài Viết</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('categories.index') }}">Danh Mục</a>
@@ -125,18 +125,9 @@
                         <!-- Hiển thị danh sách các bài viết của người dùng -->
                         <div class="mb-3">
                             <h5 class="mb-3">Bài Viết Của Tôi</h5>
-                            @if ($posts->isEmpty())
-                            <p class="text-muted">Chưa có bài viết nào.</p>
-                            @else
-                            <ul class="list-group">
-                                @foreach ($posts as $post)
-                                <li class="list-group-item d-flex justify-content-between align-items-start">
-                                    <a href="{{ route('posts.show', $post->id) }}" class="text-decoration-none text-dark fw-bold">{{ $post->title }}</a>
-                                    <p class="mb-1">{{ Str::limit($post->content, 100) }}</p>
-                                </li>
-                                @endforeach
-                            </ul>
-                            @endif
+                            <p class="text-muted">Số lượng bài viết đã xuất bản: <strong>{{ $publishedCount }}</strong></p>
+                            <p class="text-muted">Số lượng bài viết ở dạng draft: <strong>{{ $draftCount }}</strong></p>
+                                <a class="dropdown-item" href="{{ route('posts.drafts') }}" class="btn btn-success">Những bài viết dạng draft</a>
                         </div>
                         <div class="mb-3">
                             <label for="create_at" class="form-label">Ngày tham gia:</label>
@@ -167,30 +158,30 @@
                 </div>
             </div>
         </div>
-                    <!-- Footer -->
-                    <footer class="mt-5 py-4">
-                <div class="container text-center">
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <h5>Liên hệ với chúng tôi</h5>
-                            <p>Email: <a href="mailto:ttp6889@gmail.com">ttp6889@gmail.com</a></p>
-                            <p>Phone: 038-531-5971</p>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <h5>TechTalks</h5>
-                            <p>&copy; {{ date('Y') }} TechTalks. All rights reserved.</p>
-                        </div>
-                        <div class="col-md-4">
-                            <h5>Theo dõi chúng tôi</h5>
-                            <a href="#" class="text-white me-3"><i class="fab fa-facebook fa-2x"></i></a>
-                            <a href="#" class="text-white me-3"><i class="fab fa-twitter fa-2x"></i></a>
-                            <a href="#" class="text-white"><i class="fab fa-linkedin fa-2x"></i></a>
-                        </div>
+        <!-- Footer -->
+        <footer class="mt-5 py-4">
+            <div class="container text-center">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <h5>Liên hệ với chúng tôi</h5>
+                        <p>Email: <a href="mailto:ttp6889@gmail.com">ttp6889@gmail.com</a></p>
+                        <p>Phone: 038-531-5971</p>
                     </div>
-                    <hr class="my-4">
-                    <p class="text-muted small">Trang web này được phát triển bởi TechTalks.</p>
+                    <div class="col-md-4 mb-3">
+                        <h5>TechTalks</h5>
+                        <p>&copy; {{ date('Y') }} TechTalks. All rights reserved.</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>Theo dõi chúng tôi</h5>
+                        <a href="#" class="text-white me-3"><i class="fab fa-facebook fa-2x"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-twitter fa-2x"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-linkedin fa-2x"></i></a>
+                    </div>
                 </div>
-            </footer>
+                <hr class="my-4">
+                <p class="text-muted small">Trang web này được phát triển bởi TechTalks.</p>
+            </div>
+        </footer>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
