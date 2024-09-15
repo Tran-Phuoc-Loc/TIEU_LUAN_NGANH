@@ -29,14 +29,11 @@
                         <td>{{ Str::limit($draft->content, 50) }}</td>
                         <td>{{ $draft->created_at->format('d/m/Y H:i') }}</td>
                         <td>
-                            <form action="{{ route('posts.publish', $draft->id) }}" method="POST" style="display:inline;">
-                                @csrf
-                                <button type="submit" class="btn btn-success btn-sm">Xuất Bản</button>
-                            </form>
+                            <a href="{{ route('posts.edit', $draft->id) }}" class="btn btn-primary btn-sm">Chỉnh Sửa</a>
                             <form action="{{ route('posts.destroy', $draft->id) }}" method="POST" style="display:inline;">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa bài viết này không?');">Xóa</button>
                             </form>
                         </td>
                     </tr>

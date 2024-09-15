@@ -58,11 +58,11 @@ class PostController extends Controller
             // Redirect back with an error message if they don't own the post
             return redirect()->route('posts.index')->with('error', 'Bạn không có quyền chỉnh sửa bài viết này.');
         }
-    
+
         // If the user owns the post, show the edit page
         return view('posts.edit', compact('post'));
     }
-    
+
 
     public function update(UpdatePostRequest $request, Post $post)
     {
@@ -110,7 +110,10 @@ class PostController extends Controller
     public function destroy($id)
     {
         $post = Post::findOrFail($id);
-        $this->authorize('delete', $post);
+        // Kiểm tra quyền truy cập
+        if (auth()->user()->id !== $post->user_id) {
+            abort(403, 'Unauthorized action.');
+        }
 
         $post->delete();
 
