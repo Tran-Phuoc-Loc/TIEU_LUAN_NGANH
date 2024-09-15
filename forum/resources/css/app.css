@@ -227,6 +227,20 @@ img.img-thumbnail:hover {
     border-color: #545b62; /* Màu viền khi hover */
 }
 
+.btn-danger {
+    padding: 15px;
+    font-size: 16px;
+    background: linear-gradient(45deg, #ff4d4d, #cc0000);
+    border: none;
+    margin: 20px 0;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(45deg, #cc0000, #ff4d4d); /* Gradient khi hover */
+    transform: scale(1.05); /* Phóng to nút khi hover */
+    border-color: #545b62; /* Màu viền khi hover */
+}
+
 .table {
     width: 100%; /* Đặt độ rộng của bảng là 100% */
     table-layout: auto; /* Cho phép tự động điều chỉnh độ rộng cột */
