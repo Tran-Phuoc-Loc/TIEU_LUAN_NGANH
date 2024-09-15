@@ -7,6 +7,7 @@
     <title>Đăng Ký</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- Link CSS -->
     @vite('resources/js/app.js')
     @vite('resources/css/app.css')
@@ -43,13 +44,13 @@
             </div>
             @endif
 
-            <form method="POST" action="{{ route('register') }}">
+            <form method="POST" action="{{ route('register') }}" id="registrationForm">
                 @csrf
 
                 <!-- Name -->
                 <div class="mb-3">
                     <label for="username" class="form-label">Tên người dùng</label>
-                    <input type="text" class="form-control" id="username" name="username" value="{{ old('username') }}" required autofocus>
+                    <input type="text" class="form-control" id="username" name="username" value="{{ old('username') }}" required pattern=".{3,}" title="Tên người dùng phải có ít nhất 3 ký tự" autofocus>
                     @error('username')
                     <span class="text-danger">{{ $message }}</span>
                     @enderror
@@ -86,6 +87,17 @@
             </div>
         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('registrationForm');
+            if (form) {
+                form.addEventListener('submit', function(event) {
+                    event.preventDefault(); // Ngăn chặn gửi form
+                    console.log('Form submitted');
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>

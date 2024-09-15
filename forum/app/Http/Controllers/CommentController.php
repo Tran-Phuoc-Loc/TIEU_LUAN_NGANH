@@ -8,19 +8,24 @@ use Illuminate\Http\Request;
 
 class CommentController extends Controller
 {
-    public function store(Request $request, Post $post)
+    public function store(Request $request, $postId)
     {
-        $validated = $request->validate([
-            'body' => 'required|string',
+        // Xác thực dữ liệu
+        $request->validate([
+            'content' => 'required|string|max:255',
         ]);
 
-        Comment::create([
-            'post_id' => $post->id,
-            'user_id' => auth()->id(),
-            'body' => $validated['body'],
-        ]);
+        // Tìm bài viết
+        $post = Post::findOrFail($postId);
 
-        return redirect()->route('posts.show', $post);
+        // Tạo bình luận mới
+        $comment = new Comment();
+        $comment->content = $request->content;
+        $comment->post_id = $post->id;
+        $comment->user_id = auth()->id(); // Lấy ID của người dùng đã đăng nhập
+        $comment->save();
+
+        // Chuyển hướng lại về trang bài viết
+        return redirect()->back()->with('success', 'Bình luận đã được gửi!');
     }
 }
-

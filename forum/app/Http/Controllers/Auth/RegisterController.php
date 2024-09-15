@@ -19,14 +19,14 @@ class RegisterController extends Controller
     {
         // Xác thực dữ liệu đầu vào
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'username' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
         // Tạo người dùng mới
         $user = User::create([
-            'name' => $validated['name'],
+            'username' => $validated['username'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
         ]);
@@ -35,6 +35,6 @@ class RegisterController extends Controller
         Auth::guard()->login($user);
 
         // Chuyển hướng đến trang chính
-        return redirect()->route('home');
+        return redirect()->route('users.index');
     }
 }

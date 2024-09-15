@@ -38,6 +38,7 @@
             position: relative;
             padding-top: 50px;
             padding-left: 10px;
+            flex-direction: column;
         }
 
         .vote-section {
@@ -53,6 +54,26 @@
         .vote-section i {
             font-size: 20px;
             cursor: pointer;
+        }
+
+        .post-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .post-management {
+            margin-bottom: 10px;
+        }
+
+        .comment-form {
+            width: 100%;
+        }
+
+        .btn-link {
+            padding: 0;
+            vertical-align: baseline;
         }
 
         .post-content {
@@ -72,9 +93,9 @@
         .post-footer {
             display: flex;
             justify-content: space-between;
-            align-items: center;
             font-size: 0.9rem;
             color: #888;
+            flex-direction: column;
         }
 
         .post-meta {
@@ -291,17 +312,49 @@
         @include('layouts.partials.footer')
     </div>
     <script>
-        // JavaScript để thay đổi màu sắc khi bấm nút "Thích"
-        document.querySelectorAll('.like-button').forEach(button => {
-            button.addEventListener('click', function() {
-                this.classList.toggle('liked');
-            });
-        });
+        document.addEventListener('DOMContentLoaded', function() {
+            const commentToggles = document.querySelectorAll('.comment-toggle');
+            const modal = document.getElementById('loginModal');
+            const closeButton = document.querySelector('.close');
 
-        // Tự động ẩn thông báo sau 5 giây
-        setTimeout(function() {
-            $('.alert').alert('close');
-        }, 5000);
+            commentToggles.forEach(function(toggle) {
+                toggle.addEventListener('click', function() {
+                    const postFooter = this.closest('.post-footer');
+                    if (postFooter) {
+                        const commentForm = postFooter.querySelector('.comment-form');
+                        if (commentForm) {
+                            commentForm.style.display = commentForm.style.display === 'none' ? 'block' : 'none';
+                        } else {
+                            modal.style.display = 'block';
+                        }
+                    }
+                });
+            });
+
+            if (closeButton) {
+                closeButton.addEventListener('click', function() {
+                    modal.style.display = 'none';
+                });
+            }
+
+            window.onclick = function(event) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            };
+
+            // Existing code for like button and alert
+            document.querySelectorAll('.like-button').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    this.classList.toggle('liked');
+                });
+            });
+
+            setTimeout(function() {
+                $('.alert').alert('close');
+            }, 5000);
+        });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </body>

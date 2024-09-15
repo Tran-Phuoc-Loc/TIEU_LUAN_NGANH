@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Middleware\RoleMiddleware;
@@ -61,5 +62,6 @@ Route::middleware(['auth'])->group(function () {
         Route::put('{post}', [PostController::class, 'update'])->name('posts.update'); // Cập nhật bài viết
         Route::delete('{id}', [PostController::class, 'destroy'])->name('posts.destroy'); // Xóa bài viết
         Route::get('/published', [PostController::class, 'published'])->name('posts.published'); // Hiển thị danh sách bài viết đã xuất bản
+        Route::post('{post}/comments', [CommentController::class, 'store'])->name('comments.store');
     });
 });
