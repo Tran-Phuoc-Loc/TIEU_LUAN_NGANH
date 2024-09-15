@@ -57,6 +57,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/', [PostController::class, 'store'])->name('posts.store'); // Xử lý lưu bài viết mới
         Route::get('/drafts', [PostController::class, 'drafts'])->name('posts.drafts'); // Hiển thị danh sách bài viết ở trạng thái draft
         Route::post('{id}/publish', [PostController::class, 'publish'])->name('posts.publish'); // Xuất bản bài viết
+        Route::post('{id}/recall', [PostController::class, 'recall'])->name('posts.recall');
         Route::get('{post}/edit', [PostController::class, 'edit'])->name('posts.edit'); // Hiển thị trang chỉnh sửa bài viết
         Route::put('{post}', [PostController::class, 'update'])->name('posts.update'); // Cập nhật bài viết
         Route::delete('{id}', [PostController::class, 'destroy'])->name('posts.destroy'); // Xóa bài viết

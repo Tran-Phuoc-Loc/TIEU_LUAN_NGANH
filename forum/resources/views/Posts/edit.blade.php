@@ -1,1 +1,66 @@
+@extends('layouts.users')
 
+@section('title', 'Chỉnh Sửa Bài Viết')
+
+@section('content')
+<div class="welcome-contents">
+    <h1>Chỉnh Sửa Bài Viết</h1>
+
+    @if(session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    <form action="{{ route('posts.update', $post->id) }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        @method('PUT')
+
+        <div class="mb-3">
+            <label for="title" class="form-label">Tiêu đề bài viết</label>
+            <input type="text" name="title" class="form-control" id="title" value="{{ old('title', $post->title) }}">
+            @error('title')
+                <div class="alert alert-danger">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div class="mb-3">
+            <label for="content" class="form-label">Nội dung bài viết</label>
+            <textarea name="content" class="form-control" id="content" rows="5">{{ old('content', $post->content) }}</textarea>
+            @error('content')
+                <div class="alert alert-danger">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div class="mb-3">
+            <label for="image" class="form-label">Hình ảnh (tuỳ chọn)</label>
+            <input type="file" name="image" class="form-control" id="image">
+            @error('image')
+                <div class="alert alert-danger">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div class="mb-3">
+            <label for="status" class="form-label">Trạng thái bài viết</label>
+            <select name="status" class="form-select" id="status">
+                <option value="draft" {{ old('status', $post->status) == 'draft' ? 'selected' : '' }}>Draft</option>
+                <option value="published" {{ old('status', $post->status) == 'published' ? 'selected' : '' }}>Published</option>
+            </select>
+            @error('status')
+                <div class="alert alert-danger">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div class="mb-3">
+            <button type="submit" class="btn btn-primary">Cập Nhật Bài Viết</button>
+        </div>
+    </form>
+
+    @if($post->status === 'draft')
+    <form action="{{ route('posts.publish', $post->id) }}" method="POST">
+        @csrf
+        <button type="submit" class="btn btn-success">Xuất Bản</button>
+    </form>
+    @endif
+</div>
+@endsection

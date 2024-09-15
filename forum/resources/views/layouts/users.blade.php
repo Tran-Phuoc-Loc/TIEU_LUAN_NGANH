@@ -130,12 +130,14 @@
             flex-direction: row;
             flex: 1;
         }
+
         .welcome-contents {
             margin-left: 200px;
             padding: 20px;
             flex: 1;
             position: relative;
-            max-width: 1200px; /* Đặt độ rộng tối đa cho container */
+            max-width: 1200px;
+            /* Đặt độ rộng tối đa cho container */
         }
 
         .vertical-navbar {
@@ -212,19 +214,19 @@
                         <li><a class="dropdown-item" href="#">{{ Auth::user()->name }}</a></li>
                         <li><a class="dropdown-item" href="{{ route('users.profile', Auth::user()->id) }}">Thông tin cá nhân</a></li>
                         <li><a class="dropdown-item" href="{{ route('posts.published') }}">Bài Viết Đã Xuất Bản</a></li>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                Đăng Xuất
-                            </a>
-                            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                                @csrf
-                            </form>
-                        </li>
-                    </ul>
+                </li>
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
+                <li>
+                    <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                        Đăng Xuất
+                    </a>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                        @csrf
+                    </form>
+                </li>
+                </ul>
                 </li>
                 @else
                 <ul class="nav-item ms-3">
@@ -294,6 +296,11 @@
                 this.classList.toggle('liked');
             });
         });
+
+        // Tự động ẩn thông báo sau 5 giây
+        setTimeout(function() {
+            $('.alert').alert('close');
+        }, 5000);
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </body>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Models\Post;
+use App\Models\User;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Http\Requests\StorePostRequest;
@@ -17,6 +18,10 @@ class PostController extends Controller
 
     public function create()
     {
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Bạn phải đăng nhập để tạo bài viết.');
+        }
+
         return view('posts.create'); // Hiển thị trang tạo bài viết
     }
 
@@ -48,17 +53,28 @@ class PostController extends Controller
 
     public function edit(Post $post)
     {
-        $this->authorize('update', $post);
-        $categories = Category::all();
-        return view('posts.edit', compact('post', 'categories'));
+        // Check if the authenticated user owns the post
+        if (auth()->user()->id !== $post->user->id) {
+            // Redirect back with an error message if they don't own the post
+            return redirect()->route('posts.index')->with('error', 'Bạn không có quyền chỉnh sửa bài viết này.');
+        }
+    
+        // If the user owns the post, show the edit page
+        return view('posts.edit', compact('post'));
     }
+    
 
     public function update(UpdatePostRequest $request, Post $post)
     {
-        $this->authorize('update', $post);
+        // Kiểm tra quyền truy cập
+        if (auth()->user()->id !== $post->user_id) {
+            abort(403, 'Unauthorized action.');
+        }
 
-        $post->update($request->validated()); // Cập nhật bài viết với dữ liệu đã xác thực
+        // Cập nhật bài viết với dữ liệu đã xác thực
+        $post->update($request->validated());
 
+        // Cập nhật các danh mục nếu có
         if ($request->has('categories')) {
             $post->categories()->sync($request->input('categories'));
         }
@@ -99,5 +115,18 @@ class PostController extends Controller
         $post->delete();
 
         return redirect()->route('posts.drafts')->with('success', 'Bài viết đã được xóa.');
+    }
+
+    // Thu hồi bài viết
+    public function recall($id)
+    {
+        $post = Post::findOrFail($id);
+        $this->authorize('update', $post); // Kiểm tra quyền người dùng
+
+        // Chuyển bài viết về trạng thái draft
+        $post->status = 'draft';
+        $post->save();
+
+        return redirect()->route('posts.user.published')->with('success', 'Bài viết đã được thu hồi về nháp.');
     }
 }

@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Post;
-use App\Policies\UserPolicy;
 
 class UserController extends Controller
 {
@@ -40,8 +39,10 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
-        // Sử dụng policy để kiểm tra quyền
-        $this->authorize('edit', $user);
+        // Kiểm tra nếu người dùng hiện tại có quyền chỉnh sửa
+        if (Auth::id() !== $user->id) {
+            abort(403, 'Hành động không được phép.');
+        }
 
         return view('users.edit', compact('user'));
     }
@@ -49,14 +50,26 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
+    
+        // Kiểm tra quyền truy cập
+        if (Auth::id() !== $user->id) {
+            abort(403, 'Hành động không được phép.');
+        }
+    
         $user->update($request->all());
-        return redirect()->route('users.index')->with('success', 'User updated successfully');
+        return redirect()->route('users.index')->with('success', 'Người dùng cập nhật thành công');
     }
 
     public function destroy($id)
     {
         $user = User::findOrFail($id);
+    
+        // Kiểm tra quyền truy cập
+        if (Auth::id() !== $user->id) {
+            abort(403, 'Hành động không được phép.');
+        }
+    
         $user->delete();
-        return redirect()->route('users.index')->with('success', 'User deleted successfully');
+        return redirect()->route('users.index')->with('success', 'Xóa người dùng thành công');
     }
 }
