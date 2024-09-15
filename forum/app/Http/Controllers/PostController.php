@@ -96,17 +96,6 @@ class PostController extends Controller
         return view('posts.published', compact('posts'));
     }
 
-    public function publish($id)
-    {
-        $post = Post::findOrFail($id);
-        $this->authorize('update', $post);
-
-        $post->status = 'published';
-        $post->save();
-
-        return redirect()->route('posts.published')->with('success', 'Bài viết đã được xuất bản.'); // Chuyển hướng về danh sách bài viết đã xuất bản
-    }
-
     public function destroy($id)
     {
         $post = Post::findOrFail($id);

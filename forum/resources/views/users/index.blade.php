@@ -49,7 +49,7 @@
                             <a href="{{ route('posts.edit', $post->id) }}" class="btn btn-warning btn-sm">Chỉnh Sửa</a>
                             <form action="{{ route('posts.recall', $post->id) }}" method="POST" style="display:inline;">
                                 @csrf
-                                <button type="submit" class="btn btn-danger btn-sm">Thu Hồi</button>
+                                <button type="submit" class="btn btn-dark btn-sm">Thu Hồi</button>
                             </form>
                             @endif
                         </div>
