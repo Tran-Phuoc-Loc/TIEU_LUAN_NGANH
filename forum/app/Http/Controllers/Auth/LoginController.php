@@ -32,19 +32,20 @@ class LoginController extends Controller
             'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
-    
+
         if (Auth::attempt($credentials, $request->remember)) {
             $request->session()->regenerate();
-    
+
             $user = Auth::user();
             Log::info('User role:', ['role' => $user->role]); // Ghi giá trị role vào log
             if ($user->role === 'admin') {
                 return redirect('/admin/dashboard');
             }
-    
-            return redirect('/');
+
+            // Chuyển hướng đến trang sau khi đăng nhập thành công
+            return redirect()->route('users.index');
         }
-    
+
         throw ValidationException::withMessages([
             'email' => __('auth.failed'),
         ]);
