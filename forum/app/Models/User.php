@@ -60,17 +60,25 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Role::class, 'role_user');
     }
+    
     public function hasRole($role)
     {
         // Vai trò người dùng trong cột 'role' trong bảng 'users'
         return $this->role === $role;
     }
+
     public function isAdmin()
     {
         return $this->is_admin;
     }
+
     public function comments()
     {
         return $this->hasMany(Comment::class);
+    }
+
+    public function likes()
+    {
+        return $this->hasMany(Like::class);
     }
 }

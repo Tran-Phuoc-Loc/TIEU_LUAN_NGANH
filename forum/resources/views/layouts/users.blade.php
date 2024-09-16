@@ -6,23 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Nơi chia sẻ và thảo luận về công nghệ.">
     <meta name="keywords" content="TechTalks, công nghệ, thảo luận">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Chào Mừng Đến TeachTalks')</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     @vite('resources/js/app.js')
     @vite('resources/css/app.css')
     <style>
-        .like-button {
-            color: black;
-            text-decoration: none;
-        }
-
-        .like-button.liked {
-            color: blue;
-        }
-
         .post-container {
             margin: 0 auto;
             padding: 0;
@@ -97,6 +88,18 @@
             font-size: 0.9rem;
             color: #888;
             flex-direction: column;
+            position: relative; /* Để gạch ngang có thể được đặt chính xác */
+            padding-top: 10px; /* Khoảng cách trên để tránh nội dung bị che phủ */
+        }
+
+        .post-footer::before {
+            content: ""; /* Tạo một phần tử giả */
+            position: absolute; /* Đặt vị trí tuyệt đối */
+            top: 0; /* Đặt ở đầu phần tử */
+            left: 0; /* Bắt đầu từ bên trái */
+            right: 0; /* Kéo dài đến bên phải */
+            height: 2px; /* Độ dày của đường gạch */
+            background-color: #ccc; /* Màu sắc của đường gạch */
         }
 
         .post-meta {
@@ -312,110 +315,167 @@
 
         @include('layouts.partials.footer')
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const commentModal = document.getElementById('commentModal');
-            const commentForm = document.getElementById('commentForm');
-            const closeButton = document.querySelector('.close');
+        $(document).ready(function() {
+            const commentModal = $('#commentModal'); // Modal để hiển thị bình luận
+            const commentForm = $('#commentForm'); // Form để gửi bình luận
+            const closeButton = $('.close');
+            const commentsList = $('.comments-list'); // Danh sách bình luận trong modal
+            const loginModal = $('#loginModal');
 
-            // Khi nhấn vào nút "Xem Bình Luận"
-            document.querySelectorAll('.comment-toggle').forEach(button => {
-                button.addEventListener('click', function() {
-                    const postId = this.getAttribute('data-post-id');
+            $('.comment-toggle').on('click', function() {
+                const postId = $(this).data('post-id'); // Lấy ID bài viết từ thuộc tính
+                commentModal.show(); // Hiển thị modal
 
-                    // Mở modal
-                    commentModal.style.display = 'block';
-
-                    // Gọi AJAX để lấy bình luận của bài viết
-                    fetch(`/posts/${postId}/comments`)
-                        .then(response => response.json())
-                        .then(data => {
-                            const commentsList = document.querySelector('.comments-list');
-                            commentsList.innerHTML = ''; // Làm sạch danh sách bình luận
-
-                            if (data.comments.length > 0) {
-                                data.comments.forEach(comment => {
-                                    // Định dạng thời gian
-                                    const createdAt = moment(comment.created_at).fromNow(); // Sử dụng moment.js để định dạng
-                                    const commentHtml = `
-                                    <div class="comment">
-                                        <img src="${comment.user.avatar_url ? '/storage/' + comment.user.avatar_url : '/storage/images/avataricon.png'}" alt="Avatar" class="comment-avatar">
-                                        <strong>${comment.user.username}</strong>: ${comment.content}
-                                        ${comment.image_url ? `<div class="comment-image"><img src="/storage/${comment.image_url}" alt="Comment Image"></div>` : ''}
-                                        <small>${createdAt}</small>
-                                    </div>
-                            `;
-                                    commentsList.innerHTML += commentHtml;
-                                });
-                            } else {
-                                commentsList.innerHTML = '<p>Chưa có bình luận nào.</p>';
-                            }
-
-                            // Cập nhật action của form
-                            commentForm.action = `/posts/${postId}/comments`;
+                // Gọi API để lấy danh sách bình luận
+                $.get(`/posts/${postId}/comments`, function(data) {
+                    commentsList.empty(); // Làm sạch danh sách bình luận
+                    if (data.comments.length > 0) {
+                        data.comments.forEach(comment => {
+                            const createdAt = moment(comment.created_at).fromNow();
+                            const commentHtml = `
+                        <div class="comment">
+                            <img src="${comment.user.avatar_url ? '/storage/' + comment.user.avatar_url : '/storage/images/avataricon.png'}" alt="Avatar" class="comment-avatar">
+                            <strong>${comment.user.username}</strong>: ${comment.content}
+                            ${comment.image_url ? `<div class="comment-image"><img src="/storage/${comment.image_url}" alt="Comment Image"></div>` : ''}
+                            <small>${createdAt}</small>
+                        </div>
+                    `;
+                            commentsList.append(commentHtml);
                         });
+                    } else {
+                        commentsList.append('<p>Chưa có bình luận nào.</p>');
+                    }
+                    commentForm.attr('action', `/posts/${postId}/comments`); // Cập nhật thuộc tính action của form
                 });
             });
 
-            // Đóng modal
-            if (closeButton) {
-                closeButton.addEventListener('click', function() {
-                    commentModal.style.display = 'none';
-                });
-            }
+            closeButton.on('click', function() {
+                commentModal.hide();
+            });
 
-            // Đóng modal khi nhấn ra ngoài modal
-            window.addEventListener('click', function(event) {
-                if (event.target === commentModal) {
-                    commentModal.style.display = 'none';
+            $(window).on('click', function(event) {
+                if ($(event.target).is(commentModal)) {
+                    commentModal.hide();
                 }
             });
 
-            // Gửi bình luận qua AJAX
-            if (commentForm) {
-                commentForm.addEventListener('submit', function(e) {
-                    e.preventDefault(); // Ngăn chặn tải lại trang
+            commentForm.on('submit', function(e) {
+                e.preventDefault(); // Ngăn chặn tải lại trang
+                const formData = new FormData(this);
 
-                    const formData = new FormData(commentForm);
-
-                    fetch(commentForm.action, {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                            },
-                            body: formData,
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                const commentHtml = `
-                                <div class="comment">
-                                    <img src="${data.comment.user.avatar_url ? '/storage/' + data.comment.user.avatar_url : '/storage/images/avataricon.png'}" alt="Avatar" class="comment-avatar">
-                                    <strong>${data.comment.user.username}</strong>: ${data.comment.content}
-                                    ${data.comment.image_url ? `<div class="comment-image"><img src="/storage/${data.comment.image_url}" alt="Comment Image"></div>` : ''}
-                                    <small>Vừa xong</small>
-                                </div>
-                            `;
-                                document.querySelector('.comments-list').innerHTML += commentHtml;
-                                commentForm.reset();
-                            } else {
-                                alert('Đã có lỗi xảy ra. Vui lòng thử lại.');
-                            }
-                        });
-                });
-            }
-
-            // like button 
-            document.querySelectorAll('.like-button').forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    this.classList.toggle('liked');
+                $.ajax({
+                    url: $(this).attr('action'),
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(data) {
+                        if (data.success && data.comment) {
+                            const commentHtml = `
+                        <div class="comment">
+                            <img src="${data.comment.user.avatar_url ? '/storage/' + data.comment.user.avatar_url : '/storage/images/avataricon.png'}" alt="Avatar" class="comment-avatar">
+                            <strong>${data.comment.user.username}</strong>: ${data.comment.content}
+                            ${data.comment.image_url ? `<div class="comment-image"><img src="/storage/${data.comment.image_url}" alt="Comment Image"></div>` : ''}
+                            <small>Vừa xong</small>
+                        </div>
+                    `;
+                            commentsList.append(commentHtml);
+                            commentForm[0].reset(); // Đặt lại form
+                        } else {
+                            alert('Đã có lỗi xảy ra. Vui lòng thử lại.');
+                        }
+                    },
+                    error: function(xhr) {
+                        console.error('Có lỗi xảy ra:', xhr);
+                    }
                 });
             });
 
-            setTimeout(function() {
-                $('.alert').alert('close');
-            }, 5000);
+            $(document).ready(function() {
+                $('.like-button').on('click', function(e) {
+                    e.preventDefault(); // Ngăn chặn hành động mặc định của link
+
+                    // Đóng modal bình luận nếu nó đang mở
+                    commentModal.hide();
+
+                    const postId = $(this).data('post-id'); // Lấy ID bài viết từ thuộc tính
+                    const likeButton = $(this); // Lưu lại tham chiếu đến nút like
+                    const likeUrl = `/posts/${postId}/like`;
+                    console.log('Like URL:', likeUrl); // In ra URL để kiểm tra
+
+                    // Gọi API để kiểm tra đăng nhập
+                    $.ajax({
+                        url: '/check-login', // Route để kiểm tra đăng nhập
+                        method: 'GET',
+                        success: function(data) {
+                            if (!data.isLoggedIn) {
+                                // Hiển thị modal nếu người dùng chưa đăng nhập
+                                $('#modalTitle').text('Đăng Nhập');
+                                $('#modalMessage').text('Vui lòng đăng nhập để thích bài viết.');
+                                $('#loginModal').show(); // Hiển thị modal
+                                return;
+                            }
+
+                            // Nếu đã đăng nhập, thực hiện yêu cầu thích
+                            $.ajax({
+                                url: likeUrl, // Đường dẫn đến API like của bạn
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                },
+                                success: function(data) {
+                                    if (data.success) {
+                                        // Cập nhật giao diện
+                                        likeButton.toggleClass('liked'); // Thay đổi class để hiển thị trạng thái
+
+                                        // Cập nhật số lượng like
+                                        const likeCountElement = likeButton.find('.like-count');
+                                        let currentCount = parseInt(likeCountElement.text(), 10);
+
+                                        // Kiểm tra giá trị hiện tại
+                                        if (isNaN(currentCount)) {
+                                            currentCount = 0; // Nếu giá trị không phải là số, khởi tạo lại
+                                        }
+
+                                        // Cập nhật số lượt thích
+                                        if (data.isLiked) {
+                                            likeCountElement.text(currentCount + 1); // Tăng số lượng nếu đã thích
+                                        } else {
+                                            likeCountElement.text(Math.max(currentCount - 1, 0)); // Giảm số lượng nếu đã bỏ thích, không cho phép số âm
+                                        }
+                                    } else {
+                                        alert('Đã có lỗi xảy ra. Vui lòng thử lại.');
+                                    }
+                                },
+                                error: function(xhr) {
+                                    console.error('Có lỗi xảy ra khi thực hiện yêu cầu like:', xhr);
+                                    alert('Có lỗi xảy ra. Vui lòng thử lại.');
+                                }
+                            });
+                        },
+                        error: function(xhr) {
+                            console.error('Có lỗi xảy ra khi kiểm tra đăng nhập:', xhr);
+                            alert('Có lỗi xảy ra khi kiểm tra đăng nhập.');
+                        }
+                    });
+
+                    // Đóng modal đăng nhập
+                    $('.close').on('click', function() {
+                        $('#loginModal').hide();
+                    });
+
+                    $(window).on('click', function(event) {
+                        if ($(event.target).is('#loginModal')) {
+                            $('#loginModal').hide();
+                        }
+                    });
+                });
+            });
         });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>

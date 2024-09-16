@@ -121,4 +121,36 @@ class PostController extends Controller
 
         return redirect()->route('posts.user.published')->with('success', 'Bài viết đã được thu hồi về nháp.');
     }
+
+    // Phương thức like
+    public function like($id)
+    {
+        // Kiểm tra xem người dùng đã đăng nhập chưa
+        if (!Auth::check()) {
+            return response()->json(['success' => false, 'message' => 'Bạn cần đăng nhập.'], 401);
+        }
+
+        $post = Post::findOrFail($id); // Tìm bài viết theo ID
+
+        // Kiểm tra xem người dùng đã thích bài viết chưa
+        $like = $post->likes()->where('user_id', Auth::id())->first();
+
+        if ($like) {
+            // Nếu đã thích, xóa lượt thích
+            $like->delete();
+            $post->decrement('likes_count'); // Giảm số lượng lượt thích
+            $isLiked = false;
+        } else {
+            // Nếu chưa thích, thêm lượt thích mới
+            $post->likes()->create(['user_id' => Auth::id()]);
+            $post->increment('likes_count'); // Tăng số lượng lượt thích
+            $isLiked = true;
+        }
+
+        return response()->json([
+            'success' => true,
+            'isLiked' => $isLiked,
+            'post' => $post // Có thể gửi lại thông tin bài viết nếu cần
+        ]);
+    }
 }

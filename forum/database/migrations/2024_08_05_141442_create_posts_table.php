@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('image_url')->nullable();
             $table->boolean('is_featured')->default(false);;
             $table->enum('status', ['draft', 'published'])->default('draft');
+            $table->unsignedInteger('likes_count')->default(0);
             $table->timestamps();
         });
     }

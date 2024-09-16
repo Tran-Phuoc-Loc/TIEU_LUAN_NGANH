@@ -335,6 +335,24 @@ img.img-thumbnail:hover {
     object-fit: cover;
 }
 
+.like-button {
+    background-color: #ffffff; /* Màu nền */
+    border: none; /* Bỏ viền */
+    padding: 10px 15px; /* Khoảng cách bên trong */
+    border-radius: 5px; /* Bo góc */
+    font-size: 16px; /* Kích thước chữ */
+    display: flex; /* Để sắp xếp icon và văn bản */
+    align-items: center; /* Căn giữa theo chiều dọc */
+}
+
+.like-button i {
+    margin-right: 5px; /* Khoảng cách giữa icon và số lượt thích */
+}
+
+.like-button:hover {
+    background-color: #007bff; /* Màu nền khi di chuột */
+    color: #ffffff;
+}
 
 /* Footer */
 footer {

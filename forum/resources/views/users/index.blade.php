@@ -28,15 +28,16 @@
 
                 <div class="post-footer">
                     <div class="post-actions">
+                        <button class="like-button" data-post-id="{{ $post->id }}">
+                        <i class="far fa-thumbs-up fa-lg"></i> <span class="like-count">{{ $post->like_count }}</span>
+                        </button>
                         <span class="comment-toggle" style="cursor:pointer;" data-post-id="{{ $post->id }}">
                             <i class="fas fa-comment-dots"></i> Xem Bình Luận ({{ $post->comments_count }})
                         </span>
-                        <a href="#" class="like-button"><i class="fas fa-heart"></i></a>
                         <button class="btn btn-link"><i class="fas fa-bookmark"></i> Lưu</button>
                         <button class="btn btn-link">Chia sẻ</button>
                     </div>
 
-                    <!-- Kiểm tra người dùng đăng bài mới hiện chỉnh sửa -->
                     @if(auth()->check() && auth()->user()->id === $post->user_id)
                     <div class="post-management">
                         <a href="{{ route('posts.edit', $post->id) }}" class="btn btn-warning btn-sm">Chỉnh Sửa</a>
@@ -46,9 +47,9 @@
                         </form>
                     </div>
                     @endif
-                </div> <!-- Kết thúc .post-footer -->
-            </div> <!-- Kết thúc .post-content -->
-        </div> <!-- Kết thúc .post-card -->
+                </div>
+            </div>
+        </div>
         @endforeach
         @endif
     </div>
@@ -91,6 +92,17 @@
             @else
             <p>Vui lòng <a href="{{ route('login') }}">đăng nhập</a> để bình luận.</p>
             @endif
+        </div>
+    </div>
+</div>
+<!-- Modal Đăng Nhập -->
+<div class="modal" id="loginModal" style="display:none;">
+    <div class="modal-content">
+        <span class="close" style="cursor:pointer;">&times;</span>
+        <div class="modal-body">
+            <h5 id="modalTitle">Đăng Nhập</h5>
+            <p id="modalMessage">Vui lòng đăng nhập để thực hiện hành động này.</p>
+            <p>Vui lòng <a href="{{ route('login') }}">đăng nhập</a> để bình luận.</p>
         </div>
     </div>
 </div>

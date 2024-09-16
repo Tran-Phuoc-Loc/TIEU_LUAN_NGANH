@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Middleware\RoleMiddleware;
 use App\Models\Post;
+use Illuminate\Support\Facades\Auth;
 
 // Route cho đăng nhập
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -63,7 +64,13 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('{id}', [PostController::class, 'destroy'])->name('posts.destroy'); // Xóa bài viết
         Route::get('/published', [PostController::class, 'published'])->name('posts.published'); // Hiển thị danh sách bài viết đã xuất bản
         Route::post('{post}/comments', [CommentController::class, 'store'])->name('comments.store'); // Để tạo bình luận cho bài viết
-        Route::get('{post}/comments', [CommentController::class, 'index']); // Để lấy danh sách bình luận của bài viết dưới dạng JSON
         Route::get('{postId}', [CommentController::class, 'show']); // Để hiển thị bài viết cùng với bình luận
+        Route::post('{postId}/like', [PostController::class, 'like']); // Lượt thích của bài viết 
     });
+});
+// Để lấy danh sách bình luận của bài viết dưới dạng JSON
+Route::get('/posts/{post}/comments', [CommentController::class, 'index']);
+
+Route::get('/check-login', function () {
+    return response()->json(['isLoggedIn' => Auth::check()]);
 });

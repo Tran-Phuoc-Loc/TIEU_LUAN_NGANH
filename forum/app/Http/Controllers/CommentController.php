@@ -52,7 +52,11 @@ class CommentController extends Controller
                 'id' => $comment->id,
                 'content' => $comment->content,
                 'created_at' => $comment->created_at, // Trả về đối tượng Carbon
-                'user' => $comment->user,
+                'user' => [
+                    'id' => $comment->user->id,
+                    'username' => $comment->user->username,
+                    'avatar_url' => $comment->user->avatar_url,
+                ],
                 'image_url' => $comment->image_url,
             ];
         });
