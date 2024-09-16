@@ -66,8 +66,11 @@ class User extends Authenticatable
         return $this->role === $role;
     }
     public function isAdmin()
-{
-    return $this->is_admin;
-}
-
+    {
+        return $this->is_admin;
+    }
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
 }

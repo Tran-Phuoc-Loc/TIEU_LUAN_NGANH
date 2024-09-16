@@ -62,6 +62,8 @@ Route::middleware(['auth'])->group(function () {
         Route::put('{post}', [PostController::class, 'update'])->name('posts.update'); // Cập nhật bài viết
         Route::delete('{id}', [PostController::class, 'destroy'])->name('posts.destroy'); // Xóa bài viết
         Route::get('/published', [PostController::class, 'published'])->name('posts.published'); // Hiển thị danh sách bài viết đã xuất bản
-        Route::post('{post}/comments', [CommentController::class, 'store'])->name('comments.store');
+        Route::post('{post}/comments', [CommentController::class, 'store'])->name('comments.store'); // Để tạo bình luận cho bài viết
+        Route::get('{post}/comments', [CommentController::class, 'index']); // Để lấy danh sách bình luận của bài viết dưới dạng JSON
+        Route::get('{postId}', [CommentController::class, 'show']); // Để hiển thị bài viết cùng với bình luận
     });
 });

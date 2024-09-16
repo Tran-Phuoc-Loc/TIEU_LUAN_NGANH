@@ -10,6 +10,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     @vite('resources/js/app.js')
     @vite('resources/css/app.css')
     <style>
@@ -313,37 +314,98 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const commentToggles = document.querySelectorAll('.comment-toggle');
-            const modal = document.getElementById('loginModal');
+            const commentModal = document.getElementById('commentModal');
+            const commentForm = document.getElementById('commentForm');
             const closeButton = document.querySelector('.close');
 
-            commentToggles.forEach(function(toggle) {
-                toggle.addEventListener('click', function() {
-                    const postFooter = this.closest('.post-footer');
-                    if (postFooter) {
-                        const commentForm = postFooter.querySelector('.comment-form');
-                        if (commentForm) {
-                            commentForm.style.display = commentForm.style.display === 'none' ? 'block' : 'none';
-                        } else {
-                            modal.style.display = 'block';
-                        }
-                    }
+            // Khi nhấn vào nút "Xem Bình Luận"
+            document.querySelectorAll('.comment-toggle').forEach(button => {
+                button.addEventListener('click', function() {
+                    const postId = this.getAttribute('data-post-id');
+
+                    // Mở modal
+                    commentModal.style.display = 'block';
+
+                    // Gọi AJAX để lấy bình luận của bài viết
+                    fetch(`/posts/${postId}/comments`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const commentsList = document.querySelector('.comments-list');
+                            commentsList.innerHTML = ''; // Làm sạch danh sách bình luận
+
+                            if (data.comments.length > 0) {
+                                data.comments.forEach(comment => {
+                                    // Định dạng thời gian
+                                    const createdAt = moment(comment.created_at).fromNow(); // Sử dụng moment.js để định dạng
+                                    const commentHtml = `
+                                    <div class="comment">
+                                        <img src="${comment.user.avatar_url ? '/storage/' + comment.user.avatar_url : '/storage/images/avataricon.png'}" alt="Avatar" class="comment-avatar">
+                                        <strong>${comment.user.username}</strong>: ${comment.content}
+                                        ${comment.image_url ? `<div class="comment-image"><img src="/storage/${comment.image_url}" alt="Comment Image"></div>` : ''}
+                                        <small>${createdAt}</small>
+                                    </div>
+                            `;
+                                    commentsList.innerHTML += commentHtml;
+                                });
+                            } else {
+                                commentsList.innerHTML = '<p>Chưa có bình luận nào.</p>';
+                            }
+
+                            // Cập nhật action của form
+                            commentForm.action = `/posts/${postId}/comments`;
+                        });
                 });
             });
 
+            // Đóng modal
             if (closeButton) {
                 closeButton.addEventListener('click', function() {
-                    modal.style.display = 'none';
+                    commentModal.style.display = 'none';
                 });
             }
 
-            window.onclick = function(event) {
-                if (event.target === modal) {
-                    modal.style.display = 'none';
+            // Đóng modal khi nhấn ra ngoài modal
+            window.addEventListener('click', function(event) {
+                if (event.target === commentModal) {
+                    commentModal.style.display = 'none';
                 }
-            };
+            });
 
-            // Existing code for like button and alert
+            // Gửi bình luận qua AJAX
+            if (commentForm) {
+                commentForm.addEventListener('submit', function(e) {
+                    e.preventDefault(); // Ngăn chặn tải lại trang
+
+                    const formData = new FormData(commentForm);
+
+                    fetch(commentForm.action, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            },
+                            body: formData,
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                const commentHtml = `
+                                <div class="comment">
+                                    <img src="${data.comment.user.avatar_url ? '/storage/' + data.comment.user.avatar_url : '/storage/images/avataricon.png'}" alt="Avatar" class="comment-avatar">
+                                    <strong>${data.comment.user.username}</strong>: ${data.comment.content}
+                                    ${data.comment.image_url ? `<div class="comment-image"><img src="/storage/${data.comment.image_url}" alt="Comment Image"></div>` : ''}
+                                    <small>Vừa xong</small>
+                                </div>
+                            `;
+                                document.querySelector('.comments-list').innerHTML += commentHtml;
+                                commentForm.reset();
+                            } else {
+                                alert('Đã có lỗi xảy ra. Vui lòng thử lại.');
+                            }
+                        });
+                });
+            }
+
+            // like button 
             document.querySelectorAll('.like-button').forEach(button => {
                 button.addEventListener('click', function(e) {
                     e.preventDefault();
