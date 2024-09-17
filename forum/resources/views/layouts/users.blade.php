@@ -14,6 +14,13 @@
     @vite('resources/js/app.js')
     @vite('resources/css/app.css')
     <style>
+        /* Container chính */
+        .container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Kiểu cho các bài viết */
         .post-container {
             margin: 0 auto;
             padding: 0;
@@ -48,6 +55,7 @@
             cursor: pointer;
         }
 
+        /* Các hành động của bài viết */
         .post-actions {
             display: flex;
             align-items: center;
@@ -59,6 +67,7 @@
             margin-bottom: 10px;
         }
 
+        /* Mẫu bình luận */
         .comment-form {
             width: 100%;
         }
@@ -68,6 +77,7 @@
             vertical-align: baseline;
         }
 
+        /* Nội dung bài viết */
         .post-content {
             flex-grow: 1;
         }
@@ -82,26 +92,36 @@
             margin-bottom: 10px;
         }
 
+        /* Chân bài viết */
         .post-footer {
             display: flex;
             justify-content: space-between;
             font-size: 0.9rem;
             color: #888;
             flex-direction: column;
-            position: relative; /* Để gạch ngang có thể được đặt chính xác */
-            padding-top: 10px; /* Khoảng cách trên để tránh nội dung bị che phủ */
+            position: relative;
+            padding-top: 10px;
+            /* Khoảng cách trên để tránh nội dung bị che phủ */
         }
 
         .post-footer::before {
-            content: ""; /* Tạo một phần tử giả */
-            position: absolute; /* Đặt vị trí tuyệt đối */
-            top: 0; /* Đặt ở đầu phần tử */
-            left: 0; /* Bắt đầu từ bên trái */
-            right: 0; /* Kéo dài đến bên phải */
-            height: 2px; /* Độ dày của đường gạch */
-            background-color: #ccc; /* Màu sắc của đường gạch */
+            content: "";
+            /* Tạo một phần tử giả */
+            position: absolute;
+            /* Đặt vị trí tuyệt đối */
+            top: 0;
+            /* Đặt ở đầu phần tử */
+            left: 0;
+            /* Bắt đầu từ bên trái */
+            right: 0;
+            /* Kéo dài đến bên phải */
+            height: 2px;
+            /* Độ dày của đường gạch */
+            background-color: #ccc;
+            /* Màu sắc của đường gạch */
         }
 
+        /* Thông tin bài viết */
         .post-meta {
             position: absolute;
             top: 10px;
@@ -127,13 +147,14 @@
             color: #555;
         }
 
+        /* Hình ảnh bài viết */
         .post-image {
             margin: 10px 0;
             text-align: center;
             width: 100%;
             height: 400px;
             overflow: hidden;
-            /*đảm bảo kích thước không quá phần tử chứa*/
+            /* Đảm bảo kích thước không vượt quá phần tử chứa */
         }
 
         .post-image img {
@@ -141,22 +162,19 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            /*căn chỉnh phù hợp khung chứa, giữ nguyên khung hình*/
+            /* Căn chỉnh phù hợp khung chứa, giữ nguyên khung hình */
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
-        .container {
-            display: flex;
-            flex-direction: column;
-        }
-
+        /* Nội dung chính */
         .main-content {
             display: flex;
             flex-direction: row;
             flex: 1;
         }
 
+        /* Nội dung chào mừng */
         .welcome-contents {
             margin-left: 200px;
             padding: 20px;
@@ -166,28 +184,22 @@
             /* Đặt độ rộng tối đa cho container */
         }
 
+        /* Thanh điều hướng dọc */
         .vertical-navbar {
             width: 200px;
             position: fixed;
             height: calc(100vh - 56px);
             /* Điều chỉnh để chiều cao của thanh điều hướng không vượt quá chiều cao của viewport */
-            background: linear-gradient(223deg,
-                    #00d2d3,
-                    #3a7bd5,
-                    #673BAE,
-                    #8948b2,
-                    #FF00FF);
+            background: linear-gradient(223deg, #00d2d3, #3a7bd5, #673BAE, #8948b2, #FF00FF);
             z-index: 1000;
-            /*Đảm bảo phần tử luôn nằm trên các phần tử khác*/
+            /* Đảm bảo phần tử luôn nằm trên các phần tử khác */
             overflow-y: auto;
-            /*Cho phép thanh cuộn dọc xuất hiện nếu nội dung bên trong vượt quá chiều cao phần tử*/
+            /* Cho phép thanh cuộn dọc xuất hiện nếu nội dung bên trong vượt quá chiều cao phần tử */
             flex-shrink: 0;
-            /*Ngăn không cho phần tử bị co lại trong mô hình Flexbox, đảm bảo kích thước của nó không bị thay đổi*/
-            z-index: 1000;
-            overflow-y: auto;
-            flex-shrink: 0;
+            /* Ngăn không cho phần tử bị co lại trong mô hình Flexbox, đảm bảo kích thước của nó không bị thay đổi */
         }
 
+        /* Nội dung chào mừng */
         .welcome-content {
             margin-left: 200px;
             /* Tạo khoảng cách để tránh bị che khuất bởi thanh điều hướng dọc */
@@ -196,22 +208,94 @@
             position: relative;
         }
 
+        /* Hàng */
         .row {
             margin-left: 200px;
             /* Khoảng cách bên trái để tránh bị chồng lên bởi vertical-navbar */
             margin-top: 20px;
             /* Khoảng cách từ welcome-content */
-            /* Đặt z-index cao hơn để row nằm trên thanh điều hướng */
         }
 
+        /* Khoảng cách cho nút điều hướng */
         .navbar-toggler {
             margin-right: 10px;
             /* Đảm bảo khoảng cách hợp lý */
         }
 
-        .navbar-collapse {
+        /* Thanh điều hướng cố định ở dưới cùng */
+        .fixed-bottom {
             background-color: #343a40;
-            /* Màu nền đồng bộ với thanh điều hướng */
+            /* Màu nền của thanh điều hướng */
+            padding: 10px 0;
+            /* Khoảng cách trên và dưới */
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        /* Kiểu cho các mục trong thanh điều hướng */
+        .fixed-bottom .navbar-nav {
+            display: flex;
+            /* Sử dụng Flexbox */
+            justify-content: space-around;
+            /* Căn giữa các mục */
+            width: 100%;
+            /* Chiếm toàn bộ chiều rộng */
+        }
+
+        /* Kiểu cho các mục nav-item */
+        .fixed-bottom .nav-item {
+            flex: 1;
+            /* Đảm bảo mỗi mục chiếm không gian bằng nhau */
+            text-align: center;
+            /* Căn giữa nội dung trong từng mục */
+        }
+
+        /* Kiểu cho các liên kết trong thanh điều hướng */
+        .fixed-bottom .nav-link {
+            color: #ffffff;
+            /* Màu chữ sáng hơn */
+            font-size: 1rem;
+            /* Kích thước chữ */
+            padding: 10px 0;
+            /* Khoảng cách trên và dưới */
+            transition: background-color 0.3s;
+            /* Hiệu ứng chuyển màu nền */
+        }
+
+        /* Hiệu ứng hover cho các liên kết */
+        .fixed-bottom .nav-link:hover {
+            background-color: #495057;
+            /* Màu nền khi hover */
+            border-radius: 5px;
+            /* Bo tròn góc */
+        }
+
+        /* Vòng tròn bao quanh icon */
+        .circle-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            /* Đường kính vòng tròn */
+            height: 40px;
+            /* Đường kính vòng tròn */
+            background-color: #ff4081;
+            /* Màu nền vòng tròn */
+            border-radius: 50%;
+            /* Tạo hình tròn */
+            color: #fff;
+            /* Màu chữ (icon) */
+            transition: background-color 0.3s;
+            /* Hiệu ứng chuyển màu nền */
+        }
+
+        /* Hiệu ứng hover cho vòng tròn */
+        .btn-light:hover .circle-icon {
+            background-color: #e91e63;
+            /* Màu nền khi hover */
         }
     </style>
 </head>
@@ -219,52 +303,58 @@
 <body>
     <div class="container">
         <header class="p-3">
+            <!-- Navbar chính -->
             <nav class="navbar navbar-expand-lg navbar-dark">
                 <a class="navbar-brand" href="{{ url('/') }}">
                     <img src="{{ asset('storage/images/bookicon.png') }}" alt="Description">TechTalks
                 </a>
-                <div class="search-bar w-100">
-                    <form class="input-group">
-                        <input class="form-control me-2" type="search" placeholder="Tìm kiếm bài viết" aria-label="Search">
-                        <button class="btn btn-outline-success" type="submit">
-                            <i class="fas fa-search"></i>Search
-                        </button>
-                    </form>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        @auth
+                        <li class="nav-item dropdown ms-3">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="user-circle">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="#">{{ Auth::user()->name }}</a></li>
+                                <li><a class="dropdown-item" href="{{ route('users.profile', Auth::user()->id) }}">Thông tin cá nhân</a></li>
+                                <li><a class="dropdown-item" href="{{ route('posts.published') }}">Bài Viết Đã Xuất Bản</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Đăng Xuất</a>
+                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                        @csrf
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                        @else
+                        <li class="nav-item ms-3" style="text-align: right;">
+                            <a class="nav-link" href="{{ route('login') }}">Đăng Nhập</a>
+                        </li>
+                        @endauth
+                    </ul>
                 </div>
-                @auth
-                <li class="nav-item dropdown ms-3">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <div class="user-circle">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="#">{{ Auth::user()->name }}</a></li>
-                        <li><a class="dropdown-item" href="{{ route('users.profile', Auth::user()->id) }}">Thông tin cá nhân</a></li>
-                        <li><a class="dropdown-item" href="{{ route('posts.published') }}">Bài Viết Đã Xuất Bản</a></li>
-                </li>
-                <li>
-                    <hr class="dropdown-divider">
-                </li>
-                <li>
-                    <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                        Đăng Xuất
-                    </a>
-                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                        @csrf
-                    </form>
-                </li>
-                </ul>
-                </li>
-                @else
-                <ul class="nav-item ms-3">
-                    <a class="nav-link" href="{{ route('login') }}">Đăng Nhập</a>
-                </ul>
-                @endauth
             </nav>
+            <!-- Thanh tìm kiếm -->
+            <div class="search-bar mt-3">
+                <form class="input-group">
+                    <input class="form-control" type="search" placeholder="Tìm kiếm bài viết" aria-label="Search">
+                    <button class="btn btn-outline-success" type="submit">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </form>
+            </div>
         </header>
 
-        <!-- Menu điều hướng thu gọn cho màn hình lớn -->
         <div class="main-content">
-            <div class="vertical-navbar d-none d-lg-block"> <!-- Ẩn đi trên màn hình nhỏ -->
+            <!-- Menu điều hướng cho màn hình lớn -->
+            <div class="vertical-navbar d-none d-lg-block">
                 <nav class="navbar navbar-dark flex-column">
                     <ul class="navbar-nav">
                         <li class="nav-item">
@@ -288,54 +378,51 @@
                 </nav>
             </div>
 
-            <!-- Menu điều hướng thu gọn cho màn hình nhỏ -->
-            <nav class="navbar navbar-expand-lg navbar-dark d-lg-none" style="margin-bottom: 420px;"> <!-- Chỉ hiển thị trên màn hình nhỏ -->
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url('/') }}">Trang Chủ</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('users.index') }}">Bài Viết</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('categories.index') }}">Danh mục</a>
-                        </li>
-                    </ul>
+            <!-- Menu điều hướng cho màn hình nhỏ -->
+            <nav class="navbar navbar-dark d-lg-none fixed-bottom">
+                <div class="container-fluid">
+                    <div class="d-flex justify-content-around w-100">
+                        <a class="nav-link" href="{{ url('/') }}">Trang Chủ</a>
+                        <a class="nav-link" href="{{ route('users.index') }}">Bài Viết</a>
+                        <a href="{{ route('posts.create') }}" class="btn btn-light">
+                            <span class="circle-icon"><i class="fas fa-plus"></i></span>
+                        </a>
+                        <a class="nav-link" href="{{ route('categories.index') }}">Danh mục</a>
+                        <a class="nav-link" href="#">Liên hệ</a>
+                    </div>
                 </div>
             </nav>
-
-            <main class="main">
-                @yield('content')
-            </main>
         </div>
 
+        <main class="main">
+            <!-- Nội dung chính -->
+            @yield('content')
+        </main>
+
+        <!-- Footer -->
         @include('layouts.partials.footer')
     </div>
 </body>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script>
-        $(document).ready(function() {
-            const commentModal = $('#commentModal'); // Modal để hiển thị bình luận
-            const commentForm = $('#commentForm'); // Form để gửi bình luận
-            const closeButton = $('.close');
-            const commentsList = $('.comments-list'); // Danh sách bình luận trong modal
-            const loginModal = $('#loginModal');
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+    $(document).ready(function() {
+        const commentModal = $('#commentModal'); // Modal để hiển thị bình luận
+        const commentForm = $('#commentForm'); // Form để gửi bình luận
+        const closeButton = $('.close');
+        const commentsList = $('.comments-list'); // Danh sách bình luận trong modal
+        const loginModal = $('#loginModal');
 
-            $('.comment-toggle').on('click', function() {
-                const postId = $(this).data('post-id'); // Lấy ID bài viết từ thuộc tính
-                commentModal.show(); // Hiển thị modal
+        $('.comment-toggle').on('click', function() {
+            const postId = $(this).data('post-id'); // Lấy ID bài viết từ thuộc tính
+            commentModal.show(); // Hiển thị modal
 
-                // Gọi API để lấy danh sách bình luận
-                $.get(`/posts/${postId}/comments`, function(data) {
-                    commentsList.empty(); // Làm sạch danh sách bình luận
-                    if (data.comments.length > 0) {
-                        data.comments.forEach(comment => {
-                            const createdAt = moment(comment.created_at).fromNow();
-                            const commentHtml = `
+            // Gọi API để lấy danh sách bình luận
+            $.get(`/posts/${postId}/comments`, function(data) {
+                commentsList.empty(); // Làm sạch danh sách bình luận
+                if (data.comments.length > 0) {
+                    data.comments.forEach(comment => {
+                        const createdAt = moment(comment.created_at).fromNow();
+                        const commentHtml = `
                         <div class="comment">
                             <img src="${comment.user.avatar_url ? '/storage/' + comment.user.avatar_url : '/storage/images/avataricon.png'}" alt="Avatar" class="comment-avatar">
                             <strong>${comment.user.username}</strong>: ${comment.content}
@@ -343,41 +430,41 @@
                             <small>${createdAt}</small>
                         </div>
                     `;
-                            commentsList.append(commentHtml);
-                        });
-                    } else {
-                        commentsList.append('<p>Chưa có bình luận nào.</p>');
-                    }
-                    commentForm.attr('action', `/posts/${postId}/comments`); // Cập nhật thuộc tính action của form
-                });
-            });
-
-            closeButton.on('click', function() {
-                commentModal.hide();
-            });
-
-            $(window).on('click', function(event) {
-                if ($(event.target).is(commentModal)) {
-                    commentModal.hide();
+                        commentsList.append(commentHtml);
+                    });
+                } else {
+                    commentsList.append('<p>Chưa có bình luận nào.</p>');
                 }
+                commentForm.attr('action', `/posts/${postId}/comments`); // Cập nhật thuộc tính action của form
             });
+        });
 
-            commentForm.on('submit', function(e) {
-                e.preventDefault(); // Ngăn chặn tải lại trang
-                const formData = new FormData(this);
+        closeButton.on('click', function() {
+            commentModal.hide();
+        });
 
-                $.ajax({
-                    url: $(this).attr('action'),
-                    method: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function(data) {
-                        if (data.success && data.comment) {
-                            const commentHtml = `
+        $(window).on('click', function(event) {
+            if ($(event.target).is(commentModal)) {
+                commentModal.hide();
+            }
+        });
+
+        commentForm.on('submit', function(e) {
+            e.preventDefault(); // Ngăn chặn tải lại trang
+            const formData = new FormData(this);
+
+            $.ajax({
+                url: $(this).attr('action'),
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(data) {
+                    if (data.success && data.comment) {
+                        const commentHtml = `
                         <div class="comment">
                             <img src="${data.comment.user.avatar_url ? '/storage/' + data.comment.user.avatar_url : '/storage/images/avataricon.png'}" alt="Avatar" class="comment-avatar">
                             <strong>${data.comment.user.username}</strong>: ${data.comment.content}
@@ -385,101 +472,101 @@
                             <small>Vừa xong</small>
                         </div>
                     `;
-                            commentsList.append(commentHtml);
-                            commentForm[0].reset(); // Đặt lại form
-                        } else {
-                            alert('Đã có lỗi xảy ra. Vui lòng thử lại.');
+                        commentsList.append(commentHtml);
+                        commentForm[0].reset(); // Đặt lại form
+                    } else {
+                        alert('Đã có lỗi xảy ra. Vui lòng thử lại.');
+                    }
+                },
+                error: function(xhr) {
+                    console.error('Có lỗi xảy ra:', xhr);
+                }
+            });
+        });
+
+        $(document).ready(function() {
+            $('.like-button').on('click', function(e) {
+                e.preventDefault(); // Ngăn chặn hành động mặc định của link
+
+                // Đóng modal bình luận nếu nó đang mở
+                commentModal.hide();
+
+                const postId = $(this).data('post-id'); // Lấy ID bài viết từ thuộc tính
+                const likeButton = $(this); // Lưu lại tham chiếu đến nút like
+                const likeUrl = `/posts/${postId}/like`;
+                console.log('Like URL:', likeUrl); // In ra URL để kiểm tra
+
+                // Gọi API để kiểm tra đăng nhập
+                $.ajax({
+                    url: '/check-login', // Route để kiểm tra đăng nhập
+                    method: 'GET',
+                    success: function(data) {
+                        if (!data.isLoggedIn) {
+                            // Hiển thị modal nếu người dùng chưa đăng nhập
+                            $('#modalTitle').text('Đăng Nhập');
+                            $('#modalMessage').text('Vui lòng đăng nhập để thích bài viết.');
+                            $('#loginModal').show(); // Hiển thị modal
+                            return;
                         }
+
+                        // Nếu đã đăng nhập, thực hiện yêu cầu thích
+                        $.ajax({
+                            url: likeUrl, // Đường dẫn đến API like của bạn
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            success: function(data) {
+                                if (data.success) {
+                                    // Cập nhật giao diện
+                                    likeButton.toggleClass('liked'); // Thay đổi class để hiển thị trạng thái
+
+                                    // Cập nhật số lượng like
+                                    const likeCountElement = likeButton.find('.like-count');
+                                    let currentCount = parseInt(likeCountElement.text(), 10);
+
+                                    // Kiểm tra giá trị hiện tại
+                                    if (isNaN(currentCount)) {
+                                        currentCount = 0; // Nếu giá trị không phải là số, khởi tạo lại
+                                    }
+
+                                    // Cập nhật số lượt thích
+                                    if (data.isLiked) {
+                                        likeCountElement.text(currentCount + 1); // Tăng số lượng nếu đã thích
+                                    } else {
+                                        likeCountElement.text(Math.max(currentCount - 1, 0)); // Giảm số lượng nếu đã bỏ thích, không cho phép số âm
+                                    }
+                                } else {
+                                    alert('Đã có lỗi xảy ra. Vui lòng thử lại.');
+                                }
+                            },
+                            error: function(xhr) {
+                                console.error('Có lỗi xảy ra khi thực hiện yêu cầu like:', xhr);
+                                alert('Có lỗi xảy ra. Vui lòng thử lại.');
+                            }
+                        });
                     },
                     error: function(xhr) {
-                        console.error('Có lỗi xảy ra:', xhr);
+                        console.error('Có lỗi xảy ra khi kiểm tra đăng nhập:', xhr);
+                        alert('Có lỗi xảy ra khi kiểm tra đăng nhập.');
+                    }
+                });
+
+                // Đóng modal đăng nhập
+                $('.close').on('click', function() {
+                    $('#loginModal').hide();
+                });
+
+                $(window).on('click', function(event) {
+                    if ($(event.target).is('#loginModal')) {
+                        $('#loginModal').hide();
                     }
                 });
             });
-
-            $(document).ready(function() {
-                $('.like-button').on('click', function(e) {
-                    e.preventDefault(); // Ngăn chặn hành động mặc định của link
-
-                    // Đóng modal bình luận nếu nó đang mở
-                    commentModal.hide();
-
-                    const postId = $(this).data('post-id'); // Lấy ID bài viết từ thuộc tính
-                    const likeButton = $(this); // Lưu lại tham chiếu đến nút like
-                    const likeUrl = `/posts/${postId}/like`;
-                    console.log('Like URL:', likeUrl); // In ra URL để kiểm tra
-
-                    // Gọi API để kiểm tra đăng nhập
-                    $.ajax({
-                        url: '/check-login', // Route để kiểm tra đăng nhập
-                        method: 'GET',
-                        success: function(data) {
-                            if (!data.isLoggedIn) {
-                                // Hiển thị modal nếu người dùng chưa đăng nhập
-                                $('#modalTitle').text('Đăng Nhập');
-                                $('#modalMessage').text('Vui lòng đăng nhập để thích bài viết.');
-                                $('#loginModal').show(); // Hiển thị modal
-                                return;
-                            }
-
-                            // Nếu đã đăng nhập, thực hiện yêu cầu thích
-                            $.ajax({
-                                url: likeUrl, // Đường dẫn đến API like của bạn
-                                method: 'POST',
-                                headers: {
-                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                                },
-                                success: function(data) {
-                                    if (data.success) {
-                                        // Cập nhật giao diện
-                                        likeButton.toggleClass('liked'); // Thay đổi class để hiển thị trạng thái
-
-                                        // Cập nhật số lượng like
-                                        const likeCountElement = likeButton.find('.like-count');
-                                        let currentCount = parseInt(likeCountElement.text(), 10);
-
-                                        // Kiểm tra giá trị hiện tại
-                                        if (isNaN(currentCount)) {
-                                            currentCount = 0; // Nếu giá trị không phải là số, khởi tạo lại
-                                        }
-
-                                        // Cập nhật số lượt thích
-                                        if (data.isLiked) {
-                                            likeCountElement.text(currentCount + 1); // Tăng số lượng nếu đã thích
-                                        } else {
-                                            likeCountElement.text(Math.max(currentCount - 1, 0)); // Giảm số lượng nếu đã bỏ thích, không cho phép số âm
-                                        }
-                                    } else {
-                                        alert('Đã có lỗi xảy ra. Vui lòng thử lại.');
-                                    }
-                                },
-                                error: function(xhr) {
-                                    console.error('Có lỗi xảy ra khi thực hiện yêu cầu like:', xhr);
-                                    alert('Có lỗi xảy ra. Vui lòng thử lại.');
-                                }
-                            });
-                        },
-                        error: function(xhr) {
-                            console.error('Có lỗi xảy ra khi kiểm tra đăng nhập:', xhr);
-                            alert('Có lỗi xảy ra khi kiểm tra đăng nhập.');
-                        }
-                    });
-
-                    // Đóng modal đăng nhập
-                    $('.close').on('click', function() {
-                        $('#loginModal').hide();
-                    });
-
-                    $(window).on('click', function(event) {
-                        if ($(event.target).is('#loginModal')) {
-                            $('#loginModal').hide();
-                        }
-                    });
-                });
-            });
         });
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </body>
 
 </html>
