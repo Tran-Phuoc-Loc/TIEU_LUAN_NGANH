@@ -304,7 +304,7 @@ img.img-thumbnail:hover {
     padding: 20px;
     border: 1px solid #888;
     width: 80%; /* Chiều rộng */
-    max-width: 400px; /* Kích thước tối đa */
+    max-width: 430px; /* Kích thước tối đa */
     border-radius: 8px; /* Bo góc */
 }
 
@@ -352,6 +352,35 @@ img.img-thumbnail:hover {
 .like-button:hover {
     background-color: #007bff; /* Màu nền khi di chuột */
     color: #ffffff;
+}
+
+/* Vị trí comment trên form  */
+.textarea-container {
+    display: flex; /* Sử dụng Flexbox */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    margin-bottom: 15px;
+}
+
+textarea {
+    flex: 1; /* Chiếm toàn bộ chiều rộng còn lại */
+    resize: none; /* Ngăn không cho người dùng thay đổi kích thước */
+    padding: 10px; /* Padding cho textarea */
+    border: 1px solid #ccc; /* Đường viền cho textarea */
+    border-radius: 5px; /* Bo tròn góc cho textarea */
+    margin-right: 10px; /* Khoảng cách giữa textarea và nút */
+}
+
+.file-icon {
+    background: none; /* Không màu nền */
+    border: none; /* Không đường viền */
+    cursor: pointer; /* Con trỏ khi di chuột qua */
+    font-size: 18px; /* Kích thước icon */
+    color: #007bff; /* Màu sắc của icon */
+    margin-right: 10px; /* Khoảng cách giữa icon và nút gửi */
+}
+
+.file-icon:hover {
+    color: #0056b3; /* Đổi màu khi hover */
 }
 
 /* Footer */

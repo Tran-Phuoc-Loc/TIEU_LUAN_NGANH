@@ -297,6 +297,51 @@
             background-color: #e91e63;
             /* Màu nền khi hover */
         }
+
+        .comment-actions {
+            display: flex;
+            /* Sử dụng Flexbox để sắp xếp các nút */
+            align-items: center;
+            /* Căn giữa theo chiều dọc */
+            margin-top: 10px;
+            /* Khoảng cách giữa bình luận và các nút */
+        }
+
+        .comment-actions button {
+            margin-right: 10px;
+            /* Khoảng cách giữa các nút */
+        }
+
+        .comment-actions .likes-count {
+            margin-left: 5px;
+            /* Khoảng cách giữa nút và số lượng thích */
+        }
+
+        .modal-body {
+            display: flex;
+            flex-direction: column;
+            /* Sắp xếp theo chiều dọc */
+            max-height: 400px;
+            /* Chiều cao tối đa */
+            overflow-y: auto;
+            /* Kích hoạt cuộn dọc */
+        }
+
+        .comments-list {
+            flex: 1;
+            /* Chiếm không gian còn lại */
+            margin-bottom: 15px;
+            /* Khoảng cách giữa danh sách bình luận và form */
+        }
+
+        .comment {
+            margin-bottom: 10px;
+            /* Khoảng cách giữa các bình luận */
+            border-bottom: 1px solid #e0e0e0;
+            /* Đường phân cách giữa các bình luận */
+            padding-bottom: 10px;
+            /* Khoảng cách bên dưới bình luận */
+        }
     </style>
 </head>
 
@@ -414,6 +459,9 @@
 
         $('.comment-toggle').on('click', function() {
             const postId = $(this).data('post-id'); // Lấy ID bài viết từ thuộc tính
+            const postTitle = $(this).closest('.post-card').find('.post-title').text(); // Lấy tiêu đề bài viết
+
+            $('#modalPostTitle').text(postTitle); // Cập nhật tiêu đề trong modal
             commentModal.show(); // Hiển thị modal
 
             // Gọi API để lấy danh sách bình luận
@@ -425,9 +473,20 @@
                         const commentHtml = `
                         <div class="comment">
                             <img src="${comment.user.avatar_url ? '/storage/' + comment.user.avatar_url : '/storage/images/avataricon.png'}" alt="Avatar" class="comment-avatar">
-                            <strong>${comment.user.username}</strong>: ${comment.content}
+                            <strong>${comment.user.username}</strong>:<small>${createdAt}</small>
+                            <h6>${comment.content}</h6>
                             ${comment.image_url ? `<div class="comment-image"><img src="/storage/${comment.image_url}" alt="Comment Image"></div>` : ''}
-                            <small>${createdAt}</small>
+                            <div class="comment-actions">
+                            <button class="like-button" data-comment-id="">
+                                <i class="far fa-thumbs-up"></i> Thích
+                            </button>
+                            <button class="share-button" data-comment-id="">
+                                <i class="fas fa-share-alt"></i> Chia sẻ
+                            </button>
+                            <button class="relay-button" data-comment-id="">
+                                <i class="fas fa-retweet"></i> Relay
+                            </button>
+                        </div>
                         </div>
                     `;
                         commentsList.append(commentHtml);
@@ -465,11 +524,22 @@
                 success: function(data) {
                     if (data.success && data.comment) {
                         const commentHtml = `
-                        <div class="comment">
-                            <img src="${data.comment.user.avatar_url ? '/storage/' + data.comment.user.avatar_url : '/storage/images/avataricon.png'}" alt="Avatar" class="comment-avatar">
-                            <strong>${data.comment.user.username}</strong>: ${data.comment.content}
-                            ${data.comment.image_url ? `<div class="comment-image"><img src="/storage/${data.comment.image_url}" alt="Comment Image"></div>` : ''}
-                            <small>Vừa xong</small>
+                            <div class="comment">
+                            <img src="${comment.user.avatar_url ? '/storage/' + comment.user.avatar_url : '/storage/images/avataricon.png'}" alt="Avatar" class="comment-avatar">
+                            <strong>${comment.user.username}</strong>:<small>Vừa xong</small>
+                            <h6>${comment.content}</h6>
+                            ${comment.image_url ? `<div class="comment-image"><img src="/storage/${comment.image_url}" alt="Comment Image"></div>` : ''}
+                            <div class="comment-actions">
+                            <button class="like-button" data-comment-id="">
+                                <i class="far fa-thumbs-up"></i> Thích
+                            </button>
+                            <button class="share-button" data-comment-id="">
+                                <i class="fas fa-share-alt"></i> Chia sẻ
+                            </button>
+                            <button class="relay-button" data-comment-id="">
+                                <i class="fas fa-retweet"></i> Relay
+                            </button>
+                        </div>
                         </div>
                     `;
                         commentsList.append(commentHtml);
@@ -511,7 +581,7 @@
 
                         // Nếu đã đăng nhập, thực hiện yêu cầu thích
                         $.ajax({
-                            url: likeUrl, // Đường dẫn đến API like của bạn
+                            url: likeUrl, // Đường dẫn đến API like 
                             method: 'POST',
                             headers: {
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
