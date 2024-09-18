@@ -124,7 +124,7 @@ class PostController extends Controller
         return redirect()->route('posts.user.published')->with('success', 'Bài viết đã được thu hồi về nháp.');
     }
 
-    public function like($id): JsonResponse
+    public function like($id)
     {
         // Kiểm tra xem người dùng đã đăng nhập chưa
         if (!Auth::check()) {
@@ -151,6 +151,7 @@ class PostController extends Controller
         return response()->json([
             'success' => true,
             'isLiked' => $isLiked,
+            'new_like_count' => $post->likes_count,
             'post' => $post // Có thể gửi lại thông tin bài viết nếu cần
         ]);
     }

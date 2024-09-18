@@ -591,7 +591,7 @@
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                         },
                         success: function(data) {
-                            console.log('Phản hồi từ máy chủ:', data); // Xem phản hồi đầy đủ
+                            // console.log('Phản hồi từ máy chủ:', data); // Xem phản hồi đầy đủ
                             if (data.success) {
                                 // Cập nhật giao diện
                                 button.toggleClass('liked'); // Thay đổi class để hiển thị trạng thái
