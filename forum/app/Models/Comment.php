@@ -9,7 +9,7 @@ class Comment extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['post_id', 'user_id', 'content', 'image_url'];
+    protected $fillable = ['post_id', 'user_id', 'content', 'image_url', 'likes_count'];
 
     public function post()
     {
@@ -19,5 +19,11 @@ class Comment extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    // Định nghĩa mối quan hệ với Like
+    public function likes()
+    {
+        return $this->hasMany(Like::class);
     }
 }

@@ -210,7 +210,8 @@
 
         /* Hàng */
         .row {
-            margin-left: 200px;
+            margin: auto;
+            margin-left: 215px;
             /* Khoảng cách bên trái để tránh bị chồng lên bởi vertical-navbar */
             margin-top: 20px;
             /* Khoảng cách từ welcome-content */
@@ -457,6 +458,7 @@
         const commentsList = $('.comments-list'); // Danh sách bình luận trong modal
         const loginModal = $('#loginModal');
 
+        // Hiển thị modal bình luận khi người dùng nhấn vào nút
         $('.comment-toggle').on('click', function() {
             const postId = $(this).data('post-id'); // Lấy ID bài viết từ thuộc tính
             const postTitle = $(this).closest('.post-card').find('.post-title').text(); // Lấy tiêu đề bài viết
@@ -469,25 +471,26 @@
                 commentsList.empty(); // Làm sạch danh sách bình luận
                 if (data.comments.length > 0) {
                     data.comments.forEach(comment => {
-                        const createdAt = moment(comment.created_at).fromNow();
+                        const createdAt = moment(comment.created_at).fromNow(); // Xử lý ngày tháng
+                        const likesCount = (typeof comment.likes_count !== 'undefined') ? comment.likes_count : 0; // Đặt mặc định là 0 nếu undefined
                         const commentHtml = `
-                        <div class="comment">
-                            <img src="${comment.user.avatar_url ? '/storage/' + comment.user.avatar_url : '/storage/images/avataricon.png'}" alt="Avatar" class="comment-avatar">
-                            <strong>${comment.user.username}</strong>:<small>${createdAt}</small>
-                            <h6>${comment.content}</h6>
-                            ${comment.image_url ? `<div class="comment-image"><img src="/storage/${comment.image_url}" alt="Comment Image"></div>` : ''}
-                            <div class="comment-actions">
-                            <button class="like-button" data-comment-id="">
-                                <i class="far fa-thumbs-up"></i> Thích
+                    <div class="comment">
+                        <img src="${comment.user.avatar_url ? '/storage/' + comment.user.avatar_url : '/storage/images/avataricon.png'}" alt="Avatar" class="comment-avatar">
+                        <strong>${comment.user.username}</strong>:<small>${createdAt}</small>
+                        <h6>${comment.content}</h6>
+                        ${comment.image_url ? `<div class="comment-image"><img src="/storage/${comment.image_url}" alt="Comment Image"></div>` : ''}
+                        <div class="comment-actions">
+                            <button class="like-button" data-comment-id="${comment.id}">
+                                <i class="far fa-thumbs-up"></i>  <span class="like-count">${comment.likes_count}</span>
                             </button>
-                            <button class="share-button" data-comment-id="">
+                            <button class="share-button" data-comment-id="${comment.id}">
                                 <i class="fas fa-share-alt"></i> Chia sẻ
                             </button>
-                            <button class="relay-button" data-comment-id="">
+                            <button class="relay-button" data-comment-id="${comment.id}">
                                 <i class="fas fa-retweet"></i> Relay
                             </button>
                         </div>
-                        </div>
+                    </div>
                     `;
                         commentsList.append(commentHtml);
                     });
@@ -498,16 +501,19 @@
             });
         });
 
+        // Đóng modal khi nhấn nút đóng
         closeButton.on('click', function() {
             commentModal.hide();
         });
 
+        // Đóng modal khi nhấn ra ngoài modal
         $(window).on('click', function(event) {
             if ($(event.target).is(commentModal)) {
                 commentModal.hide();
             }
         });
 
+        // Gửi bình luận
         commentForm.on('submit', function(e) {
             e.preventDefault(); // Ngăn chặn tải lại trang
             const formData = new FormData(this);
@@ -523,23 +529,24 @@
                 },
                 success: function(data) {
                     if (data.success && data.comment) {
+                        const likesCount = data.comment.likes_count || 0; // Đặt mặc định là 0 nếu undefined
                         const commentHtml = `
-                            <div class="comment">
-                            <img src="${comment.user.avatar_url ? '/storage/' + comment.user.avatar_url : '/storage/images/avataricon.png'}" alt="Avatar" class="comment-avatar">
-                            <strong>${comment.user.username}</strong>:<small>Vừa xong</small>
-                            <h6>${comment.content}</h6>
-                            ${comment.image_url ? `<div class="comment-image"><img src="/storage/${comment.image_url}" alt="Comment Image"></div>` : ''}
+                        <div class="comment">
+                            <img src="${data.comment.user.avatar_url ? '/storage/' + data.comment.user.avatar_url : '/storage/images/avataricon.png'}" alt="Avatar" class="comment-avatar">
+                            <strong>${data.comment.user.username}</strong>:<small>Vừa xong</small>
+                            <h6>${data.comment.content}</h6>
+                            ${data.comment.image_url ? `<div class="comment-image"><img src="/storage/${data.comment.image_url}" alt="Comment Image"></div>` : ''}
                             <div class="comment-actions">
-                            <button class="like-button" data-comment-id="">
-                                <i class="far fa-thumbs-up"></i> Thích
-                            </button>
-                            <button class="share-button" data-comment-id="">
-                                <i class="fas fa-share-alt"></i> Chia sẻ
-                            </button>
-                            <button class="relay-button" data-comment-id="">
-                                <i class="fas fa-retweet"></i> Relay
-                            </button>
-                        </div>
+                                <button class="like-button" data-comment-id="${data.comment.id}">
+                                    <i class="far fa-thumbs-up"></i>  <span class="like-count">${data.comment.likes_count}</span>
+                                </button>
+                                <button class="share-button" data-comment-id="${data.comment.id}">
+                                    <i class="fas fa-share-alt"></i> Chia sẻ
+                                </button>
+                                <button class="relay-button" data-comment-id="${data.comment.id}">
+                                    <i class="fas fa-retweet"></i> Relay
+                                </button>
+                            </div>
                         </div>
                     `;
                         commentsList.append(commentHtml);
@@ -554,85 +561,69 @@
             });
         });
 
-        $(document).ready(function() {
-            $('.like-button').on('click', function(e) {
-                e.preventDefault(); // Ngăn chặn hành động mặc định của link
+        // Xử lý sự kiện nhấn nút like
+        $(document).on('click', '.like-button', function(e) {
+            e.preventDefault(); // Ngăn chặn hành động mặc định của link
 
-                // Đóng modal bình luận nếu nó đang mở
-                commentModal.hide();
+            const button = $(this);
+            const commentId = button.data('comment-id'); // Lấy ID bình luận
+            const likeCountElement = button.find('.like-count');
 
-                const postId = $(this).data('post-id'); // Lấy ID bài viết từ thuộc tính
-                const likeButton = $(this); // Lưu lại tham chiếu đến nút like
-                const likeUrl = `/posts/${postId}/like`;
-                console.log('Like URL:', likeUrl); // In ra URL để kiểm tra
+            // Gọi API để kiểm tra đăng nhập
+            $.ajax({
+                url: '/check-login', // Route để kiểm tra đăng nhập
+                method: 'GET',
+                success: function(data) {
+                    if (!data.isLoggedIn) {
+                        // Hiển thị modal nếu người dùng chưa đăng nhập
+                        $('#modalTitle').text('Đăng Nhập');
+                        $('#modalMessage').text('Vui lòng đăng nhập để thích.');
+                        loginModal.show(); // Hiển thị modal
+                        return;
+                    }
 
-                // Gọi API để kiểm tra đăng nhập
-                $.ajax({
-                    url: '/check-login', // Route để kiểm tra đăng nhập
-                    method: 'GET',
-                    success: function(data) {
-                        if (!data.isLoggedIn) {
-                            // Hiển thị modal nếu người dùng chưa đăng nhập
-                            $('#modalTitle').text('Đăng Nhập');
-                            $('#modalMessage').text('Vui lòng đăng nhập để thích bài viết.');
-                            $('#loginModal').show(); // Hiển thị modal
-                            return;
-                        }
+                    // Thực hiện yêu cầu thích
+                    const likeUrl = commentId ? `/comments/${commentId}/like` : `/posts/${button.data('post-id')}/like`;
+                    $.ajax({
+                        url: likeUrl,
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(data) {
+                            console.log('Phản hồi từ máy chủ:', data); // Xem phản hồi đầy đủ
+                            if (data.success) {
+                                // Cập nhật giao diện
+                                button.toggleClass('liked'); // Thay đổi class để hiển thị trạng thái
 
-                        // Nếu đã đăng nhập, thực hiện yêu cầu thích
-                        $.ajax({
-                            url: likeUrl, // Đường dẫn đến API like 
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            },
-                            success: function(data) {
-                                if (data.success) {
-                                    // Cập nhật giao diện
-                                    likeButton.toggleClass('liked'); // Thay đổi class để hiển thị trạng thái
-
-                                    // Cập nhật số lượng like
-                                    const likeCountElement = likeButton.find('.like-count');
-                                    let currentCount = parseInt(likeCountElement.text(), 10);
-
-                                    // Kiểm tra giá trị hiện tại
-                                    if (isNaN(currentCount)) {
-                                        currentCount = 0; // Nếu giá trị không phải là số, khởi tạo lại
-                                    }
-
-                                    // Cập nhật số lượt thích
-                                    if (data.isLiked) {
-                                        likeCountElement.text(currentCount + 1); // Tăng số lượng nếu đã thích
-                                    } else {
-                                        likeCountElement.text(Math.max(currentCount - 1, 0)); // Giảm số lượng nếu đã bỏ thích, không cho phép số âm
-                                    }
-                                } else {
-                                    alert('Đã có lỗi xảy ra. Vui lòng thử lại.');
-                                }
-                            },
-                            error: function(xhr) {
-                                console.error('Có lỗi xảy ra khi thực hiện yêu cầu like:', xhr);
-                                alert('Có lỗi xảy ra. Vui lòng thử lại.');
+                                // Cập nhật số lượng like
+                                likeCountElement.text(data.new_like_count); // Sử dụng giá trị từ phản hồi
+                            } else {
+                                alert('Đã có lỗi xảy ra. Vui lòng thử lại.');
                             }
-                        });
-                    },
-                    error: function(xhr) {
-                        console.error('Có lỗi xảy ra khi kiểm tra đăng nhập:', xhr);
-                        alert('Có lỗi xảy ra khi kiểm tra đăng nhập.');
-                    }
-                });
-
-                // Đóng modal đăng nhập
-                $('.close').on('click', function() {
-                    $('#loginModal').hide();
-                });
-
-                $(window).on('click', function(event) {
-                    if ($(event.target).is('#loginModal')) {
-                        $('#loginModal').hide();
-                    }
-                });
+                        },
+                        error: function(xhr) {
+                            console.error('Có lỗi xảy ra khi thực hiện yêu cầu like:', xhr);
+                            alert('Có lỗi xảy ra. Vui lòng thử lại.');
+                        }
+                    });
+                },
+                error: function(xhr) {
+                    console.error('Có lỗi xảy ra khi kiểm tra đăng nhập:', xhr);
+                    alert('Có lỗi xảy ra khi kiểm tra đăng nhập.');
+                }
             });
+        });
+
+        // Đóng modal đăng nhập
+        $('.close').on('click', function() {
+            loginModal.hide();
+        });
+
+        $(window).on('click', function(event) {
+            if ($(event.target).is(loginModal)) {
+                loginModal.hide();
+            }
         });
     });
 </script>

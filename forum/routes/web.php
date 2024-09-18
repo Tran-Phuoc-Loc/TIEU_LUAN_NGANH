@@ -67,6 +67,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('{postId}', [CommentController::class, 'show']); // Để hiển thị bài viết cùng với bình luận
         Route::post('{postId}/like', [PostController::class, 'like']); // Lượt thích của bài viết 
     });
+
+    // Route quản lý bình luận bài viết
+    Route::prefix('comments')->group(function () {
+        Route::post('{commentId}/like', [CommentController::class, 'like']); // Lượt thích cho bình luận bài viết
+    });
 });
 // Để lấy danh sách bình luận của bài viết dưới dạng JSON
 Route::get('/posts/{post}/comments', [CommentController::class, 'index']);

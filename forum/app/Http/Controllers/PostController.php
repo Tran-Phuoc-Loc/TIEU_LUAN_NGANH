@@ -7,7 +7,9 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Post;
 use App\Models\User;
 use App\Models\Category;
+use App\Models\Comment;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -122,8 +124,7 @@ class PostController extends Controller
         return redirect()->route('posts.user.published')->with('success', 'Bài viết đã được thu hồi về nháp.');
     }
 
-    // Phương thức like
-    public function like($id)
+    public function like($id): JsonResponse
     {
         // Kiểm tra xem người dùng đã đăng nhập chưa
         if (!Auth::check()) {
@@ -142,7 +143,7 @@ class PostController extends Controller
             $isLiked = false;
         } else {
             // Nếu chưa thích, thêm lượt thích mới
-            $post->likes()->create(['user_id' => Auth::id()]);
+            $post->likes()->create(['user_id' => Auth::id(), 'post_id' => $post->id]); // Cung cấp post_id
             $post->increment('likes_count'); // Tăng số lượng lượt thích
             $isLiked = true;
         }

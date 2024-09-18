@@ -13,9 +13,12 @@ return new class extends Migration
     {
         Schema::create('likes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('post_id')->constrained()->onDelete('cascade'); // Liên kết với bảng posts
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Liên kết với bảng users
-            $table->unique(['post_id', 'user_id']); // Đảm bảo mỗi user chỉ thích mỗi post một lần
+            $table->foreignId('post_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('comment_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->unique(['post_id', 'user_id']);
+            $table->unique(['comment_id', 'user_id']);
+            $table->timestamps(); 
         });
     }
 

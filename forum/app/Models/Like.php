@@ -7,8 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Like extends Model
 {
-    protected $fillable = ['post_id', 'user_id'];
+    protected $fillable = ['user_id', 'comment_id', 'post_id'];
 
+    public function comment()
+    {
+        return $this->belongsTo(Comment::class);
+    }
+    
     public function post()
     {
         return $this->belongsTo(Post::class);

@@ -63,35 +63,35 @@
             <h5 id="modalPostTitle">Bình luận cho bài viết</h5>
             <div class="comments-list">
                 @if(isset($comments) && $comments->count() > 0)
-                    @foreach($comments as $comment)
-                    <div class="comment">
-                        <img src="{{ $comment->user->avatar_url ? asset('storage/' . $comment->user->avatar_url) : asset('storage/images/avataricon.png') }}" alt="Avatar" class="comment-avatar" loading="lazy">
-                        <strong>{{ $comment->user->username }}</strong>:
-                        <small>
-                            {{ $comment->created_at->isoFormat('DD/MM/YYYY HH:mm') }}
-                            ({{ $comment->created_at->diffForHumans() }})
-                        </small>
-                        <h6>{{ $comment->content }}</h6>
-                        @if($comment->image_url)
-                        <div class="comment-image">
-                            <img src="{{ asset('storage/' . $comment->image_url) }}" alt="Comment Image" loading="lazy">
-                        </div>
-                        @endif
-                        <div class="comment-actions">
-                            <button class="like-button" data-comment-id="{{ $comment->id }}">
-                                <i class="far fa-thumbs-up"></i> Thích
-                            </button>
-                            <button class="share-button" data-comment-id="{{ $comment->id }}">
-                                <i class="fas fa-share-alt"></i> Chia sẻ
-                            </button>
-                            <button class="relay-button" data-comment-id="{{ $comment->id }}">
-                                <i class="fas fa-retweet"></i> Relay
-                            </button>
-                        </div>
+                @foreach($comments as $comment)
+                <div class="comment">
+                    <img src="{{ $comment->user->avatar_url ? asset('storage/' . $comment->user->avatar_url) : asset('storage/images/avataricon.png') }}" alt="Avatar" class="comment-avatar" loading="lazy">
+                    <strong>{{ $comment->user->username }}</strong>:
+                    <small>
+                        {{ $comment->created_at->isoFormat('DD/MM/YYYY HH:mm') }}
+                        ({{ $comment->created_at->diffForHumans() }})
+                    </small>
+                    <h6>{{ $comment->content }}</h6>
+                    @if($comment->image_url)
+                    <div class="comment-image">
+                        <img src="{{ asset('storage/' . $comment->image_url) }}" alt="Comment Image" loading="lazy">
                     </div>
-                    @endforeach
+                    @endif
+                    <div class="comment-actions">
+                        <button class="like-button" data-comment-id="${comment.id}">
+                            <i class="far fa-thumbs-up"></i> <span class="like-count">${comment.likes_count}</span>
+                        </button>
+                        <button class="share-button" data-comment-id="{{ $comment->id }}">
+                            <i class="fas fa-share-alt"></i> Chia sẻ
+                        </button>
+                        <button class="relay-button" data-comment-id="{{ $comment->id }}">
+                            <i class="fas fa-retweet"></i> Relay
+                        </button>
+                    </div>
+                </div>
+                @endforeach
                 @else
-                    <p>Chưa có bình luận nào.</p>
+                <p>Chưa có bình luận nào.</p>
                 @endif
             </div>
             @if(auth()->check())
