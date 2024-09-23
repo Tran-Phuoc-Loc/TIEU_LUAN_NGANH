@@ -55,21 +55,20 @@ class PostController extends Controller
 
     public function edit(Post $post)
     {
-        // Check if the authenticated user owns the post
-        if (auth()->user()->id !== $post->user->id) {
-            // Redirect back with an error message if they don't own the post
-            return redirect()->route('posts.index')->with('error', 'Bạn không có quyền chỉnh sửa bài viết này.');
+        // Kiểm tra quyền truy cập
+        if (Auth::id() !== $post->user->id) {
+            // Chuyển hướng lại với thông báo lỗi nếu họ không sở hữu bài đăng
+            return redirect()->route('users.index')->with('error', 'Bạn không có quyền chỉnh sửa bài viết này.');
         }
 
-        // If the user owns the post, show the edit page
+        // Nếu người dùng có quyền, hiển thị trang chỉnh sửa bài viết
         return view('posts.edit', compact('post'));
     }
-
 
     public function update(UpdatePostRequest $request, Post $post)
     {
         // Kiểm tra quyền truy cập
-        if (auth()->user()->id !== $post->user_id) {
+        if (Auth::id() !== $post->user->id) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -86,23 +85,45 @@ class PostController extends Controller
 
     public function drafts()
     {
-        $drafts = Post::with('user')->where('status', 'draft')->paginate(10); // Phân trang bài viết draft
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Bạn phải đăng nhập để tạo bài viết.');
+        }
+
+        // Lấy ID của người dùng đã đăng nhập bằng Auth facade
+        $userId = Auth::id();
+
+        // Fetch drafts for the current user
+        $drafts = Post::with('user')
+            ->where('status', 'draft')
+            ->where('user_id', $userId)
+            ->paginate(10);
+
+        // Return view with drafts
         return view('posts.drafts', compact('drafts'));
     }
 
     public function published()
     {
-        // Lấy tất cả bài viết đã xuất bản
-        $posts = Post::where('status', 'published')->orderBy('created_at', 'desc')->paginate(10); // Sử dụng paginate nếu cần phân trang
-
+    // Kiểm tra người dùng đã đăng nhập
+    if (!Auth::check()) {
+        return redirect()->route('login')->with('error', 'Bạn phải đăng nhập để xem bài viết.');
+    }
+    
+        // Lấy tất cả bài viết đã xuất bản thuộc về người dùng hiện tại
+        $posts = Post::where('status', 'published')
+                     ->where('user_id', Auth::id()) // Chỉ lấy bài viết của người dùng hiện tại
+                     ->orderBy('created_at', 'desc')
+                     ->paginate(10); // Sử dụng paginate nếu cần phân trang
+    
         return view('posts.published', compact('posts'));
     }
+    
 
     public function destroy($id)
     {
         $post = Post::findOrFail($id);
         // Kiểm tra quyền truy cập
-        if (auth()->user()->id !== $post->user_id) {
+        if (Auth::id() !== $post->user->id) {
             abort(403, 'Unauthorized action.');
         }
 

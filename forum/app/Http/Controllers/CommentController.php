@@ -25,7 +25,7 @@ class CommentController extends Controller
         $comment = new Comment();
         $comment->content = $request->content;
         $comment->post_id = $post->id;
-        $comment->user_id = auth()->id(); // Lấy ID của người dùng đã đăng nhập
+        $comment->user_id = Auth::id(); // Lấy ID của người dùng đã đăng nhập
 
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('comments', 'public');
