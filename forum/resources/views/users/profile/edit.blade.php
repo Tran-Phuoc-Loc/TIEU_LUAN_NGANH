@@ -16,23 +16,23 @@
         <h1>Chỉnh sửa hồ sơ</h1>
 
         @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
         @endif
 
-        <form action="{{ route('users.update', $user->id) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('users.profile.update', $user->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
             <!-- Tên -->
             <div class="mb-3">
-                <label for="name" class="form-label">Tên</label>
-                <input type="text" class="form-control" id="name" name="name" value="{{ old('name', $user->username) }}" required>
+                <label for="username" class="form-label">Tên</label>
+                <input type="text" class="form-control" id="username" name="username" value="{{ old('username', $user->username) }}" required>
             </div>
 
             <!-- Email -->
@@ -45,15 +45,15 @@
             <div class="mb-3">
                 <label for="avatar" class="form-label">Ảnh đại diện</label>
                 <input type="file" class="form-control" id="avatar" name="avatar">
-                @if($user->avatar)
-                    <img src="{{ asset('storage/avatars/' . $user->avatar) }}" alt="Ảnh đại diện hiện tại" class="mt-2" style="max-width: 150px;">
+                @if($user->profile_picture)
+                <img src="{{ asset('storage/' . $user->profile_picture) }}" alt="Ảnh đại diện hiện tại" class="mt-2" style="max-width: 150px;">
                 @endif
             </div>
 
             <button type="submit" class="btn btn-primary">Cập nhật hồ sơ</button>
         </form>
     </div>
-    
+
     <footer class="mt-5 py-4">
         <div class="container text-center">
             <div class="row">

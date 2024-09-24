@@ -62,11 +62,18 @@
                             @auth
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <div class="user-circle">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
+                                    <div class="user-circle">
+                                        @if(Auth::user()->profile_picture)
+                                        @php($imagePath = asset('storage/' . Auth::user()->profile_picture))
+                                        <img src="{{ $imagePath }}" alt="Ảnh đại diện" class="img-fluid" style="border-radius: 50%;">
+                                        @else
+                                        {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                                        @endif
+                                    </div>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                                     <li><a class="dropdown-item" href="#">{{ Auth::user()->name }}</a></li>
-                                    <li><a class="dropdown-item" href="{{ route('users.profile', Auth::user()->id) }}">Thông tin cá nhân</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('users.profile.index', Auth::user()->id) }}">Thông tin cá nhân</a></li>
                                     <li><a class="dropdown-item" href="{{ route('posts.published') }}">Bài Viết Đã Xuất Bản</a></li>
                                     <li>
                                         <hr class="dropdown-divider">
@@ -106,10 +113,14 @@
                 <!-- Hiển thị thông tin người dùng -->
                 <div class="row">
                     <div class="col-md-4">
-                        @if($user->avatar)
-                        <img src="{{ asset('storage/avatars/' . $user->avatar) }}" alt="Avatar" class="img-thumbnail">
+                        @if(isset($user))
+                        @if($user->profile_picture)
+                        <img src="{{ asset('storage/' . $user->profile_picture) }}" alt="Avatar" class="img-thumbnail">
                         @else
-                        <img src="{{ asset('storage/images/avataricon.png') }}" alt="Avatar" class="img-thumbnail">
+                        <img src="{{ asset('storage/images/avataricon.png') }}" alt="Avatar Mặc Định" class="img-thumbnail">
+                        @endif
+                        @else
+                        <p>Biến user không tồn tại.</p>
                         @endif
                     </div>
                     <div class="col-md-8">
@@ -128,7 +139,7 @@
                             <h5 class="mb-3">Bài Viết Của Tôi</h5>
                             <p class="text-muted">Số lượng bài viết đã xuất bản: <strong>{{ $publishedCount }}</strong></p>
                             <p class="text-muted">Số lượng bài viết ở dạng draft: <strong>{{ $draftCount }}</strong></p>
-                                <a class="dropdown-item" href="{{ route('posts.drafts') }}" class="btn btn-success">Những bài viết dạng draft</a>
+                            <a class="dropdown-item" href="{{ route('posts.drafts') }}" class="btn btn-success">Những bài viết dạng draft</a>
                         </div>
                         <div class="mb-3">
                             <label for="create_at" class="form-label">Ngày tham gia:</label>
@@ -151,7 +162,7 @@
                         </div>
 
                         <!-- Nút chỉnh sửa thông tin -->
-                        <a href="{{ route('users.edit', $user->id) }}" class="btn btn-primary">Chỉnh Sửa Thông Tin</a>
+                        <a href="{{ route('users.profile.edit', $user->id) }}" class="btn btn-primary">Chỉnh Sửa Thông Tin</a>
 
                         <!-- Nút để quay lại trang trước -->
                         <a href="{{ url()->previous() }}" class="btn btn-secondary">Quay lại</a>

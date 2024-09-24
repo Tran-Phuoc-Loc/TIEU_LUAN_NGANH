@@ -362,11 +362,18 @@
                         @auth
                         <li class="nav-item dropdown ms-3">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <div class="user-circle">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
+                                <div class="user-circle">
+                                    @if(Auth::user()->profile_picture)
+                                    @php($imagePath = asset('storage/' . Auth::user()->profile_picture))
+                                    <img src="{{ $imagePath }}" alt="Ảnh đại diện" class="img-fluid" style="border-radius: 50%;">
+                                    @else
+                                    {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                                    @endif
+                                </div>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                                 <li><a class="dropdown-item" href="#">{{ Auth::user()->name }}</a></li>
-                                <li><a class="dropdown-item" href="{{ route('users.profile', Auth::user()->id) }}">Thông tin cá nhân</a></li>
+                                <li><a class="dropdown-item" href="{{ route('users.profile.index', Auth::user()->id) }}">Thông tin cá nhân</a></li>
                                 <li><a class="dropdown-item" href="{{ route('posts.published') }}">Bài Viết Đã Xuất Bản</a></li>
                                 <li>
                                     <hr class="dropdown-divider">

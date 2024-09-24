@@ -24,7 +24,7 @@ class PostController extends Controller
             return redirect()->route('login')->with('error', 'Bạn phải đăng nhập để tạo bài viết.');
         }
 
-        return view('posts.create'); // Hiển thị trang tạo bài viết
+        return view('users.posts.create'); // Hiển thị trang tạo bài viết
     }
 
     public function store(StorePostRequest $request)
@@ -49,7 +49,7 @@ class PostController extends Controller
             return redirect()->route('posts.create')->with('success', 'Bài viết đã lưu.');
         } catch (\Exception $e) {
             Log::error('Lỗi khi tạo bài viết: ' . $e->getMessage());
-            return redirect()->route('posts.create')->with('error', 'Có lỗi xảy ra khi lưu bài viết.');
+            return redirect()->route('users.posts.create')->with('error', 'Có lỗi xảy ra khi lưu bài viết.');
         }
     }
 
@@ -62,7 +62,7 @@ class PostController extends Controller
         }
 
         // Nếu người dùng có quyền, hiển thị trang chỉnh sửa bài viết
-        return view('posts.edit', compact('post'));
+        return view('users.posts.edit', compact('post'));
     }
 
     public function update(UpdatePostRequest $request, Post $post)
@@ -99,7 +99,7 @@ class PostController extends Controller
             ->paginate(10);
 
         // Return view with drafts
-        return view('posts.drafts', compact('drafts'));
+        return view('users.posts.drafts', compact('drafts'));
     }
 
     public function published()
@@ -115,7 +115,7 @@ class PostController extends Controller
                      ->orderBy('created_at', 'desc')
                      ->paginate(10); // Sử dụng paginate nếu cần phân trang
     
-        return view('posts.published', compact('posts'));
+        return view('users.posts.published', compact('posts'));
     }
     
 
@@ -129,7 +129,7 @@ class PostController extends Controller
 
         $post->delete();
 
-        return redirect()->route('posts.drafts')->with('success', 'Bài viết đã được xóa.');
+        return redirect()->route('users.posts.drafts')->with('success', 'Bài viết đã được xóa.');
     }
 
     // Thu hồi bài viết

@@ -71,7 +71,6 @@ header {
 .user-circle {
     width: 48px; /* Chiều rộng của hình tròn đại diện */
     height: 48px; /* Chiều cao của hình tròn đại diện */
-    background-image: url('/storage/images/avataricon.png'); /* Hình ảnh cho avatar */
     color: white; /* Màu chữ trắng */
     border-radius: 50%; /* Bo tròn hình tròn */
     display: flex; /* Sử dụng flexbox */
@@ -79,6 +78,11 @@ header {
     justify-content: center; /* Căn giữa theo chiều ngang */
     font-weight: bold; /* In đậm chữ */
     margin-right: 5px; /* Khoảng cách bên phải */
+}
+
+.user-circle img {
+    width: 100%; /* Đảm bảo ảnh chiếm toàn bộ không gian */
+    height: 100%; /* Đặt chiều cao bằng 100% */
 }
 
 /* Định dạng cho hình ảnh avatar */
