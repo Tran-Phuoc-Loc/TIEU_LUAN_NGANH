@@ -46,6 +46,11 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="{{ route('admin.reports.index') }}">
+                                <i class="fas fa-file-alt"></i> Reports
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="#">
                                 <i class="fas fa-cogs"></i> Settings
                             </a>

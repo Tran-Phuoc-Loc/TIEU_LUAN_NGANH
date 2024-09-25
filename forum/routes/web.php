@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\CategoryController;
@@ -35,6 +35,9 @@ Route::get('/', function () {
 // Route cho admin
 Route::middleware(['auth', RoleMiddleware::class . ':admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/reports', [ReportController::class, 'index'])->name('admin.reports.index');
+    Route::get('/reports/{id}', [ReportController::class, 'show'])->name('admin.reports.show');
+    Route::post('/reports/{id}/process', [ReportController::class, 'process'])->name('admin.reports.process');
 });
 
 // Route cho người dùng
