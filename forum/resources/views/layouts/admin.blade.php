@@ -21,7 +21,7 @@
                     <h4 class="text-center">Admin Dashboard</h4>
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link active" href="#">
+                            <a class="nav-link active" href="{{ route('admin.dashboard') }}">
                                 <i class="fas fa-home"></i> Home
                             </a>
                         </li>
@@ -41,7 +41,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
+                            <a class="nav-link" href="{{ route('admin.categories.index') }}">
                                 <i class="fas fa-book"></i> Categories
                             </a>
                         </li>

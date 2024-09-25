@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class PostController extends Controller
@@ -53,32 +54,49 @@ class PostController extends Controller
         }
     }
 
-    public function edit(Post $post)
+    public function edit($id)
     {
+        $post = Post::find($id);
         // Kiểm tra quyền truy cập
         if (Auth::id() !== $post->user->id) {
             // Chuyển hướng lại với thông báo lỗi nếu họ không sở hữu bài đăng
             return redirect()->route('users.index')->with('error', 'Bạn không có quyền chỉnh sửa bài viết này.');
+        }
+        if (!$post) {
+            return redirect()->route('posts.index')->with('error', 'Bài viết không tồn tại.');
         }
 
         // Nếu người dùng có quyền, hiển thị trang chỉnh sửa bài viết
         return view('users.posts.edit', compact('post'));
     }
 
-    public function update(UpdatePostRequest $request, Post $post)
+    public function update(Request $request, Post $post, $id)
     {
-        // Kiểm tra quyền truy cập
-        if (Auth::id() !== $post->user->id) {
-            abort(403, 'Unauthorized action.');
+        $validatedData = $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'status' => 'required|string|in:draft,published',
+        ]);
+    
+        // Tìm bài viết và cập nhật
+        $post = Post::findOrFail($id);
+        $post->title = $validatedData['title'];
+        $post->content = $validatedData['content'];
+        $post->status = $validatedData['status'];
+    
+        // Xử lý upload ảnh nếu có
+        if ($request->hasFile('image')) {
+            // Xóa ảnh cũ nếu cần
+            if ($post->image_path) {
+                Storage::disk('public')->delete($post->image_path);
+            }
+            // Lưu ảnh mới
+            $path = $request->file('image')->store('images', 'public');
+            $post->image_url = $path;
         }
-
-        // Cập nhật bài viết với dữ liệu đã xác thực
-        $post->update($request->validated());
-
-        // Cập nhật các danh mục nếu có
-        if ($request->has('categories')) {
-            $post->categories()->sync($request->input('categories'));
-        }
+    
+        $post->save();
 
         return redirect()->route('users.index')->with('success', 'Bài viết đã được cập nhật.');
     }
@@ -104,20 +122,55 @@ class PostController extends Controller
 
     public function published()
     {
-    // Kiểm tra người dùng đã đăng nhập
-    if (!Auth::check()) {
-        return redirect()->route('login')->with('error', 'Bạn phải đăng nhập để xem bài viết.');
-    }
-    
+        // Kiểm tra người dùng đã đăng nhập
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Bạn phải đăng nhập để xem bài viết.');
+        }
+
         // Lấy tất cả bài viết đã xuất bản thuộc về người dùng hiện tại
         $posts = Post::where('status', 'published')
-                     ->where('user_id', Auth::id()) // Chỉ lấy bài viết của người dùng hiện tại
-                     ->orderBy('created_at', 'desc')
-                     ->paginate(10); // Sử dụng paginate nếu cần phân trang
-    
+            ->where('user_id', Auth::id()) // Chỉ lấy bài viết của người dùng hiện tại
+            ->orderBy('created_at', 'desc')
+            ->paginate(10); // Sử dụng paginate nếu cần phân trang
+
         return view('users.posts.published', compact('posts'));
     }
-    
+
+    public function publish(Request $request, $id)
+    {
+        Log::info($request->all());
+        // Tìm bài viết theo ID
+        $post = Post::findOrFail($id);
+        // Xác thực dữ liệu đầu vào, nếu cần
+        $validatedData = $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        // Cập nhật thông tin bài viết
+        $post->title = $validatedData['title'];
+        $post->content = $validatedData['content'];
+
+
+        // Xử lý upload ảnh nếu có
+        if ($request->hasFile('image')) {
+            // Xóa ảnh cũ nếu có
+            if ($post->image_path) {
+                Storage::disk('public')->delete($post->image_path);
+            }
+            // Lưu ảnh mới
+            $path = $request->file('image')->store('images', 'public');
+            $post->image_url = $path; // Lưu đường dẫn ảnh vào cơ sở dữ liệu
+        }
+
+        $post->status = 'published'; // Đặt trạng thái là 'published'
+        $post->save();
+
+        // Chuyển hướng hoặc trả về phản hồi
+        return redirect()->route('users.index')->with('success', 'Bài viết đã được xuất bản!');
+    }
+
 
     public function destroy($id)
     {
@@ -175,5 +228,28 @@ class PostController extends Controller
             'new_like_count' => $post->likes_count,
             'post' => $post // Có thể gửi lại thông tin bài viết nếu cần
         ]);
+    }
+
+    public function index(Request $request)
+    {
+        $query = $request->input('query');
+        // Khởi tạo truy vấn
+        $posts = Post::where('status', 'published'); // Chỉ lấy bài viết đã xuất bản
+
+        // Nếu có truy vấn tìm kiếm
+        if ($query) {
+            $posts = $posts->where(function ($q) use ($query) {
+                $q->where('title', 'LIKE', "%{$query}%")
+                    ->orWhere('content', 'LIKE', "%{$query}%");
+            });
+        }
+        // if ($query) {
+        //     $posts = $posts->where('title', 'LIKE', "%{$query}%");
+        // }
+
+        // Lấy danh sách bài viết phù hợp với truy vấn
+        $posts = $posts->get();
+        Log::info('Posts: ', $posts->toArray());
+        return view('users.posts.index', compact('posts', 'query')); // Chuyển đến view kết quả
     }
 }

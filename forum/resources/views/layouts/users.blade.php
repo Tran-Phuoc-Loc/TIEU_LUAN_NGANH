@@ -323,9 +323,11 @@
             overflow-y: auto;
             /* Kích hoạt cuộn dọc */
         }
+
         .textarea-container {
-    margin-top: auto; /* Đẩy form xuống dưới cùng */
-}
+            margin-top: auto;
+            /* Đẩy form xuống dưới cùng */
+        }
 
         .comments-list {
             flex: 1;
@@ -348,28 +350,37 @@
             display: none;
             /* Ẩn mũi tên */
         }
+
         .dropdown {
-        position: relative; /* Để menu được định vị chính xác */
-        margin-left: 390px; /* Đẩy dropdown sang bên phải */
-    }
+            position: relative;
+            /* Để menu được định vị chính xác */
+            margin-left: 390px;
+            /* Đẩy dropdown sang bên phải */
+        }
 
-    .dropdown-toggle {
-        background-color: transparent; /* Không có màu nền */
-        border: none; /* Bỏ viền */
-        color: inherit; /* Giữ lại màu chữ mặc định */
-    }
+        .dropdown-toggle {
+            background-color: transparent;
+            /* Không có màu nền */
+            border: none;
+            /* Bỏ viền */
+            color: inherit;
+            /* Giữ lại màu chữ mặc định */
+        }
 
-    .dropdown-menu {
-        border: none; /* Bỏ viền cho menu */        
-    }
+        .dropdown-menu {
+            border: none;
+            /* Bỏ viền cho menu */
+        }
 
-    .dropdown-item {
-        color: #000; /* Màu chữ của các item */
-    }
+        .dropdown-item {
+            color: #000;
+            /* Màu chữ của các item */
+        }
 
-    .dropdown-item:hover {
-        background-color: rgba(0, 0, 0, 0.1); /* Màu nền khi hover */
-    }
+        .dropdown-item:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+            /* Màu nền khi hover */
+        }
     </style>
 </head>
 
@@ -394,6 +405,7 @@
                                     @php($imagePath = asset('storage/' . Auth::user()->profile_picture))
                                     <img src="{{ $imagePath }}" alt="Ảnh đại diện" class="img-fluid" style="border-radius: 50%;">
                                     @else
+                                    <img src="{{ asset('storage/images/avataricon.png') }}" alt="Ảnh đại diện mặc định" class="img-fluid" style="border-radius: 50%;">
                                     {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                                     @endif
                                 </div>
@@ -421,10 +433,11 @@
                     </ul>
                 </div>
             </nav>
+
             <!-- Thanh tìm kiếm -->
             <div class="search-bar mt-3">
-                <form class="input-group">
-                    <input class="form-control" type="search" placeholder="Tìm kiếm bài viết" aria-label="Search">
+                <form class="input-group" action="{{ url('users/posts') }}" method="GET">
+                    <input class="form-control" type="search" name="query" placeholder="Tìm kiếm bài viết" aria-label="Search" value="{{ request('query') }}">
                     <button class="btn btn-outline-success" type="submit">
                         <i class="fas fa-search"></i> Search
                     </button>
@@ -711,6 +724,22 @@
                         alert('Có lỗi xảy ra. Vui lòng thử lại.');
                     }
                 });
+            });
+        });
+        $(document).ready(function() {
+            $('.toggle-content').click(function() {
+                var preview = $(this).siblings('.post-description').find('.content-preview');
+                var fullContent = $(this).siblings('.post-description').find('.content-full');
+
+                if (fullContent.is(':visible')) {
+                    fullContent.hide();
+                    preview.show();
+                    $(this).text('Xem thêm');
+                } else {
+                    fullContent.show();
+                    preview.hide();
+                    $(this).text('Ẩn bớt');
+                }
             });
         });
     });

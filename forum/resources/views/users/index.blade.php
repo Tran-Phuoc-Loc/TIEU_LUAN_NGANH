@@ -42,11 +42,15 @@
 
             <div class="post-content">
                 <div class="post-title">{{ $post->title }}</div>
-                <div class="post-description">{{ Str::limit($post->content, 100) }}</div>
+                <div class="post-description">
+                    <span class="content-preview">{{ Str::limit($post->content, 100) }}</span>
+                    <span class="content-full" style="display: none;">{{ $post->content }}</span>
+                </div>
+                <button class="btn btn-link toggle-content">Xem thêm</button>
 
                 @if($post->image_url)
                 <div class="post-image">
-                    <img src="{{ asset('storage/' . $post->image_url) }}" alt="">
+                    <img src="{{ asset('storage/' . $post->image_url) }}" alt="{{ $post->title }}">
                 </div>
                 @endif
 

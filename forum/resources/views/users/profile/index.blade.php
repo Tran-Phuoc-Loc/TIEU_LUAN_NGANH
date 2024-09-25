@@ -67,6 +67,7 @@
                                         @php($imagePath = asset('storage/' . Auth::user()->profile_picture))
                                         <img src="{{ $imagePath }}" alt="Ảnh đại diện" class="img-fluid" style="border-radius: 50%;">
                                         @else
+                                        <img src="{{ asset('storage/images/avataricon.png') }}" alt="Ảnh đại diện mặc định" class="img-fluid" style="border-radius: 50%;">
                                         {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                                         @endif
                                     </div>

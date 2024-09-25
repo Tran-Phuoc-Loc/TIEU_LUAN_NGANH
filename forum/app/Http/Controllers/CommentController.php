@@ -32,8 +32,13 @@ class CommentController extends Controller
             $comment->image_url = $imagePath;
         }
 
-        if (!$comment->save()) {
-            return response()->json(['success' => false, 'message' => 'Không thể lưu bình luận.']);
+        // Lưu bình luận và kiểm tra kết quả
+        try {
+            if (!$comment->save()) {
+                return response()->json(['success' => false, 'message' => 'Không thể lưu bình luận.'], 500);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Có lỗi xảy ra: ' . $e->getMessage()], 500);
         }
 
         // Kiểm tra xem yêu cầu có phải AJAX không
@@ -48,7 +53,7 @@ class CommentController extends Controller
         // Nếu không phải AJAX, chuyển hướng lại trang trước với thông báo
         return redirect()->back()->with('success', 'Bình luận đã được gửi!');
     }
-
+    
     public function index($postId)
     {
         $comments = Comment::with('user')->where('post_id', $postId)->get()->map(function ($comment) {
