@@ -63,10 +63,6 @@
             margin-bottom: 10px;
         }
 
-        .post-management {
-            margin-bottom: 10px;
-        }
-
         /* Mẫu bình luận */
         .comment-form {
             width: 100%;
@@ -322,11 +318,14 @@
             display: flex;
             flex-direction: column;
             /* Sắp xếp theo chiều dọc */
-            max-height: 400px;
+            height: 100%;
             /* Chiều cao tối đa */
             overflow-y: auto;
             /* Kích hoạt cuộn dọc */
         }
+        .textarea-container {
+    margin-top: auto; /* Đẩy form xuống dưới cùng */
+}
 
         .comments-list {
             flex: 1;
@@ -343,6 +342,34 @@
             padding-bottom: 10px;
             /* Khoảng cách bên dưới bình luận */
         }
+
+
+        .dropdown-toggle::after {
+            display: none;
+            /* Ẩn mũi tên */
+        }
+        .dropdown {
+        position: relative; /* Để menu được định vị chính xác */
+        margin-left: 390px; /* Đẩy dropdown sang bên phải */
+    }
+
+    .dropdown-toggle {
+        background-color: transparent; /* Không có màu nền */
+        border: none; /* Bỏ viền */
+        color: inherit; /* Giữ lại màu chữ mặc định */
+    }
+
+    .dropdown-menu {
+        border: none; /* Bỏ viền cho menu */        
+    }
+
+    .dropdown-item {
+        color: #000; /* Màu chữ của các item */
+    }
+
+    .dropdown-item:hover {
+        background-color: rgba(0, 0, 0, 0.1); /* Màu nền khi hover */
+    }
     </style>
 </head>
 
@@ -630,6 +657,61 @@
             if ($(event.target).is(loginModal)) {
                 loginModal.hide();
             }
+        });
+
+        $(document).ready(function() {
+            $(document).on('click', '.report-button', function(e) {
+                e.preventDefault();
+
+                const postId = $(this).data('post-id');
+
+                // Kiểm tra trạng thái đăng nhập
+                $.ajax({
+                    url: '/check-login', // Route để kiểm tra đăng nhập
+                    method: 'GET',
+                    success: function(data) {
+                        if (!data.isLoggedIn) {
+                            // Nếu chưa đăng nhập, hiển thị cảnh báo
+                            alert('Bạn cần đăng nhập để báo cáo bài viết.');
+                            redirectToLogin(); // Chuyển hướng đến trang đăng nhập
+                            return;
+                        }
+
+                        // Hiển thị hộp thoại xác nhận
+                        const reason = prompt("Nhập lý do báo cáo:");
+                        if (!reason) {
+                            alert('Bạn cần nhập lý do để báo cáo.')
+                            return; // Nếu không xác nhận, thoát hàm
+                        }
+
+                        // Gán lý do vào input ẩn
+                        $('#reasonInput-' + postId).val(reason);
+
+                        // Gửi yêu cầu AJAX để báo cáo
+                        $.ajax({
+                            url: '/admin/reports/store',
+                            method: 'POST',
+                            data: {
+                                post_id: postId,
+                                reason: reason, // Sử dụng lý do người dùng nhập
+                                _token: $('meta[name="csrf-token"]').attr('content') // CSRF token
+                            },
+                            success: function(response) {
+                                alert('Bài viết đã được báo cáo.');
+                                // Có thể làm mới trang hoặc cập nhật giao diện người dùng
+                            },
+                            error: function(xhr) {
+                                console.error(xhr);
+                                alert('Có lỗi xảy ra. Vui lòng thử lại.');
+                            }
+                        });
+                    },
+                    error: function(xhr) {
+                        console.error('Có lỗi xảy ra khi kiểm tra đăng nhập:', xhr);
+                        alert('Có lỗi xảy ra. Vui lòng thử lại.');
+                    }
+                });
+            });
         });
     });
 </script>

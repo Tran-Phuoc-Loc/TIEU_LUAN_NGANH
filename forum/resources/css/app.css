@@ -304,11 +304,9 @@ img.img-thumbnail:hover {
 .modal-content {
     background-color: #fefefe;
     margin: auto; /* Căn giữa */
-    margin-top: 200px;
+    margin-top: 100px;
     padding: 20px;
-    border: 1px solid #888;
-    width: 80%; /* Chiều rộng */
-    max-width: 430px; /* Kích thước tối đa */
+    max-width: 600px; /* Kích thước tối đa */
     border-radius: 8px; /* Bo góc */
 }
 

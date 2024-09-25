@@ -10,10 +10,34 @@
         @else
         @foreach ($posts as $post)
         <div class="post-card">
-            <div class="post-meta">
-                <img src="{{ $post->user->avatar_url ? asset('storage/' . $post->user->avatar_url) : asset('storage/images/avataricon.png') }}" alt="Avatar" class="post-avatar">
-                <span class="post-author">Đăng bởi: <strong>{{ $post->user->username }}</strong></span> |
-                <span class="post-time">{{ $post->created_at->diffForHumans() }}</span>
+            <div class="post-meta d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <img src="{{ $post->user->avatar_url ? asset('storage/' . $post->user->avatar_url) : asset('storage/images/avataricon.png') }}" alt="Avatar" class="post-avatar">
+                    <span class="post-author">Đăng bởi: <strong>{{ $post->user->username }}</strong></span> |
+                    <span class="post-time">{{ $post->created_at->diffForHumans() }}</span>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        •••
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+                        <li>
+                            <button class="dropdown-item report-button" data-post-id="{{ $post->id }}" style="color: red;">Báo vi phạm</button>
+                        </li>
+                        <!-- Có thể thêm các hành động khác ở đây -->
+                        @if(auth()->check() && auth()->user()->id === $post->user_id)
+                        <li>
+                            <a href="{{ route('posts.edit', $post->id) }}" class="dropdown-item btn btn-warning btn-sm">Chỉnh Sửa</a>
+                        </li>
+                        <li>
+                            <form action="{{ route('posts.recall', $post->id) }}" method="POST" style="display:inline;">
+                                @csrf
+                                <button type="submit" class="dropdown-item btn btn-dark btn-sm">Thu Hồi</button>
+                            </form>
+                        </li>
+                        @endif
+                    </ul>
+                </div>
             </div>
 
             <div class="post-content">
@@ -37,16 +61,6 @@
                         <button class="btn btn-link"><i class="fas fa-bookmark"></i> Lưu</button>
                         <button class="btn btn-link">Chia sẻ</button>
                     </div>
-
-                    @if(auth()->check() && auth()->user()->id === $post->user_id)
-                    <div class="post-management">
-                        <a href="{{ route('posts.edit', $post->id) }}" class="btn btn-warning btn-sm">Chỉnh Sửa</a>
-                        <form action="{{ route('posts.recall', $post->id) }}" method="POST" style="display:inline;">
-                            @csrf
-                            <button type="submit" class="btn btn-dark btn-sm">Thu Hồi</button>
-                        </form>
-                    </div>
-                    @endif
                 </div>
             </div>
         </div>
@@ -114,6 +128,7 @@
         </div>
     </div>
 </div>
+
 <!-- Modal Đăng Nhập -->
 <div class="modal" id="loginModal" style="display:none;">
     <div class="modal-content">
@@ -125,5 +140,14 @@
         </div>
     </div>
 </div>
+
+<!-- Form ẩn để gửi báo cáo -->
+<form id="reportForm-{{ $post->id }}" action="{{ route('admin.reports.store') }}" method="POST" style="display: none;">
+    @csrf
+    <input type="hidden" name="post_id" value="{{ $post->id }}">
+    <input type="hidden" name="reason" id="reasonInput-{{ $post->id }}" value="">
+</form>
+
+
 
 @endsection
