@@ -75,7 +75,7 @@
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                                     <li><a class="dropdown-item" href="#">{{ Auth::user()->name }}</a></li>
                                     <li><a class="dropdown-item" href="{{ route('users.profile.index', Auth::user()->id) }}">Thông tin cá nhân</a></li>
-                                    <li><a class="dropdown-item" href="{{ route('posts.published') }}">Bài Viết Đã Xuất Bản</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('users.posts.published') }}">Bài Viết Đã Xuất Bản</a></li>
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>

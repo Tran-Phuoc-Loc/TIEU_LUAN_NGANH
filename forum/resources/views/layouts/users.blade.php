@@ -413,7 +413,7 @@
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                                 <li><a class="dropdown-item" href="#">{{ Auth::user()->name }}</a></li>
                                 <li><a class="dropdown-item" href="{{ route('users.profile.index', Auth::user()->id) }}">Thông tin cá nhân</a></li>
-                                <li><a class="dropdown-item" href="{{ route('posts.published') }}">Bài Viết Đã Xuất Bản</a></li>
+                                <li><a class="dropdown-item" href="{{ route('users.posts.published') }}">Bài Viết Đã Xuất Bản</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
@@ -465,7 +465,7 @@
                 <nav class="navbar navbar-dark flex-column">
                     <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a href="{{ route('posts.create') }}" class="btn btn-success">Tạo Bài viết</a>
+                            <a href="{{ route('users.posts.create') }}" class="btn btn-success">Tạo Bài viết</a>
                         </li>
                     </ul>
                 </nav>
@@ -477,7 +477,7 @@
                     <div class="d-flex justify-content-around w-100">
                         <a class="nav-link" href="{{ url('/') }}">Trang Chủ</a>
                         <a class="nav-link" href="{{ route('users.index') }}">Bài Viết</a>
-                        <a href="{{ route('posts.create') }}" class="btn btn-light">
+                        <a href="{{ route('users.posts.create') }}" class="btn btn-light">
                             <span class="circle-icon"><i class="fas fa-plus"></i></span>
                         </a>
                         <a class="nav-link" href="{{ route('categories.index') }}">Danh mục</a>

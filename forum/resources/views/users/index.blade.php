@@ -32,6 +32,7 @@
                         <li>
                             <form action="{{ route('posts.recall', $post->id) }}" method="POST" style="display:inline;">
                                 @csrf
+                                @method('PUT')
                                 <button type="submit" class="dropdown-item btn btn-dark btn-sm">Thu Hồi</button>
                             </form>
                         </li>

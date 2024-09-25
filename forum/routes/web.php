@@ -72,16 +72,16 @@ Route::middleware(['auth'])->group(function () {
     // Route::get('/users/posts', [UserController::class, 'index'])->name('users.profile.posts'); // Hiển thị danh sách bài viết của người dùng
 
     // Route để quản lý bài viết
-    Route::prefix('posts')->group(function () {
-        Route::get('/create', [PostController::class, 'create'])->name('posts.create'); // Hiển thị trang tạo bài viết
-        Route::post('/', [PostController::class, 'store'])->name('posts.store'); // Xử lý lưu bài viết mới
+    Route::prefix('users/posts')->group(function () {
+        Route::get('/create', [PostController::class, 'create'])->name('users.posts.create'); // Hiển thị trang tạo bài viết
+        Route::post('/', [PostController::class, 'store'])->name('users.posts.store'); // Xử lý lưu bài viết mới
         Route::get('/drafts', [PostController::class, 'drafts'])->name('posts.drafts'); // Hiển thị danh sách bài viết ở trạng thái draft
         Route::put('{post}/recall', [PostController::class, 'recall'])->name('posts.recall'); // Gọi lại bài viết từ trạng thái đã xuất bản về nháp
         Route::get('{post}/edit', [PostController::class, 'edit'])->name('posts.edit'); // Hiển thị trang chỉnh sửa bài viết
         Route::delete('{id}', [PostController::class, 'destroy'])->name('posts.destroy'); // Xóa bài viết
         Route::put('/posts/{id}', [PostController::class, 'update'])->name('posts.update');// Cập nhật bài viết
         Route::post('/posts/{id}/publish', [PostController::class, 'publish'])->name('posts.publish'); // Xuất bài viết ra khỏi dạng draft
-        Route::get('/published', [PostController::class, 'published'])->name('posts.published'); // Hiển thị danh sách bài viết đã xuất bản
+        Route::get('/published', [PostController::class, 'published'])->name('users.posts.published'); // Hiển thị danh sách bài viết đã xuất bản
         Route::post('{post}/comments', [CommentController::class, 'store'])->name('comments.store'); // Để tạo bình luận cho bài viết
         Route::get('{postId}', [CommentController::class, 'show']); // Để hiển thị bài viết cùng với bình luận
         Route::post('{postId}/like', [PostController::class, 'like']); // Lượt thích của bài viết 

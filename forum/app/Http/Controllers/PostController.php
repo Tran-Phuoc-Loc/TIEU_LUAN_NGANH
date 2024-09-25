@@ -33,11 +33,14 @@ class PostController extends Controller
         try {
             $userId = Auth::id();
 
+            // Lấy giá trị status từ request
+            $status = $request->input('status'); // Thay đổi ở đây
+
             $post = Post::create([
                 'title' => $request->input('title'),
                 'content' => $request->input('content'),
                 'user_id' => $userId,
-                'status' => 'draft',
+                'status' => $status, // Sử dụng giá trị đã lấy từ request
             ]);
 
             // Xử lý file upload nếu có
@@ -47,7 +50,7 @@ class PostController extends Controller
                 $post->update(['image_url' => 'images/' . $filename]);
             }
 
-            return redirect()->route('posts.create')->with('success', 'Bài viết đã lưu.');
+            return redirect()->route('users.posts.create')->with('success', 'Bài viết đã lưu.');
         } catch (\Exception $e) {
             Log::error('Lỗi khi tạo bài viết: ' . $e->getMessage());
             return redirect()->route('users.posts.create')->with('error', 'Có lỗi xảy ra khi lưu bài viết.');
@@ -78,13 +81,13 @@ class PostController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'status' => 'required|string|in:draft,published',
         ]);
-    
+
         // Tìm bài viết và cập nhật
         $post = Post::findOrFail($id);
         $post->title = $validatedData['title'];
         $post->content = $validatedData['content'];
         $post->status = $validatedData['status'];
-    
+
         // Xử lý upload ảnh nếu có
         if ($request->hasFile('image')) {
             // Xóa ảnh cũ nếu cần
@@ -95,7 +98,7 @@ class PostController extends Controller
             $path = $request->file('image')->store('images', 'public');
             $post->image_url = $path;
         }
-    
+
         $post->save();
 
         return redirect()->route('users.index')->with('success', 'Bài viết đã được cập nhật.');
@@ -189,13 +192,12 @@ class PostController extends Controller
     public function recall($id)
     {
         $post = Post::findOrFail($id);
-        $this->authorize('update', $post); // Kiểm tra quyền người dùng
 
         // Chuyển bài viết về trạng thái draft
         $post->status = 'draft';
         $post->save();
 
-        return redirect()->route('posts.user.published')->with('success', 'Bài viết đã được thu hồi về nháp.');
+        return redirect()->route('users.posts.published')->with('success', 'Bài viết đã được thu hồi về nháp.');
     }
 
     public function like($id)
