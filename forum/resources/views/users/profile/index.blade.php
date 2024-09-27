@@ -140,7 +140,7 @@
                             <h5 class="mb-3">Bài Viết Của Tôi</h5>
                             <p class="text-muted">Số lượng bài viết đã xuất bản: <strong>{{ $publishedCount }}</strong></p>
                             <p class="text-muted">Số lượng bài viết ở dạng draft: <strong>{{ $draftCount }}</strong></p>
-                            <a class="dropdown-item" href="{{ route('posts.drafts') }}" class="btn btn-success">Những bài viết dạng draft</a>
+                            <a class="dropdown-item" href="{{ route('users.posts.drafts') }}" class="btn btn-success">Những bài viết dạng draft</a>
                         </div>
                         <div class="mb-3">
                             <label for="create_at" class="form-label">Ngày tham gia:</label>

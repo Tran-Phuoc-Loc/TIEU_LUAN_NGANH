@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="Nơi chia sẻ và thảo luận về công nghệ.">
     <meta name="keywords" content="TechTalks, công nghệ, thảo luận">
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -35,7 +35,6 @@
             border-radius: 5px;
             padding: 10px;
             position: relative;
-            padding-top: 50px;
             padding-left: 10px;
             flex-direction: column;
         }
@@ -119,13 +118,16 @@
 
         /* Thông tin bài viết */
         .post-meta {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            display: flex;
-            align-items: center;
             font-size: 0.9rem;
             color: #888;
+        }
+        .post-category {
+            margin-right: -258px;
+            white-space: nowrap;
+            padding-top: 10px;
+        }
+        .d-flex {
+            width: 100%; /* Đảm bảo phần tử chiếm đủ không gian */
         }
 
         .post-avatar {
@@ -221,15 +223,7 @@
 
         /* Thanh điều hướng cố định ở dưới cùng */
         .fixed-bottom {
-            background-color: #343a40;
-            /* Màu nền của thanh điều hướng */
-            padding: 10px 0;
-            /* Khoảng cách trên và dưới */
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
+            right: 255px;
         }
 
         /* Kiểu cho các mục trong thanh điều hướng */
@@ -269,6 +263,17 @@
             border-radius: 5px;
             /* Bo tròn góc */
         }
+
+        /* Đảm bảo rằng thanh điều hướng không bị cắt */
+nav.navbar.fixed-bottom {
+    padding: 10px 0;
+    background-color: #333;
+    z-index: 1030; /* Đảm bảo nằm trên các thành phần khác */
+}
+
+nav.navbar.fixed-bottom .nav-link, nav.navbar.fixed-bottom .btn {
+    font-size: 14px; /* Đảm bảo kích thước chữ không quá to */
+}
 
         /* Vòng tròn bao quanh icon */
         .circle-icon {
@@ -354,8 +359,6 @@
         .dropdown {
             position: relative;
             /* Để menu được định vị chính xác */
-            margin-left: 390px;
-            /* Đẩy dropdown sang bên phải */
         }
 
         .dropdown-toggle {
@@ -543,7 +546,7 @@
                 } else {
                     commentsList.append('<p>Chưa có bình luận nào.</p>');
                 }
-                commentForm.attr('action', `/posts/${postId}/comments`); // Cập nhật thuộc tính action của form
+                commentForm.attr('action', `/users/posts/${postId}/comments`); // Cập nhật thuộc tính action của form
             });
         });
 

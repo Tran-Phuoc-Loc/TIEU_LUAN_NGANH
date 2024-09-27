@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use App\Models\Post;
 use App\Models\User;
 use App\Models\Category;
@@ -24,14 +25,17 @@ class PostController extends Controller
         if (!Auth::check()) {
             return redirect()->route('login')->with('error', 'Bạn phải đăng nhập để tạo bài viết.');
         }
-
-        return view('users.posts.create'); // Hiển thị trang tạo bài viết
+        $categories = Category::all(); // Lấy tất cả danh mục
+        return view('users.posts.create', compact('categories')); // Hiển thị trang tạo bài viết
     }
 
     public function store(StorePostRequest $request)
     {
+        // dd($request->all());
         try {
             $userId = Auth::id();
+
+            $slug = Str::slug($request->input('title')); // Tạo slug từ tiêu đề
 
             // Lấy giá trị status từ request
             $status = $request->input('status'); // Thay đổi ở đây
@@ -41,6 +45,8 @@ class PostController extends Controller
                 'content' => $request->input('content'),
                 'user_id' => $userId,
                 'status' => $status, // Sử dụng giá trị đã lấy từ request
+                'category_id' => $request->input('category_id'),
+                'slug' => $slug,
             ]);
 
             // Xử lý file upload nếu có
@@ -60,6 +66,7 @@ class PostController extends Controller
     public function edit($id)
     {
         $post = Post::find($id);
+        $categories = Category::all(); // Lấy tất cả danh mục
         // Kiểm tra quyền truy cập
         if (Auth::id() !== $post->user->id) {
             // Chuyển hướng lại với thông báo lỗi nếu họ không sở hữu bài đăng
@@ -70,16 +77,19 @@ class PostController extends Controller
         }
 
         // Nếu người dùng có quyền, hiển thị trang chỉnh sửa bài viết
-        return view('users.posts.edit', compact('post'));
+        return view('users.posts.edit', compact('post', 'categories'));
     }
 
     public function update(Request $request, Post $post, $id)
     {
+        // dd($request->all());
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'status' => 'required|string|in:draft,published',
+            'category_id' => 'required|array', // Cần phải là mảng
+            'category_id.*' => 'exists:categories,id', // Kiểm tra danh mục có tồn tại
         ]);
 
         // Tìm bài viết và cập nhật
@@ -100,6 +110,8 @@ class PostController extends Controller
         }
 
         $post->save();
+        // Cập nhật mối quan hệ với categories
+        $post->categories()->sync($validatedData['category_id']); // Đồng bộ các category_id
 
         return redirect()->route('users.index')->with('success', 'Bài viết đã được cập nhật.');
     }
@@ -113,13 +125,13 @@ class PostController extends Controller
         // Lấy ID của người dùng đã đăng nhập bằng Auth facade
         $userId = Auth::id();
 
-        // Fetch drafts for the current user
+        // Tìm bản nháp cho người dùng hiện tại
         $drafts = Post::with('user')
             ->where('status', 'draft')
             ->where('user_id', $userId)
             ->paginate(10);
 
-        // Return view with drafts
+        // Hiển thị drafts
         return view('users.posts.drafts', compact('drafts'));
     }
 
@@ -253,5 +265,11 @@ class PostController extends Controller
         $posts = $posts->get();
         Log::info('Posts: ', $posts->toArray());
         return view('users.posts.index', compact('posts', 'query')); // Chuyển đến view kết quả
+    }
+
+    public function show($slug)
+    {
+        $post = Post::where('slug', $slug)->firstOrFail(); // Tìm bài viết bằng slug
+        return view('posts.show', compact('post'));
     }
 }

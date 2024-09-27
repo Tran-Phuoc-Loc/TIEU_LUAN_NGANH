@@ -17,6 +17,16 @@
         @method('PUT')
 
         <div class="mb-3">
+            <label for="category_id" class="form-label">Danh mục</label>
+            <select name="category_id[]" class="form-select" id="category_id" multiple required>
+                @foreach($categories as $category)
+                <option value="{{ $category->id }}" {{ in_array($category->id, $post->categories->pluck('id')->toArray()) ? 'selected' : '' }}>
+                    {{ $category->name }}
+                </option>
+                @endforeach
+            </select>
+        </div>
+        <div class="mb-3">
             <label for="title" class="form-label">Tiêu đề bài viết</label>
             <input type="text" name="title" class="form-control" id="title" value="{{ old('title', $post->title) }}" required>
             @error('title')
@@ -50,17 +60,11 @@
             <div class="alert alert-danger">{{ $message }}</div>
             @enderror
         </div>
-
         <div class="mb-3">
             <button type="submit" class="btn btn-primary">Cập Nhật Bài Viết</button>
         </div>
+
     </form>
 
-    @if($post->status === 'draft')
-    <form action="{{ route('posts.publish', $post->id) }}" method="POST">
-        @csrf
-        <button type="submit" class="btn btn-success">Xuất Bản</button>
-    </form>
-    @endif
 </div>
 @endsection

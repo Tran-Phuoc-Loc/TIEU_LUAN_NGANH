@@ -10,12 +10,13 @@
         @else
         @foreach ($posts as $post)
         <div class="post-card">
-            <div class="post-meta d-flex justify-content-between align-items-center">
+            <div class="post-meta d-flex justify-content-between align-items-start">
                 <div class="d-flex align-items-center">
                     <img src="{{ $post->user->avatar_url ? asset('storage/' . $post->user->avatar_url) : asset('storage/images/avataricon.png') }}" alt="Avatar" class="post-avatar">
                     <span class="post-author">Đăng bởi: <strong>{{ $post->user->username }}</strong></span> |
                     <span class="post-time">{{ $post->created_at->diffForHumans() }}</span>
                 </div>
+                
                 <div class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
                         •••
@@ -40,6 +41,17 @@
                     </ul>
                 </div>
             </div>
+            <div class="post-category mt-1"> <!-- Thêm margin-top để tạo khoảng cách -->
+                    @if($post->categories->isNotEmpty())
+                    <span>Danh mục:
+                        @foreach($post->categories as $category)
+                        <strong>{{ $category->name }}</strong>{{ !$loop->last ? ', ' : '' }}
+                        @endforeach
+                    </span>
+                    @else
+                    <span>Không có danh mục</span>
+                    @endif
+                </div>
 
             <div class="post-content">
                 <div class="post-title">{{ $post->title }}</div>

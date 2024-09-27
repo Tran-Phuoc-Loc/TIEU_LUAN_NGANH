@@ -21,6 +21,18 @@
     <form action="{{ route('users.posts.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="mb-3">
+            <label for="category_id" class="form-label">Danh mục</label>
+            <select name="category_id" class="form-select" id="category_id" required>
+                <option value="">Chọn danh mục</option>
+                @foreach($categories as $category)
+                <option value="{{ $category->id }}">{{ $category->name }}</option>
+                @endforeach
+            </select>
+            @error('category_id')
+            <div class="alert alert-danger">{{ $message }}</div>
+            @enderror
+        </div>
+        <div class="mb-3">
             <label for="title" class="form-label">Tiêu đề bài viết</label>
             <input type="text" name="title" class="form-control" id="title" value="{{ old('title') }}">
             @error('title')

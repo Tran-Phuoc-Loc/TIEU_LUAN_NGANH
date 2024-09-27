@@ -19,6 +19,7 @@
                     <th>Tiêu Đề</th>
                     <th>Nội Dung</th>
                     <th>Ngày Xuất Bản</th>
+                    <th>Danh mục</th>
                 </tr>
             </thead>
             <tbody>
@@ -27,6 +28,7 @@
                         <td>{{ $post->title }}</td>
                         <td>{{ Str::limit($post->content, 50) }}</td>
                         <td>{{ $post->created_at->format('d/m/Y H:i') }}</td>
+                        <td>{{ $post->category_id->name }}</td>
                     </tr>
                 @endforeach
             </tbody>

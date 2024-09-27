@@ -1,6 +1,7 @@
 /* Cài đặt chung */
 body {
     background-color: #f8f9fa; /* Màu nền chính của trang */
+    padding-bottom: 60px;
 }
 
 /* Header */
@@ -337,6 +338,11 @@ img.img-thumbnail:hover {
     object-fit: cover;
 }
 
+.dropdown-menu {
+    max-width: 300px;
+    overflow: auto;
+}
+
 .like-button {
     background-color: #ffffff; /* Màu nền */
     border: none; /* Bỏ viền */
@@ -492,4 +498,9 @@ footer {
         width: 120px !important; /* Kích thước nhỏ hơn nữa cho ảnh thumbnail */
         height: 120px !important; /* Kích thước nhỏ hơn nữa cho ảnh thumbnail */
     }
+    .dropdown-menu {
+        width: 100%; /* Đặt chiều rộng bằng 100% cho màn hình nhỏ */
+    }
+    
+    
 }

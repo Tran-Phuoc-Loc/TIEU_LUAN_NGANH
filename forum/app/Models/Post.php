@@ -12,7 +12,7 @@ class Post extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'title', 'content', 'image_url', 'is_featured', 'status'];
+    protected $fillable = ['user_id', 'title', 'content', 'image_url', 'is_featured', 'status', 'slug','category_id',];
 
     public function user(): BelongsTo
     {
@@ -26,7 +26,7 @@ class Post extends Model
 
     public function categories(): BelongsToMany
     {
-        return $this->belongsToMany(Category::class);
+        return $this->belongsToMany(Category::class, 'post_category', 'post_id', 'category_id');
     }
 
     public function likes()
