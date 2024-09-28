@@ -390,6 +390,9 @@
             background-color: rgba(0, 0, 0, 0.1);
             /* Màu nền khi hover */
         }
+        .like-count {
+    display: inline; /* Đảm bảo phần tử hiển thị */
+}
     </style>
 </head>
 

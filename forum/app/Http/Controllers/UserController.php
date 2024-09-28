@@ -35,12 +35,11 @@ class UserController extends Controller
         // Đếm số lượng bài viết đã xuất bản
         $publishedCount = Post::where('user_id', $id)->where('status', 'published')->count();
 
-        // Đếm số lượng bài viết ở dạng draft
-        $draftCount = Post::where('user_id', $id)->where('status', 'draft')->count();
-
-        // Kiểm tra nếu người dùng đang đăng nhập cố gắng truy cập hồ sơ của chính mình
+        // Nếu người dùng hiện tại là chủ sở hữu của hồ sơ, đếm bài viết dạng draft
+        $draftCount = 0;
         if (Auth::id() !== $user->id) {
-            abort(403, 'Hành động không được phép.');
+            // Đếm số lượng bài viết ở dạng draft
+            $draftCount = Post::where('user_id', $id)->where('status', 'draft')->count();
         }
 
         // Trả về view và truyền dữ liệu người dùng cùng các bài viết của họ

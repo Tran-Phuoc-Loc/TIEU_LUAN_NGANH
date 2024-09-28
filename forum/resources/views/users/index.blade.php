@@ -41,15 +41,16 @@
                     </ul>
                 </div>
             </div>
+            <!-- danh mục -->
             <div class="post-category mt-1"> <!-- Thêm margin-top để tạo khoảng cách -->
                 @if($post->categories->isNotEmpty())
-                <span>Danh mục:
+                <span>#
                     @foreach($post->categories as $category)
                     <strong>{{ $category->name }}</strong>{{ !$loop->last ? ', ' : '' }}
                     @endforeach
                 </span>
                 @else
-                <span>Không có danh mục</span>
+                <span>#</span>
                 @endif
             </div>
 

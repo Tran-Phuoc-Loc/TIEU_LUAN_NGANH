@@ -135,7 +135,7 @@ class PostController extends Controller
         return view('users.posts.drafts', compact('drafts'));
     }
 
-    public function published()
+    public function published(User $user)
     {
         // Kiểm tra người dùng đã đăng nhập
         if (!Auth::check()) {
@@ -147,6 +147,11 @@ class PostController extends Controller
             ->where('user_id', Auth::id()) // Chỉ lấy bài viết của người dùng hiện tại
             ->orderBy('created_at', 'desc')
             ->paginate(10); // Sử dụng paginate nếu cần phân trang
+        // Log::info('Published Posts:', $posts->toArray());
+        // Log::info('User ID:', ['id' => $user->id]);
+        // Log::info('Generated URL:', ['url' => route('users.posts.published', $user->id)]);
+
+
 
         return view('users.posts.published', compact('posts'));
     }
@@ -214,34 +219,41 @@ class PostController extends Controller
 
     public function like($id)
     {
-        // Kiểm tra xem người dùng đã đăng nhập chưa
-        if (!Auth::check()) {
-            return response()->json(['success' => false, 'message' => 'Bạn cần đăng nhập.'], 401);
+        try {
+            // Kiểm tra xem người dùng đã đăng nhập chưa
+            if (!Auth::check()) {
+                return response()->json(['success' => false, 'message' => 'Bạn cần đăng nhập.'], 401);
+            }
+
+            // Tìm bài viết theo ID hoặc trả về lỗi 404 nếu không tồn tại
+            $post = Post::findOrFail($id);
+
+            // Kiểm tra xem người dùng đã thích bài viết chưa
+            $like = $post->likes()->where('user_id', Auth::id())->first();
+
+            if ($like) {
+                // Nếu đã thích, xóa lượt thích
+                $like->delete();
+                $post->decrement('likes_count'); // Giảm số lượng lượt thích
+                $isLiked = false;
+            } else {
+                // Nếu chưa thích, thêm lượt thích mới
+                $post->likes()->create(['user_id' => Auth::id()]); // Chỉ cần cung cấp user_id
+                $post->increment('likes_count'); // Tăng số lượng lượt thích
+                $isLiked = true;
+            }
+            // Lấy số lượt thích mới từ CSDL
+            $post->refresh(); // Làm mới dữ liệu từ CSDL
+            $post->save();
+            return response()->json([
+                'success' => true,
+                'isLiked' => $isLiked,
+                'new_like_count' => $post->likes_count, // Trả về số lượt thích mới
+            ]);
+        } catch (\Exception $e) {
+            // Trả về phản hồi lỗi nếu có vấn đề
+            return response()->json(['success' => false, 'message' => 'Đã có lỗi xảy ra. Vui lòng thử lại.'], 500);
         }
-
-        $post = Post::findOrFail($id); // Tìm bài viết theo ID
-
-        // Kiểm tra xem người dùng đã thích bài viết chưa
-        $like = $post->likes()->where('user_id', Auth::id())->first();
-
-        if ($like) {
-            // Nếu đã thích, xóa lượt thích
-            $like->delete();
-            $post->decrement('likes_count'); // Giảm số lượng lượt thích
-            $isLiked = false;
-        } else {
-            // Nếu chưa thích, thêm lượt thích mới
-            $post->likes()->create(['user_id' => Auth::id(), 'post_id' => $post->id]); // Cung cấp post_id
-            $post->increment('likes_count'); // Tăng số lượng lượt thích
-            $isLiked = true;
-        }
-
-        return response()->json([
-            'success' => true,
-            'isLiked' => $isLiked,
-            'new_like_count' => $post->likes_count,
-            'post' => $post // Có thể gửi lại thông tin bài viết nếu cần
-        ]);
     }
 
     public function index(Request $request)
@@ -257,15 +269,41 @@ class PostController extends Controller
                     ->orWhere('content', 'LIKE', "%{$query}%");
             });
         }
-        // if ($query) {
-        //     $posts = $posts->where('title', 'LIKE', "%{$query}%");
-        // }
 
         // Lấy danh sách bài viết phù hợp với truy vấn
         $posts = $posts->get();
-        Log::info('Posts: ', $posts->toArray());
-        return view('users.posts.index', compact('posts', 'query')); // Chuyển đến view kết quả
+
+        // Khởi tạo truy vấn tìm kiếm cho người dùng
+        $users = User::query();
+
+        // Nếu có truy vấn tìm kiếm cho người dùng
+        if ($query) {
+            $users = $users->where(function ($q) use ($query) {
+                $q->where('username', 'LIKE', "%{$query}%")
+                    ->orWhere('email', 'LIKE', "%{$query}%");
+            });
+        }
+
+        // Loại bỏ tài khoản với role là admin
+        $users = $users->where('role', '!=', 'admin');
+
+        $users = $users->orderByRaw("CASE 
+        WHEN username LIKE '{$query}%' THEN 1 
+        ELSE 2 
+    END")
+            ->limit(10)
+            ->get();
+
+
+        // Đảm bảo biến users tồn tại kể cả khi không có truy vấn
+        if ($users->isEmpty()) {
+            $users = collect([]); // Trả về một collection trống
+        }
+
+        // Trả về view với cả bài viết và người dùng
+        return view('users.posts.index', compact('posts', 'users', 'query'));
     }
+
 
     public function show($slug)
     {

@@ -139,8 +139,10 @@
                         <div class="mb-3">
                             <h5 class="mb-3">Bài Viết Của Tôi</h5>
                             <p class="text-muted">Số lượng bài viết đã xuất bản: <strong>{{ $publishedCount }}</strong></p>
-                            <p class="text-muted">Số lượng bài viết ở dạng draft: <strong>{{ $draftCount }}</strong></p>
-                            <a class="dropdown-item" href="{{ route('users.posts.drafts') }}" class="btn btn-success">Những bài viết dạng draft</a>
+                            @if(Auth::id() === $user->id)
+                                <p class="text-muted">Số lượng bài viết ở dạng draft: <strong>{{ $draftCount }}</strong></p>
+                                <a href="{{ route('users.posts.drafts') }}" class="btn btn-success">Những bài viết dạng draft</a>
+                            @endif
                         </div>
                         <div class="mb-3">
                             <label for="create_at" class="form-label">Ngày tham gia:</label>
@@ -162,11 +164,15 @@
                             <p>{{ $user->favorite_posts ?? 'Chưa có bài viết yêu thích' }}</p>
                         </div>
 
+                        <!-- Kiểm tra nếu người dùng hiện tại là chủ sở hữu -->
+                        @if(Auth::check() && Auth::user()->id === $user->id)
                         <!-- Nút chỉnh sửa thông tin -->
                         <a href="{{ route('users.profile.edit', $user->id) }}" class="btn btn-primary">Chỉnh Sửa Thông Tin</a>
 
                         <!-- Nút để quay lại trang trước -->
                         <a href="{{ url()->previous() }}" class="btn btn-secondary">Quay lại</a>
+                        @endif
+
                     </div>
                 </div>
             </div>

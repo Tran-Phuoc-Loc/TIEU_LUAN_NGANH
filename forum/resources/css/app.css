@@ -491,6 +491,8 @@ footer {
     .vertical-navbar .nav-link {
         padding: 10px 15px; /* Thay đổi kích thước của các liên kết */
     }
+
+
 }
 
 @media (max-width: 480px) {
