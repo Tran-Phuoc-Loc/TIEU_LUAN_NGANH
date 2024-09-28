@@ -25,16 +25,20 @@ class RegisterController extends Controller
         ]);
 
         // Tạo người dùng mới
-        $user = User::create([
-            'username' => $validated['username'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-        ]);
+        try {
+            $user = User::create([
+                'username' => $validated['username'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+            ]);
 
-        // Xác thực người dùng
-        Auth::guard()->login($user);
+            // Xác thực người dùng
+            Auth::guard()->login($user);
 
-        // Chuyển hướng đến trang chính
-        return redirect()->route('users.index');
+            // Chuyển hướng đến trang chính
+            return redirect()->route('users.index');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Đăng ký không thành công: ' . $e->getMessage()]);
+        }
     }
 }

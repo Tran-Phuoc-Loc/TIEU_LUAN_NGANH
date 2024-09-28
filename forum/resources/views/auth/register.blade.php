@@ -92,7 +92,7 @@
             const form = document.getElementById('registrationForm');
             if (form) {
                 form.addEventListener('submit', function(event) {
-                    event.preventDefault(); // Ngăn chặn gửi form
+                    // event.preventDefault(); // Ngăn chặn gửi form
                     console.log('Form submitted');
                 });
             }

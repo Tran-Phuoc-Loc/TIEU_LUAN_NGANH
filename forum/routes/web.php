@@ -84,7 +84,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/published', [PostController::class, 'published'])->name('users.posts.published'); // Hiển thị danh sách bài viết đã xuất bản
         Route::post('{post}/comments', [CommentController::class, 'store'])->name('comments.store'); // Để tạo bình luận cho bài viết
         Route::get('{postId}', [CommentController::class, 'show']); // Để hiển thị bài viết cùng với bình luận
-        Route::post('{postId}/like', [PostController::class, 'like']); // Lượt thích của bài viết 
+        Route::post('{postId}/like', [PostController::class, 'like'])->name('posts.like'); // Lượt thích của bài viết 
 
     });
 

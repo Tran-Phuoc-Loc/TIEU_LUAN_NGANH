@@ -16,7 +16,7 @@
                     <span class="post-author">Đăng bởi: <strong>{{ $post->user->username }}</strong></span> |
                     <span class="post-time">{{ $post->created_at->diffForHumans() }}</span>
                 </div>
-                
+
                 <div class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
                         •••
@@ -42,16 +42,16 @@
                 </div>
             </div>
             <div class="post-category mt-1"> <!-- Thêm margin-top để tạo khoảng cách -->
-                    @if($post->categories->isNotEmpty())
-                    <span>Danh mục:
-                        @foreach($post->categories as $category)
-                        <strong>{{ $category->name }}</strong>{{ !$loop->last ? ', ' : '' }}
-                        @endforeach
-                    </span>
-                    @else
-                    <span>Không có danh mục</span>
-                    @endif
-                </div>
+                @if($post->categories->isNotEmpty())
+                <span>Danh mục:
+                    @foreach($post->categories as $category)
+                    <strong>{{ $category->name }}</strong>{{ !$loop->last ? ', ' : '' }}
+                    @endforeach
+                </span>
+                @else
+                <span>Không có danh mục</span>
+                @endif
+            </div>
 
             <div class="post-content">
                 <div class="post-title">{{ $post->title }}</div>

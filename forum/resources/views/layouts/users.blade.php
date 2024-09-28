@@ -121,13 +121,16 @@
             font-size: 0.9rem;
             color: #888;
         }
+
         .post-category {
             margin-right: -258px;
             white-space: nowrap;
             padding-top: 10px;
         }
+
         .d-flex {
-            width: 100%; /* Đảm bảo phần tử chiếm đủ không gian */
+            width: 100%;
+            /* Đảm bảo phần tử chiếm đủ không gian */
         }
 
         .post-avatar {
@@ -265,15 +268,18 @@
         }
 
         /* Đảm bảo rằng thanh điều hướng không bị cắt */
-nav.navbar.fixed-bottom {
-    padding: 10px 0;
-    background-color: #333;
-    z-index: 1030; /* Đảm bảo nằm trên các thành phần khác */
-}
+        nav.navbar.fixed-bottom {
+            padding: 10px 0;
+            background-color: #333;
+            z-index: 1030;
+            /* Đảm bảo nằm trên các thành phần khác */
+        }
 
-nav.navbar.fixed-bottom .nav-link, nav.navbar.fixed-bottom .btn {
-    font-size: 14px; /* Đảm bảo kích thước chữ không quá to */
-}
+        nav.navbar.fixed-bottom .nav-link,
+        nav.navbar.fixed-bottom .btn {
+            font-size: 14px;
+            /* Đảm bảo kích thước chữ không quá to */
+        }
 
         /* Vòng tròn bao quanh icon */
         .circle-icon {
@@ -546,7 +552,7 @@ nav.navbar.fixed-bottom .nav-link, nav.navbar.fixed-bottom .btn {
                 } else {
                     commentsList.append('<p>Chưa có bình luận nào.</p>');
                 }
-                commentForm.attr('action', `/users/posts/${postId}/comments`); // Cập nhật thuộc tính action của form
+                commentForm.attr('action', `/posts/${postId}/comments`); // Cập nhật thuộc tính action của form
             });
         });
 
@@ -616,6 +622,7 @@ nav.navbar.fixed-bottom .nav-link, nav.navbar.fixed-bottom .btn {
 
             const button = $(this);
             const commentId = button.data('comment-id'); // Lấy ID bình luận
+            const postId = button.data('post-id'); // Lấy ID bài viết
             const likeCountElement = button.find('.like-count');
 
             // Gọi API để kiểm tra đăng nhập
@@ -632,7 +639,12 @@ nav.navbar.fixed-bottom .nav-link, nav.navbar.fixed-bottom .btn {
                     }
 
                     // Thực hiện yêu cầu thích
-                    const likeUrl = commentId ? `/comments/${commentId}/like` : `/posts/${button.data('post-id')}/like`;
+                    let likeUrl;
+                    if (commentId) {
+                        likeUrl = `/comments/${commentId}/like`; // URL cho like comment
+                    } else {
+                        likeUrl = `users/posts/${postId}/like`; // URL cho like bài viết
+                    }
                     $.ajax({
                         url: likeUrl,
                         method: 'POST',

@@ -6,20 +6,22 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Comment;
 use App\Models\User;
 use App\Models\Post;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 
 class CommentController extends Controller
 {
     public function store(Request $request, $postId)
     {
+        // Tìm bài viết
+        $post = Post::findOrFail($postId);
+
         // Xác thực dữ liệu
         $request->validate([
             'content' => 'required|string|max:255',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
         ]);
 
-        // Tìm bài viết
-        $post = Post::findOrFail($postId);
 
         // Tạo bình luận mới
         $comment = new Comment();
@@ -53,7 +55,7 @@ class CommentController extends Controller
         // Nếu không phải AJAX, chuyển hướng lại trang trước với thông báo
         return redirect()->back()->with('success', 'Bình luận đã được gửi!');
     }
-    
+
     public function index($postId)
     {
         $comments = Comment::with('user')->where('post_id', $postId)->get()->map(function ($comment) {
@@ -77,9 +79,10 @@ class CommentController extends Controller
         ]);
     }
 
-    public function show($postId)
+    public function show($postId)   
     {
-        $post = Post::with('user')->findOrFail($postId);
+        $post = Post::with('user')->find($postId);
+
         $comments = Comment::where('post_id', $postId)->with('user')->get();
 
         // Log::info('Post:', ['post' => $post]);
