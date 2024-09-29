@@ -16,12 +16,16 @@ class UserController extends Controller
 
     public function index()
     {
-        $users = User::all();
+        $users = User::all(); // Lấy tất cả người dùng
+    
         // Lấy tất cả bài viết đã xuất bản
-        $posts = Post::with('user')
-            ->where('status', 'published')
-            ->get();
-        return view('users.index', compact('users', 'posts')); // Truyền cả users và posts đến view
+        $posts = Post::with('user')->where('status', 'published')->get();
+    
+        // Kiểm tra xem người dùng đã đăng nhập chưa
+        $group = Auth::check() ? Auth::user()->group : null; // Nếu đã đăng nhập thì lấy nhóm, nếu không thì null
+    
+        // Trả về view với các biến cần thiết
+        return view('users.index', compact('users', 'posts', 'group'));
     }
 
     public function show(User $user)

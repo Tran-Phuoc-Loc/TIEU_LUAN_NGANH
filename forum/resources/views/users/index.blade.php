@@ -84,6 +84,16 @@
         </div>
         @endforeach
         @endif
+        <!-- Thông tin nhóm (chỉ hiển thị khi $group tồn tại)
+        @if(isset($group))
+        <div class="group-details">
+            <h1>{{ $group->name }}</h1>
+            <p>{{ $group->description }}</p>
+            <p>Người tạo: {{ $group->creator->username ?? 'Không rõ' }}</p>
+            <p>Ngày tạo: {{ $group->created_at->format('d/m/Y H:i') }}</p>
+        </div>
+        @endif -->
+
     </div>
 </div>
 

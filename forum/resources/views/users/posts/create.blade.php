@@ -1,6 +1,6 @@
 @extends('layouts.users')
 
-@section('title', 'Chào Mừng Đến TechTalks')
+@section('title', 'Tạo bài viết mới')
 
 @section('content')
 <div class="welcome-contents">

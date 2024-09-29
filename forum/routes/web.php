@@ -11,6 +11,8 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Middleware\RoleMiddleware;
+use App\Http\Controllers\GroupController;
+use App\Models\Group;
 use App\Models\Post;
 use Illuminate\Support\Facades\Auth;
 
@@ -38,7 +40,7 @@ Route::post('/admin/reports/store', [ReportController::class, 'store'])->name('a
 // Route cho admin
 Route::middleware(['auth', RoleMiddleware::class . ':admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
-     // Route cho danh sách danh mục
+    // Route cho danh sách danh mục
     Route::get('admin/categories', [AdminCategoryController::class, 'index'])->name('admin.categories.index');
     // Các route khác cho quản lý danh mục
     Route::get('admin/categories/create', [AdminCategoryController::class, 'create'])->name('admin.categories.create');
@@ -51,7 +53,6 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin'])->group(function ()
     Route::get('/admin/reports', [ReportController::class, 'index'])->name('admin.reports.index');
     Route::get('/admin/reports/{id}', [ReportController::class, 'show'])->name('admin.reports.show');
     Route::post('/admin/reports/{id}/process', [ReportController::class, 'process'])->name('admin.reports.process');
-
 });
 
 // Route cho người dùng
@@ -79,7 +80,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('{post}/recall', [PostController::class, 'recall'])->name('posts.recall'); // Gọi lại bài viết từ trạng thái đã xuất bản về nháp
         Route::get('{post}/edit', [PostController::class, 'edit'])->name('posts.edit'); // Hiển thị trang chỉnh sửa bài viết
         Route::delete('{id}', [PostController::class, 'destroy'])->name('posts.destroy'); // Xóa bài viết
-        Route::put('/posts/{id}', [PostController::class, 'update'])->name('posts.update');// Cập nhật bài viết
+        Route::put('/posts/{id}', [PostController::class, 'update'])->name('posts.update'); // Cập nhật bài viết
         Route::post('/posts/{id}/publish', [PostController::class, 'publish'])->name('posts.publish'); // Xuất bài viết ra khỏi dạng draft
         Route::get('/published', [PostController::class, 'published'])->name('users.posts.published'); // Hiển thị danh sách bài viết đã xuất bản
         Route::post('{post}/comments', [CommentController::class, 'store'])->name('comments.store'); // Để tạo bình luận cho bài viết
@@ -92,6 +93,12 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('comments')->group(function () {
         Route::post('{commentId}/like', [CommentController::class, 'like']); // Lượt thích cho bình luận bài viết
     });
+    Route::prefix('users')->group(function () {
+        Route::get('/groups/create', [GroupController::class, 'create'])->name('users.groups.create');
+        Route::post('/groups', [GroupController::class, 'store'])->name('users.groups.store');
+        Route::get('/groups/{id}', [GroupController::class, 'show'])->name('users.groups.show');
+    });
+
 
     // Route cho categories 
     Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index'); // Nếu có các hành động CRUD

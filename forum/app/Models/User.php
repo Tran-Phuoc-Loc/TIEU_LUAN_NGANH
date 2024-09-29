@@ -60,7 +60,7 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Role::class, 'role_user');
     }
-    
+
     public function hasRole($role)
     {
         // Vai trò người dùng trong cột 'role' trong bảng 'users'
@@ -80,5 +80,16 @@ class User extends Authenticatable
     public function likes()
     {
         return $this->hasMany(Like::class);
+    }
+
+    // Các nhóm mà người dùng tham gia
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class, 'group_user');
+    }
+
+    public function primaryGroup()
+    {
+        return $this->groups()->first(); // Lấy nhóm đầu tiên 
     }
 }

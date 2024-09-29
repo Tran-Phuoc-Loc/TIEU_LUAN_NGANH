@@ -390,9 +390,11 @@
             background-color: rgba(0, 0, 0, 0.1);
             /* Màu nền khi hover */
         }
+
         .like-count {
-    display: inline; /* Đảm bảo phần tử hiển thị */
-}
+            display: inline;
+            /* Đảm bảo phần tử hiển thị */
+        }
     </style>
 </head>
 
@@ -426,6 +428,7 @@
                                 <li><a class="dropdown-item" href="#">{{ Auth::user()->name }}</a></li>
                                 <li><a class="dropdown-item" href="{{ route('users.profile.index', Auth::user()->id) }}">Thông tin cá nhân</a></li>
                                 <li><a class="dropdown-item" href="{{ route('users.posts.published') }}">Bài Viết Đã Xuất Bản</a></li>
+                                <li><a class="dropdown-item" href="{{ route('users.groups.show', $group->id) }}">Danh sách các nhóm</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
@@ -478,6 +481,9 @@
                     <ul class="navbar-nav">
                         <li class="nav-item">
                             <a href="{{ route('users.posts.create') }}" class="btn btn-success">Tạo Bài viết</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('users.groups.create') }}" class="btn btn-success">Tạo Group</a>
                         </li>
                     </ul>
                 </nav>

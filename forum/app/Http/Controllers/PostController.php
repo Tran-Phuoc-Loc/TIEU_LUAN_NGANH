@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use App\Models\Post;
 use App\Models\User;
+use App\Models\Group;
 use App\Models\Category;
 use App\Models\Comment;
 use Illuminate\Http\Request;
@@ -259,7 +260,8 @@ class PostController extends Controller
     public function index(Request $request)
     {
         $query = $request->input('query');
-        // Khởi tạo truy vấn
+
+        // Khởi tạo truy vấn cho bài viết
         $posts = Post::where('status', 'published'); // Chỉ lấy bài viết đã xuất bản
 
         // Nếu có truy vấn tìm kiếm
@@ -288,21 +290,37 @@ class PostController extends Controller
         $users = $users->where('role', '!=', 'admin');
 
         $users = $users->orderByRaw("CASE 
-        WHEN username LIKE '{$query}%' THEN 1 
-        ELSE 2 
+    WHEN username LIKE '{$query}%' THEN 1 
+    ELSE 2 
     END")
             ->limit(10)
             ->get();
-
 
         // Đảm bảo biến users tồn tại kể cả khi không có truy vấn
         if ($users->isEmpty()) {
             $users = collect([]); // Trả về một collection trống
         }
 
-        // Trả về view với cả bài viết và người dùng
-        return view('users.posts.index', compact('posts', 'users', 'query'));
+        // Khởi tạo truy vấn tìm kiếm cho nhóm
+        $groups = Group::query();
+
+        // Nếu có truy vấn tìm kiếm cho nhóm
+        if ($query) {
+            $groups = $groups->where('name', 'LIKE', "%{$query}%");
+        }
+
+        // Lấy danh sách nhóm phù hợp với truy vấn
+        $groups = $groups->get();
+
+        // Đảm bảo biến groups tồn tại kể cả khi không có truy vấn
+        if ($groups->isEmpty()) {
+            $groups = collect([]); // Trả về một collection trống
+        }
+
+        // Trả về view với cả bài viết, người dùng và nhóm
+        return view('users.posts.index', compact('posts', 'users', 'groups', 'query'));
     }
+
 
 
     public function show($slug)
