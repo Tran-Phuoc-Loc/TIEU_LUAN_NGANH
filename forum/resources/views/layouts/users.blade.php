@@ -13,6 +13,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     @vite('resources/js/app.js')
     @vite('resources/css/app.css')
+    @yield('css') <!-- Hiển thị CSS riêng cho mỗi trang -->
     <style>
         /* Container chính */
         .container {
@@ -428,7 +429,7 @@
                                 <li><a class="dropdown-item" href="#">{{ Auth::user()->name }}</a></li>
                                 <li><a class="dropdown-item" href="{{ route('users.profile.index', Auth::user()->id) }}">Thông tin cá nhân</a></li>
                                 <li><a class="dropdown-item" href="{{ route('users.posts.published') }}">Bài Viết Đã Xuất Bản</a></li>
-                                <li><a class="dropdown-item" href="{{ route('users.groups.show', $group->id) }}">Danh sách các nhóm</a></li>
+                                <li><a class="dropdown-item" href="{{ route('users.groups.index') }}">Danh sách các nhóm tham gia</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
@@ -484,6 +485,9 @@
                         </li>
                         <li class="nav-item">
                             <a href="{{ route('users.groups.create') }}" class="btn btn-success">Tạo Group</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('groups.chat', $group->id) }}">Chat trong nhóm</a>
                         </li>
                     </ul>
                 </nav>

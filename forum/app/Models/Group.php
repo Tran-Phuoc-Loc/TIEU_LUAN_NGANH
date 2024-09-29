@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Model;
 
 class Group extends Model
@@ -11,10 +12,10 @@ class Group extends Model
 
     protected $fillable = ['name', 'description', 'creator_id'];
 
-    // Quan hệ với User
-    public function users()
+    // Định nghĩa mối quan hệ nhiều-nhiều với model User
+    public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'group_user');
+        return $this->belongsToMany(User::class, 'group_user', 'group_id', 'user_id');
     }
 
     // Người tạo nhóm
@@ -22,5 +23,15 @@ class Group extends Model
     {
         return $this->belongsTo(User::class, 'creator_id');
     }
-}
 
+    public function chats()
+    {
+        return $this->hasMany(Chat::class);
+    }
+
+    // Định nghĩa quan hệ với bài viết
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
+}

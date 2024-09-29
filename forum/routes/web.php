@@ -12,6 +12,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\ChatController;
 use App\Models\Group;
 use App\Models\Post;
 use Illuminate\Support\Facades\Auth;
@@ -77,12 +78,12 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/create', [PostController::class, 'create'])->name('users.posts.create'); // Hiển thị trang tạo bài viết
         Route::post('/', [PostController::class, 'store'])->name('users.posts.store'); // Xử lý lưu bài viết mới
         Route::get('/drafts', [PostController::class, 'drafts'])->name('users.posts.drafts'); // Hiển thị danh sách bài viết ở trạng thái draft
+        Route::get('/published', [PostController::class, 'published'])->name('users.posts.published'); // Hiển thị danh sách bài viết đã xuất bản
         Route::put('{post}/recall', [PostController::class, 'recall'])->name('posts.recall'); // Gọi lại bài viết từ trạng thái đã xuất bản về nháp
         Route::get('{post}/edit', [PostController::class, 'edit'])->name('posts.edit'); // Hiển thị trang chỉnh sửa bài viết
         Route::delete('{id}', [PostController::class, 'destroy'])->name('posts.destroy'); // Xóa bài viết
         Route::put('/posts/{id}', [PostController::class, 'update'])->name('posts.update'); // Cập nhật bài viết
         Route::post('/posts/{id}/publish', [PostController::class, 'publish'])->name('posts.publish'); // Xuất bài viết ra khỏi dạng draft
-        Route::get('/published', [PostController::class, 'published'])->name('users.posts.published'); // Hiển thị danh sách bài viết đã xuất bản
         Route::post('{post}/comments', [CommentController::class, 'store'])->name('comments.store'); // Để tạo bình luận cho bài viết
         Route::get('{postId}', [CommentController::class, 'show']); // Để hiển thị bài viết cùng với bình luận
         Route::post('{postId}/like', [PostController::class, 'like'])->name('posts.like'); // Lượt thích của bài viết 
@@ -94,9 +95,17 @@ Route::middleware(['auth'])->group(function () {
         Route::post('{commentId}/like', [CommentController::class, 'like']); // Lượt thích cho bình luận bài viết
     });
     Route::prefix('users')->group(function () {
-        Route::get('/groups/create', [GroupController::class, 'create'])->name('users.groups.create');
-        Route::post('/groups', [GroupController::class, 'store'])->name('users.groups.store');
-        Route::get('/groups/{id}', [GroupController::class, 'show'])->name('users.groups.show');
+        Route::prefix('users')->group(function () {
+            // Đặt route không có tham số động lên trước
+            Route::get('/groups/user-groups', [GroupController::class, 'userGroups'])->name('users.groups.index'); // Danh sách các nhóm mà người dùng đã tham gia
+            Route::get('/groups/create', [GroupController::class, 'create'])->name('users.groups.create'); // Tạo nhóm mới
+            Route::post('/groups', [GroupController::class, 'store'])->name('users.groups.store'); // Xử lý việc lưu nhóm mới được tạo
+        
+            // Sau đó là các route có tham số động
+            Route::get('/groups/{id}', [GroupController::class, 'show'])->name('users.groups.show'); // Hiển thị thông tin chi tiết của một nhóm cụ thể
+            Route::get('/groups/{group}/chat', [ChatController::class, 'index'])->name('groups.chat'); // Truy cập vào trang chat của một nhóm
+            Route::post('/groups/{group}/chat', [ChatController::class, 'store'])->name('chats.store'); // Xử lý việc gửi tin nhắn trong một nhóm
+        });
     });
 
 

@@ -10,6 +10,16 @@ use App\Models\Post;
 
 class GroupController extends Controller
 {
+    public function userGroups()
+    {
+        $user = Auth::user();   
+
+        // Kết hợp nhóm đã tham gia và nhóm đã tạo
+        $groups = $user->groups->merge(Group::where('creator_id', $user->id)->get());
+
+        return view('users.groups.index', compact('groups'));
+    }
+
     public function create()
     {
         return view('users.groups.create');
@@ -39,16 +49,15 @@ class GroupController extends Controller
     public function show($id)
     {
         // Lấy thông tin nhóm và các thành viên trong nhóm cùng người tạo
-        $group = Group::with('creator', 'users')->findOrFail($id);
-        
+        $group = Group::with('creator', 'users', 'posts')->findOrFail($id);
+
         // Lấy các bài viết liên quan đến nhóm (nếu có)
         $posts = Post::where('group_id', $id)->get();
-        
+
         // Log thông tin nhóm để kiểm tra
         // Log::info('Group info: ', ['group' => $group]);
-    
+
         // Trả về view chi tiết nhóm
         return view('users.groups.show', compact('group', 'posts'));
     }
-    
 }

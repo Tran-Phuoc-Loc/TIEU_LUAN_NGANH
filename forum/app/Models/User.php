@@ -5,7 +5,15 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Notifications\Notifiable;
+
+/**
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Group[] $groups
+ * @method \Illuminate\Database\Eloquent\Relations\BelongsToMany groups()
+ * @mixin \Illuminate\Database\Eloquent\Model
+ * @property \Illuminate\Database\Eloquent\Collection $groups
+ */
 
 class User extends Authenticatable
 {
@@ -83,13 +91,18 @@ class User extends Authenticatable
     }
 
     // Các nhóm mà người dùng tham gia
-    public function groups()
+    public function groups(): BelongsToMany
     {
-        return $this->belongsToMany(Group::class, 'group_user');
+        return $this->belongsToMany(Group::class, 'group_user', 'user_id', 'group_id');
     }
 
     public function primaryGroup()
     {
         return $this->groups()->first(); // Lấy nhóm đầu tiên 
+    }
+
+    public function chats()
+    {
+        return $this->hasMany(Chat::class);
     }
 }
