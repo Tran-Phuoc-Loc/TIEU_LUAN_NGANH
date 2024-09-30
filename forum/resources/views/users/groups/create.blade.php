@@ -19,6 +19,11 @@
             <textarea name="description" id="description" class="form-control"></textarea>
         </div>
 
+        <label for="requires_approval">
+            <input type="checkbox" id="requires_approval" name="requires_approval" value="1">
+            Yêu cầu phê duyệt tham gia nhóm
+        </label>
+
         <button type="submit" class="btn btn-primary">Tạo nhóm</button>
     </form>
 </div>

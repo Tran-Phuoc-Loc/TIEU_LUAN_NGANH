@@ -10,7 +10,7 @@ class Group extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'description', 'creator_id'];
+    protected $fillable = ['name', 'description', 'creator_id', 'requires_approval'];
 
     // Định nghĩa mối quan hệ nhiều-nhiều với model User
     public function users(): BelongsToMany
@@ -24,6 +24,17 @@ class Group extends Model
         return $this->belongsTo(User::class, 'creator_id');
     }
 
+    public function memberRequests()
+    {
+        return $this->hasMany(GroupJoinRequest::class);
+    }
+
+    // Thành viên
+    public function members()
+    {
+        return $this->belongsToMany(User::class, 'group_user', 'group_id', 'user_id');
+    }
+
     public function chats()
     {
         return $this->hasMany(Chat::class);
@@ -33,5 +44,10 @@ class Group extends Model
     public function posts()
     {
         return $this->hasMany(Post::class);
+    }
+
+    public function joinRequests()
+    {
+        return $this->hasMany(GroupJoinRequest::class);
     }
 }

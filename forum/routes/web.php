@@ -124,6 +124,12 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/groups/{id}', [GroupController::class, 'show'])->name('users.groups.show'); // Hiển thị thông tin chi tiết của một nhóm cụ thể
         Route::get('/groups/{group}/chat', [ChatController::class, 'index'])->name('groups.chat'); // Truy cập vào trang chat của một nhóm
         Route::post('/groups/{group}/chat', [ChatController::class, 'store'])->name('chats.store'); // Xử lý việc gửi tin nhắn trong một nhóm
+        Route::post('groups/{group}/join', [GroupController::class, 'joinGroup'])->name('groups.join');
+        Route::delete('/groups/{group}', [GroupController::class, 'destroy'])->name('groups.destroy');
+        Route::post('groups/{group}/leave', [GroupController::class, 'leaveGroup'])->name('groups.leave');
+        // Định nghĩa route cho việc chấp nhận yêu cầu tham gia nhóm
+        Route::post('/groups/{group}/approve', [GroupController::class, 'approveMember'])->name('groups.approve');
+        Route::delete('/groups/{group}/kick/{user}', [GroupController::class, 'kickMember'])->name('groups.kick');
     });
 
     // Route cho categories 

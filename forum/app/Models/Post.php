@@ -27,7 +27,7 @@ class Post extends Model
     // Bài viết chỉ thuộc 1 danh mục
     public function category()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Category::class, 'category_id');
     }
 
     public function likes()

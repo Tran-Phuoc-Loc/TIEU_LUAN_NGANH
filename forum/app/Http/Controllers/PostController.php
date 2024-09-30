@@ -263,7 +263,7 @@ class PostController extends Controller
         $query = $request->input('query');
 
         // Khởi tạo truy vấn cho bài viết
-        $postsQuery = Post::where('status', 'published')->with(['user', 'categories']);
+        $postsQuery = Post::where('status', 'published')->with(['user', 'category']);
 
         // Nếu có truy vấn tìm kiếm
         if ($query) {
