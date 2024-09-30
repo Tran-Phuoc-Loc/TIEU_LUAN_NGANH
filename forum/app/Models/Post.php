@@ -24,9 +24,10 @@ class Post extends Model
         return $this->hasMany(Comment::class);
     }
 
-    public function categories(): BelongsToMany
+    // Bài viết chỉ thuộc 1 danh mục
+    public function category()
     {
-        return $this->belongsToMany(Category::class, 'post_category', 'post_id', 'category_id');
+        return $this->belongsTo(Category::class);
     }
 
     public function likes()

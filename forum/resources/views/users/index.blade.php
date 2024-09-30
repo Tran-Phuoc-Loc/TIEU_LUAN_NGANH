@@ -9,6 +9,7 @@
         <p>Không có bài viết nào.</p>
         @else
         @foreach ($posts as $post)
+        @if($post->status == 'published') <!-- Kiểm tra nếu bài viết là dạng published -->
         <div class="post-card">
             <div class="post-meta d-flex justify-content-between align-items-start">
                 <div class="d-flex align-items-center">
@@ -42,18 +43,19 @@
                 </div>
             </div>
             <!-- danh mục -->
-            <div class="post-category mt-1"> <!-- Thêm margin-top để tạo khoảng cách -->
-                @if($post->categories->isNotEmpty())
-                <span>#
-                    @foreach($post->categories as $category)
-                    <strong>{{ $category->name }}</strong>{{ !$loop->last ? ', ' : '' }}
-                    @endforeach
+            <div class="post-category mt-1">
+                @if($post->category)
+                <span>Danh mục:
+                    <a href="{{ route('categories.index', ['slug' => $post->category->slug]) }}">
+                        <strong>{{ $post->category->name }}</strong>
+                    </a>
                 </span>
                 @else
-                <span>#</span>
+                <span>Không có danh mục</span>
                 @endif
             </div>
 
+            <!-- Nội dung bài viết -->
             <div class="post-content">
                 <div class="post-title">{{ $post->title }}</div>
                 <div class="post-description">
@@ -82,6 +84,7 @@
                 </div>
             </div>
         </div>
+        @endif <!-- Kết thúc kiểm tra status -->
         @endforeach
         @endif
 

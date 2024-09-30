@@ -32,22 +32,17 @@ class PostController extends Controller
 
     public function store(StorePostRequest $request)
     {
-        // dd($request->all());
         try {
             $userId = Auth::id();
 
-            $slug = Str::slug($request->input('title')); // Tạo slug từ tiêu đề
-
-            // Lấy giá trị status từ request
-            $status = $request->input('status'); // Thay đổi ở đây
-
+            // Tạo bài viết
             $post = Post::create([
                 'title' => $request->input('title'),
                 'content' => $request->input('content'),
                 'user_id' => $userId,
-                'status' => $status, // Sử dụng giá trị đã lấy từ request
                 'category_id' => $request->input('category_id'),
-                'slug' => $slug,
+                'status' => $request->input('status'),
+                'slug' => Str::slug($request->input('title')),
             ]);
 
             // Xử lý file upload nếu có
@@ -89,8 +84,7 @@ class PostController extends Controller
             'content' => 'required|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'status' => 'required|string|in:draft,published',
-            'category_id' => 'required|array', // Cần phải là mảng
-            'category_id.*' => 'exists:categories,id', // Kiểm tra danh mục có tồn tại
+            'category_id' => 'required|exists:categories,id', // Kiểm tra danh mục có tồn tại
         ]);
 
         // Tìm bài viết và cập nhật
@@ -98,6 +92,10 @@ class PostController extends Controller
         $post->title = $validatedData['title'];
         $post->content = $validatedData['content'];
         $post->status = $validatedData['status'];
+        $post->category_id = $validatedData['category_id'];
+
+        // Tạo slug từ tiêu đề
+        $post->slug = Str::slug($validatedData['title']); // Cập nhật slug từ tiêu đề
 
         // Xử lý upload ảnh nếu có
         if ($request->hasFile('image')) {
@@ -111,8 +109,6 @@ class PostController extends Controller
         }
 
         $post->save();
-        // Cập nhật mối quan hệ với categories
-        $post->categories()->sync($validatedData['category_id']); // Đồng bộ các category_id
 
         return redirect()->route('users.index')->with('success', 'Bài viết đã được cập nhật.');
     }
@@ -126,42 +122,47 @@ class PostController extends Controller
         // Lấy ID của người dùng đã đăng nhập bằng Auth facade
         $userId = Auth::id();
 
-        // Tìm bản nháp cho người dùng hiện tại
+        // Tìm bản nháp cho người dùng hiện tại và lấy dữ liệu
         $drafts = Post::with('user')
             ->where('status', 'draft')
             ->where('user_id', $userId)
-            ->paginate(10);
+            ->get(); // Lấy dữ liệu từ cơ sở dữ liệu
 
         // Hiển thị drafts
         return view('users.posts.drafts', compact('drafts'));
     }
 
-    public function published(User $user)
+    public function published($userId = null)
     {
-        // Kiểm tra người dùng đã đăng nhập
+        // Nếu không truyền ID người dùng, giả định rằng người dùng đang xem bài viết của chính họ
+        $currentUserId = Auth::id();
+    
+        // Nếu người dùng chưa đăng nhập, chuyển hướng đến trang đăng nhập
         if (!Auth::check()) {
             return redirect()->route('login')->with('error', 'Bạn phải đăng nhập để xem bài viết.');
         }
-
-        // Lấy tất cả bài viết đã xuất bản thuộc về người dùng hiện tại
-        $posts = Post::where('status', 'published')
-            ->where('user_id', Auth::id()) // Chỉ lấy bài viết của người dùng hiện tại
+    
+        // Nếu $userId là null, gán nó bằng ID của người dùng đang đăng nhập
+        $userId = $userId ?? $currentUserId;
+    
+        // Lấy các bài viết đã xuất bản của người dùng
+        $published = Post::with('user')
+            ->where('status', 'published')
+            ->where('user_id', $userId)
             ->orderBy('created_at', 'desc')
-            ->paginate(10); // Sử dụng paginate nếu cần phân trang
-        // Log::info('Published Posts:', $posts->toArray());
-        // Log::info('User ID:', ['id' => $user->id]);
-        // Log::info('Generated URL:', ['url' => route('users.posts.published', $user->id)]);
-
-
-
-        return view('users.posts.published', compact('posts'));
-    }
+            ->get();
+    
+        // Xác định xem người dùng đang xem bài viết của mình hay của người khác
+        $isCurrentUser = $currentUserId === (int) $userId;
+    
+        return view('users.posts.published', compact('published', 'isCurrentUser'));
+    }    
 
     public function publish(Request $request, $id)
     {
         Log::info($request->all());
         // Tìm bài viết theo ID
-        $post = Post::findOrFail($id);
+        $post = Post::find($id);
         // Xác thực dữ liệu đầu vào, nếu cần
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
@@ -262,60 +263,49 @@ class PostController extends Controller
         $query = $request->input('query');
 
         // Khởi tạo truy vấn cho bài viết
-        $posts = Post::where('status', 'published'); // Chỉ lấy bài viết đã xuất bản
+        $postsQuery = Post::where('status', 'published')->with(['user', 'categories']);
 
         // Nếu có truy vấn tìm kiếm
         if ($query) {
-            $posts = $posts->where(function ($q) use ($query) {
+            $postsQuery->where(function ($q) use ($query) {
                 $q->where('title', 'LIKE', "%{$query}%")
                     ->orWhere('content', 'LIKE', "%{$query}%");
             });
         }
 
-        // Lấy danh sách bài viết phù hợp với truy vấn
-        $posts = $posts->get();
+        // Lấy danh sách bài viết sau khi thêm điều kiện tìm kiếm
+        $posts = $postsQuery->get();
 
         // Khởi tạo truy vấn tìm kiếm cho người dùng
-        $users = User::query();
+        $usersQuery = User::query();
 
         // Nếu có truy vấn tìm kiếm cho người dùng
         if ($query) {
-            $users = $users->where(function ($q) use ($query) {
+            $usersQuery->where(function ($q) use ($query) {
                 $q->where('username', 'LIKE', "%{$query}%")
                     ->orWhere('email', 'LIKE', "%{$query}%");
             });
         }
 
         // Loại bỏ tài khoản với role là admin
-        $users = $users->where('role', '!=', 'admin');
-
-        $users = $users->orderByRaw("CASE 
-    WHEN username LIKE '{$query}%' THEN 1 
-    ELSE 2 
-    END")
+        $users = $usersQuery->where('role', '!=', 'admin')
+            ->orderByRaw("CASE 
+                    WHEN username LIKE '{$query}%' THEN 1 
+                    ELSE 2 
+               END")
             ->limit(10)
             ->get();
 
-        // Đảm bảo biến users tồn tại kể cả khi không có truy vấn
-        if ($users->isEmpty()) {
-            $users = collect([]); // Trả về một collection trống
-        }
-
         // Khởi tạo truy vấn tìm kiếm cho nhóm
-        $groups = Group::query();
+        $groupsQuery = Group::query();
 
         // Nếu có truy vấn tìm kiếm cho nhóm
         if ($query) {
-            $groups = $groups->where('name', 'LIKE', "%{$query}%");
+            $groupsQuery->where('name', 'LIKE', "%{$query}%");
         }
 
         // Lấy danh sách nhóm phù hợp với truy vấn
-        $groups = $groups->get();
-
-        // Đảm bảo biến groups tồn tại kể cả khi không có truy vấn
-        if ($groups->isEmpty()) {
-            $groups = collect([]); // Trả về một collection trống
-        }
+        $groups = $groupsQuery->get();
 
         // Trả về view với cả bài viết, người dùng và nhóm
         return view('users.posts.index', compact('posts', 'users', 'groups', 'query'));

@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Post;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -17,13 +18,13 @@ class UserController extends Controller
     public function index()
     {
         $users = User::all(); // Lấy tất cả người dùng
-    
+
         // Lấy tất cả bài viết đã xuất bản
         $posts = Post::with('user')->where('status', 'published')->get();
-    
+
         // Kiểm tra xem người dùng đã đăng nhập chưa
         $group = Auth::check() ? Auth::user()->group : null; // Nếu đã đăng nhập thì lấy nhóm, nếu không thì null
-    
+
         // Trả về view với các biến cần thiết
         return view('users.index', compact('users', 'posts', 'group'));
     }
@@ -40,12 +41,16 @@ class UserController extends Controller
         $publishedCount = Post::where('user_id', $id)->where('status', 'published')->count();
 
         // Nếu người dùng hiện tại là chủ sở hữu của hồ sơ, đếm bài viết dạng draft
-        $draftCount = 0;
-        if (Auth::id() !== $user->id) {
-            // Đếm số lượng bài viết ở dạng draft
-            $draftCount = Post::where('user_id', $id)->where('status', 'draft')->count();
-        }
-
+        // $draftCount = 0;
+        // if (Auth::id() !== $user->id) {
+        //     // Đếm số lượng bài viết ở dạng draft
+        //     $draftCount = Post::where('user_id', $id)->where('status', 'draft')->count();
+        // }
+        // Kiểm tra các bài viết dạng draft
+        $draftPosts = Post::where('user_id', $id)->where('status', 'draft')->get();
+        $draftCount = $draftPosts->count();
+        // Log::info('Draft Count:', ['draftCount' => $draftCount]);
+        // Log::info('User ID:', ['userId' => $user->id]);
         // Trả về view và truyền dữ liệu người dùng cùng các bài viết của họ
         return view('users.profile.index', compact('user', 'publishedCount', 'draftCount'));
     }
