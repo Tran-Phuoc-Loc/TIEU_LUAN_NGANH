@@ -64,6 +64,7 @@
             </form>
             <div class="card-footer text-center">
                 <p>Chưa có tài khoản?</p><a href="{{ route('register') }}"> Đăng ký ngay</a>
+                <p>Quên mật khẩu</p><a href="{{ route('password.request') }}">Bấm vào đây</a>
             </div>
         </div>
     </div>

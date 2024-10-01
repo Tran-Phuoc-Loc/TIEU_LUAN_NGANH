@@ -13,6 +13,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\PasswordResetController;
 use App\Models\Group;
 use App\Models\Post;
 use Illuminate\Support\Facades\Auth;
@@ -20,6 +21,11 @@ use Illuminate\Support\Facades\Auth;
 // Route cho đăng nhập
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
+
+Route::get('password/reset', [PasswordResetController::class, 'showResetRequestForm'])->name('password.request');
+Route::post('password/email', [PasswordResetController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('password/reset/{token}', [PasswordResetController::class, 'showResetForm'])->name('password.reset');
+Route::post('password/reset', [PasswordResetController::class, 'reset'])->name('password.update');
 
 // Route cho đăng xuất
 Route::post('logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
