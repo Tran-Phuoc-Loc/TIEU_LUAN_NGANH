@@ -171,6 +171,4 @@
     <input type="hidden" name="reason" id="reasonInput-{{ $post->id }}" value="">
 </form>
 
-
-
 @endsection

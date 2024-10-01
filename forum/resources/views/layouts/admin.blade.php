@@ -27,7 +27,7 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('admin.users.index') }}">
-                                <i class="fas fa-users"></i> Quản lý người dùng
+                                <i class="fas fa-users"></i> User
                             </a>
                         </li>
 

@@ -124,7 +124,6 @@
         }
 
         .post-category {
-            margin-right: -258px;
             white-space: nowrap;
             padding-top: 10px;
         }
