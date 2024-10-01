@@ -26,10 +26,11 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-users"></i> Users
+                            <a class="nav-link" href="{{ route('admin.users.index') }}">
+                                <i class="fas fa-users"></i> Quản lý người dùng
                             </a>
                         </li>
+
                         <li class="nav-item">
                             <a class="nav-link" href="#">
                                 <i class="fas fa-file-alt"></i> Posts

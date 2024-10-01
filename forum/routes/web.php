@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\Admin\AdminCategoryController;
+use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\Auth\LoginController;
@@ -42,6 +43,10 @@ Route::post('/admin/reports/store', [ReportController::class, 'store'])->name('a
 Route::middleware(['auth', RoleMiddleware::class . ':admin'])->group(function () {
     // Dashboard của admin
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+
+    // Route cho quản lý User
+    Route::get('/admin/users', [AdminUserController::class, 'index'])->name('admin.users.index');
+    Route::delete('admin/users/{id}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
 
     // Route cho quản lý danh mục
     Route::prefix('admin/categories')->group(function () {
