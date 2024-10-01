@@ -396,6 +396,13 @@
             display: inline;
             /* Đảm bảo phần tử hiển thị */
         }
+
+        .new-notification {
+            color: #d9534f;
+            /* Màu đỏ nhạt cho thông báo khi có thông báo mới */
+            font-weight: bold;
+            /* Tô đậm khi có thông báo mới */
+        }
     </style>
 </head>
 
@@ -429,6 +436,15 @@
                                 <li><a class="dropdown-item" href="#">{{ Auth::user()->name }}</a></li>
                                 <li><a class="dropdown-item" href="{{ route('users.profile.index', Auth::user()->id) }}">Thông tin cá nhân</a></li>
                                 <li><a class="dropdown-item" href="{{ route('users.posts.published') }}">Bài Viết Đã Xuất Bản</a></li>
+                                <li>
+                                    <a href="{{ route('notifications.index') }}"
+                                        class="dropdown-item {{ auth()->user()->unreadNotifications->count() > 0 ? 'new-notification' : '' }}">
+                                        Thông báo
+                                        @if(auth()->user()->unreadNotifications->count() > 0)
+                                        <span class="badge">{{ auth()->user()->unreadNotifications->count() }}</span>
+                                        @endif
+                                    </a>
+                                </li>
                                 <li><a class="dropdown-item" href="{{ route('users.groups.index') }}">Danh sách các nhóm tham gia</a></li>
                                 <li>
                                     <hr class="dropdown-divider">

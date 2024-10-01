@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\Admin\AdminCategoryController;
+use App\Http\Controllers\Admin\AdminPostController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CommentController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\NotificationController;
 use App\Models\Group;
 use App\Models\Post;
 use Illuminate\Support\Facades\Auth;
@@ -64,6 +66,11 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin'])->group(function ()
         Route::get('{id}', [ReportController::class, 'show'])->name('admin.reports.show'); // Xem chi tiết báo cáo
         Route::post('{id}/process', [ReportController::class, 'process'])->name('admin.reports.process'); // Xử lý báo cáo
     });
+
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::resource('posts', AdminPostController::class);
+        Route::post('posts/bulk-action', [AdminPostController::class, 'bulkAction'])->name('posts.bulkAction');
+    });
 });
 
 // Route cho người dùng
@@ -111,6 +118,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('{post}/comments', [CommentController::class, 'store'])->name('comments.store'); // Tạo bình luận cho bài viết
         Route::get('{postId}', [CommentController::class, 'show']); // Hiển thị bài viết cùng với bình luận
         Route::post('{postId}/like', [PostController::class, 'like'])->name('posts.like'); // Lượt thích của bài viết 
+
+        Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
+
     });
 
     // Route quản lý bình luận bài viết
@@ -140,6 +150,9 @@ Route::middleware(['auth'])->group(function () {
     // Route cho categories 
     Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index'); // Nếu có các hành động CRUD
     Route::get('/categories/{slug}/posts', [CategoryController::class, 'showPosts'])->name('categories.posts');
+
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
 });
 // Để lấy danh sách bình luận của bài viết dưới dạng JSON
 Route::get('/posts/{post}/comments', [CommentController::class, 'index']);

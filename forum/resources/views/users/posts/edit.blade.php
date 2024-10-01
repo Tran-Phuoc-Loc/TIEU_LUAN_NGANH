@@ -16,16 +16,17 @@
         @csrf
         @method('PUT')
 
-        <div class="mb-3">
-            <label for="category_id" class="form-label">Danh mục</label>
-            <select name="category_id[]" class="form-select" id="category_id" multiple required>
+        <div class="form-group">
+            <label for="category">Danh mục</label>
+            <select class="form-control" id="category" name="category_id" required>
                 @foreach($categories as $category)
-                <option value="{{ $category->id }}" {{ in_array($category->id, $post->categories->pluck('id')->toArray()) ? 'selected' : '' }}>
+                <option value="{{ $category->id }}" {{ $post->category_id == $category->id ? 'selected' : '' }}>
                     {{ $category->name }}
                 </option>
                 @endforeach
             </select>
         </div>
+
         <div class="mb-3">
             <label for="title" class="form-label">Tiêu đề bài viết</label>
             <input type="text" name="title" class="form-control" id="title" value="{{ old('title', $post->title) }}" required>

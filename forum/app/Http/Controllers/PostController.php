@@ -9,6 +9,7 @@ use App\Models\Post;
 use App\Models\User;
 use App\Models\Group;
 use App\Models\Category;
+use App\Notifications\PostUpdated;
 use App\Models\Comment;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -61,20 +62,26 @@ class PostController extends Controller
 
     public function edit($id)
     {
+        // Lấy bài viết theo ID
         $post = Post::find($id);
-        $categories = Category::all(); // Lấy tất cả danh mục
+    
+        // Kiểm tra xem bài viết có tồn tại không
+        if (!$post) {
+            return redirect()->route('users.index')->with('error', 'Bài viết không tồn tại.');
+        }
+    
         // Kiểm tra quyền truy cập
-        if (Auth::id() !== $post->user->id) {
+        if (Auth::id() !== $post->user_id) {
             // Chuyển hướng lại với thông báo lỗi nếu họ không sở hữu bài đăng
             return redirect()->route('users.index')->with('error', 'Bạn không có quyền chỉnh sửa bài viết này.');
         }
-        if (!$post) {
-            return redirect()->route('posts.index')->with('error', 'Bài viết không tồn tại.');
-        }
-
+    
+        $categories = Category::all(); // Lấy tất cả danh mục
+    
         // Nếu người dùng có quyền, hiển thị trang chỉnh sửa bài viết
         return view('users.posts.edit', compact('post', 'categories'));
     }
+    
 
     public function update(Request $request, Post $post, $id)
     {
@@ -110,6 +117,9 @@ class PostController extends Controller
 
         $post->save();
 
+        // Gửi thông báo cho tác giả bài viết
+        $post->author->notify(new PostUpdated($post));
+
         return redirect()->route('users.index')->with('success', 'Bài viết đã được cập nhật.');
     }
 
@@ -136,27 +146,27 @@ class PostController extends Controller
     {
         // Nếu không truyền ID người dùng, giả định rằng người dùng đang xem bài viết của chính họ
         $currentUserId = Auth::id();
-    
+
         // Nếu người dùng chưa đăng nhập, chuyển hướng đến trang đăng nhập
         if (!Auth::check()) {
             return redirect()->route('login')->with('error', 'Bạn phải đăng nhập để xem bài viết.');
         }
-    
+
         // Nếu $userId là null, gán nó bằng ID của người dùng đang đăng nhập
         $userId = $userId ?? $currentUserId;
-    
+
         // Lấy các bài viết đã xuất bản của người dùng
         $published = Post::with('user')
             ->where('status', 'published')
             ->where('user_id', $userId)
             ->orderBy('created_at', 'desc')
             ->get();
-    
+
         // Xác định xem người dùng đang xem bài viết của mình hay của người khác
         $isCurrentUser = $currentUserId === (int) $userId;
-    
+
         return view('users.posts.published', compact('published', 'isCurrentUser'));
-    }    
+    }
 
     public function publish(Request $request, $id)
     {
@@ -313,9 +323,15 @@ class PostController extends Controller
 
 
 
-    public function show($slug)
+    public function show($id)
     {
-        $post = Post::where('slug', $slug)->firstOrFail(); // Tìm bài viết bằng slug
-        return view('posts.show', compact('post'));
+        $post = Post::findOrFail($id);
+
+        // Kiểm tra xem người dùng có quyền truy cập bài viết
+        if (Auth::id() !== $post->user_id && !Auth::user()->isAdmin()) {
+            return redirect()->route('users.index')->with('error', 'Bạn không có quyền truy cập bài viết này.');
+        }
+    
+        return view('users.posts.show', compact('post')); // Trả về view để hiển thị bài viết
     }
 }
