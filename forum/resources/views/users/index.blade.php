@@ -13,7 +13,9 @@
         <div class="post-card">
             <div class="post-meta d-flex justify-content-between align-items-start">
                 <div class="d-flex align-items-center">
-                    <img src="{{ $post->user->avatar_url ? asset('storage/' . $post->user->avatar_url) : asset('storage/images/avataricon.png') }}" alt="Avatar" class="post-avatar">
+                    <a href="{{ route('users.profile.index', ['user' => $post->user->id]) }}">
+                        <img src="{{ $post->user->profile_picture ? asset('storage/' . $post->user->profile_picture) : asset('storage/images/avataricon.png') }}" alt="Avatar" class="post-avatar">
+                    </a>
                     <span class="post-author">Đăng bởi: <strong>{{ $post->user->username }}</strong></span> |
                     <span class="post-time">{{ $post->created_at->diffForHumans() }}</span>
                 </div>
@@ -62,7 +64,9 @@
                     <span class="content-preview">{{ Str::limit($post->content, 100) }}</span>
                     <span class="content-full" style="display: none;">{{ $post->content }}</span>
                 </div>
+                @if (strlen($post->content) > 100)
                 <button class="btn btn-link toggle-content">Xem thêm</button>
+                @endif
 
                 @if($post->image_url)
                 <div class="post-image">
