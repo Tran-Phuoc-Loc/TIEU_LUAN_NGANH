@@ -494,6 +494,12 @@ footer {
 
 
 }
+@media (max-width: 576px) {
+    .fixed-bottom .nav-link {
+        font-size: 12px; /* Kích thước chữ nhỏ hơn cho màn hình nhỏ */
+        padding: 8px 0; /* Khoảng cách nhỏ hơn */
+    }
+}
 
 @media (max-width: 480px) {
     .img-thumbnail {

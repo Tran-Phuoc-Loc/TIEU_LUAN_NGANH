@@ -226,28 +226,17 @@
 
         /* Thanh điều hướng cố định ở dưới cùng */
         .fixed-bottom {
-            right: 255px;
+            background-color: #333;
+            /* Màu nền cho thanh điều hướng */
         }
 
-        /* Kiểu cho các mục trong thanh điều hướng */
-        .fixed-bottom .navbar-nav {
-            display: flex;
-            /* Sử dụng Flexbox */
+        .fixed-bottom .d-flex {
             justify-content: space-around;
             /* Căn giữa các mục */
             width: 100%;
             /* Chiếm toàn bộ chiều rộng */
         }
 
-        /* Kiểu cho các mục nav-item */
-        .fixed-bottom .nav-item {
-            flex: 1;
-            /* Đảm bảo mỗi mục chiếm không gian bằng nhau */
-            text-align: center;
-            /* Căn giữa nội dung trong từng mục */
-        }
-
-        /* Kiểu cho các liên kết trong thanh điều hướng */
         .fixed-bottom .nav-link {
             color: #ffffff;
             /* Màu chữ sáng hơn */
@@ -265,20 +254,6 @@
             /* Màu nền khi hover */
             border-radius: 5px;
             /* Bo tròn góc */
-        }
-
-        /* Đảm bảo rằng thanh điều hướng không bị cắt */
-        nav.navbar.fixed-bottom {
-            padding: 10px 0;
-            background-color: #333;
-            z-index: 1030;
-            /* Đảm bảo nằm trên các thành phần khác */
-        }
-
-        nav.navbar.fixed-bottom .nav-link,
-        nav.navbar.fixed-bottom .btn {
-            font-size: 14px;
-            /* Đảm bảo kích thước chữ không quá to */
         }
 
         /* Vòng tròn bao quanh icon */
