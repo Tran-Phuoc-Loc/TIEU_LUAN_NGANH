@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Group;
 use App\Models\Category;
 use App\Notifications\PostUpdated;
+use App\Models\SavedPost;
 use App\Models\Comment;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -64,24 +65,24 @@ class PostController extends Controller
     {
         // Lấy bài viết theo ID
         $post = Post::find($id);
-    
+
         // Kiểm tra xem bài viết có tồn tại không
         if (!$post) {
             return redirect()->route('users.index')->with('error', 'Bài viết không tồn tại.');
         }
-    
+
         // Kiểm tra quyền truy cập
         if (Auth::id() !== $post->user_id) {
             // Chuyển hướng lại với thông báo lỗi nếu họ không sở hữu bài đăng
             return redirect()->route('users.index')->with('error', 'Bạn không có quyền chỉnh sửa bài viết này.');
         }
-    
+
         $categories = Category::all(); // Lấy tất cả danh mục
-    
+
         // Nếu người dùng có quyền, hiển thị trang chỉnh sửa bài viết
         return view('users.posts.edit', compact('post', 'categories'));
     }
-    
+
 
     public function update(Request $request, Post $post, $id)
     {
@@ -321,17 +322,36 @@ class PostController extends Controller
         return view('users.posts.index', compact('posts', 'users', 'groups', 'query'));
     }
 
-
-
     public function show($id)
     {
-        $post = Post::findOrFail($id);
+        $post = Post::with(['user', 'category'])->findOrFail($id);
 
         // Kiểm tra xem người dùng có quyền truy cập bài viết
-        if (Auth::id() !== $post->user_id && !Auth::user()->isAdmin()) {
+        if (Auth::id() !== $post->user_id) {
             return redirect()->route('users.index')->with('error', 'Bạn không có quyền truy cập bài viết này.');
         }
-    
+
         return view('users.posts.show', compact('post')); // Trả về view để hiển thị bài viết
+    }
+
+    public function savePost(Request $request)
+    {
+        $request->validate([
+            'post_id' => 'required|integer|exists:posts,id',
+        ]);
+
+        $userId = Auth::id();
+
+        // Kiểm tra xem bài viết đã được lưu chưa
+        if (SavedPost::where('user_id', $userId)->where('post_id', $request->post_id)->exists()) {
+            return response()->json(['success' => false, 'message' => 'Bài viết đã được lưu.']);
+        }
+
+        SavedPost::create([
+            'user_id' => $userId,
+            'post_id' => $request->post_id,
+        ]);
+
+        return response()->json(['success' => true]);
     }
 }

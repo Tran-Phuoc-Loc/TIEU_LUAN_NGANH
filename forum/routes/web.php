@@ -103,6 +103,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/drafts', [PostController::class, 'drafts'])->name('users.posts.drafts'); // Hiển thị danh sách bài viết ở trạng thái draft
         Route::get('/published', [PostController::class, 'published'])->name('users.posts.published'); // Hiển thị danh sách bài viết đã xuất bản
 
+        Route::post('/save-post', [PostController::class, 'savePost'])->name('posts.savePost');
         // Route để chỉnh sửa bài viết
         Route::get('{post}/edit', [PostController::class, 'edit'])->name('posts.edit'); // Hiển thị trang chỉnh sửa bài viết
         Route::put('/posts/{id}', [PostController::class, 'update'])->name('posts.update'); // Cập nhật bài viết
@@ -119,7 +120,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('{postId}', [CommentController::class, 'show']); // Hiển thị bài viết cùng với bình luận
         Route::post('{postId}/like', [PostController::class, 'like'])->name('posts.like'); // Lượt thích của bài viết 
 
-        Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
+        Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show'); // Thông báo bài viết cần sửa
 
     });
 

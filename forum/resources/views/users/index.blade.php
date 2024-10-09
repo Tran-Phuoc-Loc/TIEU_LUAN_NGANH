@@ -82,8 +82,12 @@
                         <span class="comment-toggle" style="cursor:pointer;" data-post-id="{{ $post->id }}">
                             <i class="fas fa-comment-dots"></i> Xem Bình Luận ({{ $post->comments_count }})
                         </span>
-                        <button class="btn btn-link"><i class="fas fa-bookmark"></i> Lưu</button>
-                        <button class="btn btn-link">Chia sẻ</button>
+                        <button class="btn btn-link save-post" data-post-id="{{ $post->id }}">
+                            <i class="fas fa-bookmark"></i> Lưu
+                        </button>
+                        <button class="btn btn-link" id="sharePost">
+                            Chia sẻ
+                        </button>
                     </div>
                 </div>
             </div>
