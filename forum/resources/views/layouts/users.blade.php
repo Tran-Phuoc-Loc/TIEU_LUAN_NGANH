@@ -377,6 +377,10 @@
             font-weight: bold;
             /* Tô đậm khi có thông báo mới */
         }
+
+        .modal-backdrop {
+            z-index: auto;
+        }
     </style>
 </head>
 
@@ -410,6 +414,7 @@
                                 <li><a class="dropdown-item" href="#">{{ Auth::user()->name }}</a></li>
                                 <li><a class="dropdown-item" href="{{ route('users.profile.index', Auth::user()->id) }}">Thông tin cá nhân</a></li>
                                 <li><a class="dropdown-item" href="{{ route('users.posts.published') }}">Bài Viết Đã Xuất Bản</a></li>
+                                <li><a class="dropdown-item" href="{{ route('users.posts.savePost') }}">Bài Viết Đã Lưu</a></li>
                                 <li>
                                     <a href="{{ route('notifications.index') }}"
                                         class="dropdown-item {{ auth()->user()->unreadNotifications->count() > 0 ? 'new-notification' : '' }}">
@@ -762,31 +767,82 @@
         });
     });
     $(document).ready(function() {
+        // Khi nhấn nút Lưu bài viết
         $('.save-post').on('click', function() {
             const postId = $(this).data('post-id');
+            $('#folderModal').data('post-id', postId).modal('show');
+        });
 
+        // Xử lý lưu bài viết vào thư mục
+        $('#saveToFolder').on('click', function() {
+            const postId = $('#folderModal').data('post-id');
+            const folderId = $('#folderSelect').val();
+            const newFolderName = $('#newFolderName').val().trim();
+
+            if (!folderId && !newFolderName) {
+                alert('Vui lòng chọn hoặc tạo thư mục!');
+                return;
+            }
+
+            // Hiển thị loading spinner trong khi xử lý
+            $('#saveToFolder').prop('disabled', true).text('Đang lưu...');
+
+            // Nếu tạo thư mục mới
+            if (newFolderName) {
+                $.ajax({
+                    url: '/folders',
+                    method: 'POST',
+                    data: {
+                        name: newFolderName,
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            savePost(postId, response.folder_id);
+                        } else {
+                            alert(response.message);
+                            $('#saveToFolder').prop('disabled', false).text('Lưu');
+                        }
+                    },
+                    error: function(jqXHR) {
+                        console.error(jqXHR.responseText);
+                        alert('Có lỗi xảy ra: ' + jqXHR.status + ' ' + jqXHR.statusText);
+                        $('#saveToFolder').prop('disabled', false).text('Lưu');
+                    }
+                });
+            } else {
+                // Lưu bài viết vào thư mục đã chọn
+                savePost(postId, folderId);
+            }
+        });
+
+        // Hàm lưu bài viết vào thư mục
+        function savePost(postId, folderId) {
             $.ajax({
                 url: '/users/posts/save-post',
                 method: 'POST',
                 data: {
                     post_id: postId,
-                    _token: '{{ csrf_token() }}'
+                    folder_id: folderId,
+                    _token: $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
                     if (response.success) {
                         alert('Bài viết đã được lưu!');
-                        // Ẩn nút "Lưu" hoặc thay đổi nội dung nút
+                        $('#folderModal').modal('hide');
                         $('.save-post[data-post-id="' + postId + '"]').replaceWith('<button class="btn btn-link" disabled><i class="fas fa-bookmark"></i> Đã lưu</button>');
                     } else {
                         alert(response.message);
                     }
+                    $('#saveToFolder').prop('disabled', false).text('Lưu');
                 },
                 error: function(jqXHR) {
                     console.error(jqXHR.responseText);
                     alert('Có lỗi xảy ra. Vui lòng thử lại.');
+                    $('#saveToFolder').prop('disabled', false).text('Lưu');
                 }
             });
-        });
+        }
     });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>

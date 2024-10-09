@@ -179,4 +179,37 @@
     <input type="hidden" name="reason" id="reasonInput-{{ $post->id }}" value="">
 </form>
 
+
+<!-- Modal để chọn hoặc tạo thư mục -->
+<div class="modal fade" id="folderModal" tabindex="-1" aria-labelledby="folderModalLabel" aria-describedby="folderModalDescription" aria-hidden="true" style="z-index: index auto;">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="folderModalLabel">Chọn Thư Mục</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body" id="folderModalDescription">
+                <p>Vui lòng chọn một thư mục có sẵn hoặc tạo một thư mục mới để lưu bài viết.</p>
+                <div class="mb-3">
+                    <label for="folderSelect" class="form-label">Chọn thư mục</label>
+                    <select id="folderSelect" class="form-select" aria-label="Chọn thư mục">
+                        <option value="" disabled selected>Chọn thư mục</option>
+                        @foreach($folders as $folder)
+                        <option value="{{ $folder->id }}">{{ $folder->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="newFolderName" class="form-label">Tạo thư mục mới</label>
+                    <input type="text" id="newFolderName" class="form-control" placeholder="Tên thư mục mới" aria-describedby="newFolderHelp">
+                    <small id="newFolderHelp" class="form-text">Nhập tên thư mục mới nếu bạn không muốn chọn thư mục có sẵn.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="saveToFolder">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection

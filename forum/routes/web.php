@@ -15,6 +15,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\FolderController;
 use App\Http\Controllers\NotificationController;
 use App\Models\Group;
 use App\Models\Post;
@@ -103,6 +104,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/drafts', [PostController::class, 'drafts'])->name('users.posts.drafts'); // Hiển thị danh sách bài viết ở trạng thái draft
         Route::get('/published', [PostController::class, 'published'])->name('users.posts.published'); // Hiển thị danh sách bài viết đã xuất bản
 
+        Route::post('/folders', [FolderController::class, 'create'])->name('folders.create');
+
+        Route::get('/savepost', [PostController::class, 'showSavedPosts'])->name('users.posts.savePost');
         Route::post('/save-post', [PostController::class, 'savePost'])->name('posts.savePost');
         // Route để chỉnh sửa bài viết
         Route::get('{post}/edit', [PostController::class, 'edit'])->name('posts.edit'); // Hiển thị trang chỉnh sửa bài viết

@@ -8,13 +8,12 @@ use App\Http\Requests\UserUpdateRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Post;
+use App\Models\Folder;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
-    use \Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-
     public function index()
     {
         $users = User::all(); // Lấy tất cả người dùng
@@ -25,8 +24,11 @@ class UserController extends Controller
         // Kiểm tra xem người dùng đã đăng nhập chưa
         $group = Auth::check() ? Auth::user()->group : null; // Nếu đã đăng nhập thì lấy nhóm, nếu không thì null
 
+        // Lấy danh sách thư mục của người dùng hiện tại
+        $folders = Folder::where('user_id', Auth::id())->get();
+
         // Trả về view với các biến cần thiết
-        return view('users.index', compact('users', 'posts', 'group'));
+        return view('users.index', compact('users', 'posts', 'group', 'folders'));
     }
 
     public function show(User $user)

@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use App\Models\Post;
 use App\Models\User;
 use App\Models\Group;
+use App\Models\Folder;
 use App\Models\Category;
 use App\Notifications\PostUpdated;
 use App\Models\SavedPost;
@@ -338,20 +339,28 @@ class PostController extends Controller
     {
         $request->validate([
             'post_id' => 'required|integer|exists:posts,id',
+            'folder_id' => 'required|integer|exists:folders,id', // Thêm kiểm tra cho thư mục
         ]);
 
         $userId = Auth::id();
 
         // Kiểm tra xem bài viết đã được lưu chưa
-        if (SavedPost::where('user_id', $userId)->where('post_id', $request->post_id)->exists()) {
-            return response()->json(['success' => false, 'message' => 'Bài viết đã được lưu.']);
+        if (SavedPost::where('user_id', $userId)->where('post_id', $request->post_id)->where('folder_id', $request->folder_id)->exists()) {
+            return response()->json(['success' => false, 'message' => 'Bài viết đã được lưu trong thư mục này.']);
         }
 
         SavedPost::create([
             'user_id' => $userId,
             'post_id' => $request->post_id,
+            'folder_id' => $request->folder_id, // Lưu ID của thư mục vào bảng saved_posts
         ]);
 
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, 'message' => 'Bài viết đã được lưu thành công!']);
+    }
+
+    public function showSavedPosts()
+    {
+        $savedPosts = SavedPost::with('post')->where('user_id', Auth::id())->get();
+        return view('users.posts.savePost', compact('savedPosts'));
     }
 }
