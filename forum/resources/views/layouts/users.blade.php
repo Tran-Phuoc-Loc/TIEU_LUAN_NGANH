@@ -202,7 +202,7 @@
 
         /* Nội dung chào mừng */
         .welcome-content {
-            margin-left: 200px;
+            /* margin-left: 200px; */
             /* Tạo khoảng cách để tránh bị che khuất bởi thanh điều hướng dọc */
             padding: 20px;
             flex: 1;
@@ -381,6 +381,14 @@
         .modal-backdrop {
             z-index: auto;
         }
+
+        .replies {
+            margin-left: 40px;
+            /* Thụt lề cho bình luận trả lời */
+            border-left: 2px solid #f0f0f0;
+            /* Đường viền bên trái cho phần trả lời */
+            padding-left: 10px;
+        }
     </style>
 </head>
 
@@ -390,7 +398,7 @@
             <!-- Navbar chính -->
             <nav class="navbar navbar-expand-lg navbar-dark">
                 <a class="navbar-brand" href="{{ url('/') }}">
-                    <img src="{{ asset('storage/images/bookicon.png') }}" alt="Description">TechTalks
+                    <img src="{{ asset('storage/images/bookicon.png') }}" alt="Description" loading="lazy">TechTalks
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -403,9 +411,9 @@
                                 <div class="user-circle">
                                     @if(Auth::user()->profile_picture)
                                     @php($imagePath = asset('storage/' . Auth::user()->profile_picture))
-                                    <img src="{{ $imagePath }}" alt="Ảnh đại diện" class="img-fluid" style="border-radius: 50%;">
+                                    <img src="{{ $imagePath }}" alt="Ảnh đại diện" class="img-fluid" style="border-radius: 50%;" loading="lazy">
                                     @else
-                                    <img src="{{ asset('storage/images/avataricon.png') }}" alt="Ảnh đại diện mặc định" class="img-fluid" style="border-radius: 50%;">
+                                    <img src="{{ asset('storage/images/avataricon.png') }}" alt="Ảnh đại diện mặc định" class="img-fluid" style="border-radius: 50%;" loading="lazy">
                                     {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                                     @endif
                                 </div>
@@ -530,37 +538,63 @@
             commentModal.show(); // Hiển thị modal
 
             // Gọi API để lấy danh sách bình luận
-            $.get(`/posts/${postId}/comments`, function(data) {
+            $.get(`users/posts/${postId}/comments`, function(data) {
                 commentsList.empty(); // Làm sạch danh sách bình luận
                 if (data.comments.length > 0) {
                     data.comments.forEach(comment => {
                         const createdAt = moment(comment.created_at).fromNow(); // Xử lý ngày tháng
                         const likesCount = (typeof comment.likes_count !== 'undefined') ? comment.likes_count : 0; // Đặt mặc định là 0 nếu undefined
+
                         const commentHtml = `
-                    <div class="comment">
-                        <img src="${comment.user.avatar_url ? '/storage/' + comment.user.avatar_url : '/storage/images/avataricon.png'}" alt="Avatar" class="comment-avatar">
-                        <strong>${comment.user.username}</strong>:<small>${createdAt}</small>
+                    <div class="comment" id="comment-${comment.id}">
+                        <img src="${comment.user.avatar_url ? '/storage/' + comment.user.avatar_url : '/storage/images/avataricon.png'}" alt="Avatar" class="comment-avatar" loading="lazy">
+                        <strong>${comment.user.username}</strong>: <small>${createdAt}</small>
                         <h6>${comment.content}</h6>
-                        ${comment.image_url ? `<div class="comment-image"><img src="/storage/${comment.image_url}" alt="Comment Image"></div>` : ''}
+                        ${comment.image_url ? `<div class="comment-image"><img src="/storage/${comment.image_url}" alt="Comment Image" loading="lazy"></div>` : ''}
                         <div class="comment-actions">
                             <button class="like-button" data-comment-id="${comment.id}">
-                                <i class="far fa-thumbs-up"></i>  <span class="like-count">${comment.likes_count}</span>
+                                <i class="far fa-thumbs-up"></i> <span class="like-count">${likesCount}</span>
                             </button>
-                            <button class="share-button" data-comment-id="${comment.id}">
-                                <i class="fas fa-share-alt"></i> Chia sẻ
-                            </button>
-                            <button class="relay-button" data-comment-id="${comment.id}">
-                                <i class="fas fa-retweet"></i> Relay
+                            <button class="reply-button" data-comment-id="${comment.id}">
+                                <i class="fas fa-reply"></i> Trả lời
                             </button>
                         </div>
+                        <div class="replies" id="replies-${comment.id}"></div>
                     </div>
-                    `;
-                        commentsList.append(commentHtml);
+                `;
+
+                        // Nếu bình luận có `parent_id`, thêm vào khu vực trả lời của comment cha
+                        if (comment.parent_id) {
+                            $(`#replies-${comment.parent_id}`).append(commentHtml); // Thêm bình luận trả lời dưới bình luận cha
+                        } else {
+                            // Nếu không có `parent_id`, bình luận là mới (bình luận gốc)
+                            commentsList.append(commentHtml); // Thêm bình luận mới vào danh sách chính
+                        }
+
+                        // Xử lý các replies nếu có
+                        if (comment.replies && comment.replies.length > 0) {
+                            comment.replies.forEach(reply => {
+                                const replyHtml = `
+                            <div class="comment reply" id="comment-${reply.id}">
+                                <img src="${reply.user.avatar_url ? '/storage/' + reply.user.avatar_url : '/storage/images/avataricon.png'}" alt="Avatar" class="comment-avatar" loading="lazy">
+                                <strong>${reply.user.username}</strong>: <small>${moment(reply.created_at).fromNow()}</small>
+                                <h6>${reply.content}</h6>
+                                ${reply.image_url ? `<div class="comment-image"><img src="/storage/${reply.image_url}" alt="Comment Image" loading="lazy"></div>` : ''}
+                                <div class="comment-actions">
+                                    <button class="like-button" data-comment-id="${reply.id}">
+                                        <i class="far fa-thumbs-up"></i> <span class="like-count">${reply.likes_count}</span>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                                $(`#replies-${comment.id}`).append(replyHtml); // Thêm reply vào đúng chỗ
+                            });
+                        }
                     });
                 } else {
                     commentsList.append('<p>Chưa có bình luận nào.</p>');
                 }
-                commentForm.attr('action', `/posts/${postId}/comments`); // Cập nhật thuộc tính action của form
+                commentForm.attr('action', `users/posts/${postId}/comments`); // Cập nhật thuộc tính action của form
             });
         });
 
@@ -591,14 +625,15 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(data) {
+                    console.log(data);
                     if (data.success && data.comment) {
                         const likesCount = data.comment.likes_count || 0; // Đặt mặc định là 0 nếu undefined
                         const commentHtml = `
                         <div class="comment">
-                            <img src="${data.comment.user.avatar_url ? '/storage/' + data.comment.user.avatar_url : '/storage/images/avataricon.png'}" alt="Avatar" class="comment-avatar">
+                            <img src="${data.comment.user.avatar_url ? '/storage/' + data.comment.user.avatar_url : '/storage/images/avataricon.png'}" alt="Avatar" class="comment-avatar" loading="lazy">
                             <strong>${data.comment.user.username}</strong>:<small>Vừa xong</small>
                             <h6>${data.comment.content}</h6>
-                            ${data.comment.image_url ? `<div class="comment-image"><img src="/storage/${data.comment.image_url}" alt="Comment Image"></div>` : ''}
+                            ${data.comment.image_url ? `<div class="comment-image"><img src="/storage/${data.comment.image_url}" alt="Comment Image" loading="lazy"></div>` : ''}
                             <div class="comment-actions">
                                 <button class="like-button" data-comment-id="${data.comment.id}">
                                     <i class="far fa-thumbs-up"></i>  <span class="like-count">${data.comment.likes_count}</span>
@@ -606,14 +641,23 @@
                                 <button class="share-button" data-comment-id="${data.comment.id}">
                                     <i class="fas fa-share-alt"></i> Chia sẻ
                                 </button>
-                                <button class="relay-button" data-comment-id="${data.comment.id}">
-                                    <i class="fas fa-retweet"></i> Relay
-                                </button>
-                            </div>
+                                 <button class="reply-button" data-comment-id="${data.comment.id}">
+                            <i class="fas fa-reply"></i> Trả lời
+                            </button>
                         </div>
-                    `;
-                        commentsList.append(commentHtml);
+                        <div class="replies" id="replies-${data.comment.id}"></div> <!-- Khu vực để hiển thị các bình luận trả lời -->
+                    </div>
+                `;
+
+                        // Nếu có parent_id thì thêm bình luận vào khu vực trả lời của comment cha
+                        if (data.comment.parent_id) {
+                            $(`#replies-${data.comment.parent_id}`).append(commentHtml);
+                        } else {
+                            // Nếu không có parent_id, bình luận là mới
+                            commentsList.append(commentHtml);
+                        }
                         commentForm[0].reset(); // Đặt lại form
+                        $('#parent_id').val(0); // Đặt lại parent_id về 0 sau khi bình luận thành công
                     } else {
                         alert('Đã có lỗi xảy ra. Vui lòng thử lại.');
                     }
@@ -622,6 +666,13 @@
                     console.error('Có lỗi xảy ra:', xhr);
                 }
             });
+        });
+
+        // Khi người dùng nhấn nút "Trả lời", cập nhật parent_id trong form
+        $(document).on('click', '.reply-button', function() {
+            const commentId = $(this).data('comment-id');
+            $('#parent_id').val(commentId); // Đặt parent_id là ID của bình luận cần trả lời
+            $('textarea[name="content"]').focus(); // Đưa con trỏ chuột vào ô nhập liệu
         });
 
         // Xử lý sự kiện nhấn nút like

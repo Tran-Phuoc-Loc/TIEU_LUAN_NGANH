@@ -44,7 +44,7 @@
         <header class="p-3">
             <nav class="navbar navbar-expand-lg navbar-dark">
                 <div class="container-fluid">
-                    <a class="navbar-brand" href="{{ url('/') }}"><img src="{{ asset('storage/images/bookicon.png') }}" alt="Description">TechTalks</a>
+                    <a class="navbar-brand" href="{{ url('/') }}"><img src="{{ asset('storage/images/bookicon.png') }}" alt="Description" loading="lazy">TechTalks</a>
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon"></span>
                     </button>
@@ -65,9 +65,9 @@
                                     <div class="user-circle">
                                         @if(Auth::user()->profile_picture)
                                         @php($imagePath = asset('storage/' . Auth::user()->profile_picture))
-                                        <img src="{{ $imagePath }}" alt="Ảnh đại diện" class="img-fluid" style="border-radius: 50%;">
+                                        <img src="{{ $imagePath }}" alt="Ảnh đại diện" class="img-fluid" style="border-radius: 50%;" loading="lazy">
                                         @else
-                                        <img src="{{ asset('storage/images/avataricon.png') }}" alt="Ảnh đại diện mặc định" class="img-fluid" style="border-radius: 50%;">
+                                        <img src="{{ asset('storage/images/avataricon.png') }}" alt="Ảnh đại diện mặc định" class="img-fluid" style="border-radius: 50%;" loading="lazy">
                                         {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                                         @endif
                                     </div>
@@ -126,9 +126,9 @@
                     <div class="col-md-4">
                         @if(isset($user))
                         @if($user->profile_picture)
-                        <img src="{{ asset('storage/' . $user->profile_picture) }}" alt="Avatar" class="img-thumbnail">
+                        <img src="{{ asset('storage/' . $user->profile_picture) }}" alt="Avatar" class="img-thumbnail" loading="lazy">
                         @else
-                        <img src="{{ asset('storage/images/avataricon.png') }}" alt="Avatar Mặc Định" class="img-thumbnail">
+                        <img src="{{ asset('storage/images/avataricon.png') }}" alt="Avatar Mặc Định" class="img-thumbnail" loading="lazy">
                         @endif
                         @else
                         <p>Biến user không tồn tại.</p>

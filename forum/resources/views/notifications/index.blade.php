@@ -1,7 +1,7 @@
 @extends('layouts.users')
 
 @section('content')
-<div class="welcome-content">
+<div class="welcome-contents">
     <h1>Thông báo</h1>
 
     <!-- Nút đánh dấu tất cả là đã đọc -->

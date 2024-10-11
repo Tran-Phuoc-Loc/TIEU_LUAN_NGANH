@@ -104,34 +104,39 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/drafts', [PostController::class, 'drafts'])->name('users.posts.drafts'); // Hiển thị danh sách bài viết ở trạng thái draft
         Route::get('/published', [PostController::class, 'published'])->name('users.posts.published'); // Hiển thị danh sách bài viết đã xuất bản
 
+        // Route để tạo thư mục
         Route::post('/folders', [FolderController::class, 'create'])->name('folders.create');
 
+        // Route để quản lý bài viết đã lưu
         Route::get('/savepost', [PostController::class, 'showSavedPosts'])->name('users.posts.savePost');
         Route::post('/save-post', [PostController::class, 'savePost'])->name('posts.savePost');
+
         // Route để chỉnh sửa bài viết
         Route::get('{post}/edit', [PostController::class, 'edit'])->name('posts.edit'); // Hiển thị trang chỉnh sửa bài viết
-        Route::put('/posts/{id}', [PostController::class, 'update'])->name('posts.update'); // Cập nhật bài viết
+        Route::put('{post}', [PostController::class, 'update'])->name('posts.update'); // Cập nhật bài viết
         Route::put('{post}/recall', [PostController::class, 'recall'])->name('posts.recall'); // Gọi lại bài viết từ trạng thái đã xuất bản về nháp
 
         // Route để xóa bài viết
-        Route::delete('{id}', [PostController::class, 'destroy'])->name('posts.destroy'); // Xóa bài viết
+        Route::delete('{post}', [PostController::class, 'destroy'])->name('posts.destroy'); // Xóa bài viết
 
         // Route để xuất bản bài viết
-        Route::post('/posts/{id}/publish', [PostController::class, 'publish'])->name('posts.publish'); // Xuất bài viết ra khỏi dạng draft
+        Route::post('{post}/publish', [PostController::class, 'publish'])->name('posts.publish'); // Xuất bài viết ra khỏi dạng draft
 
         // Route cho bình luận
         Route::post('{post}/comments', [CommentController::class, 'store'])->name('comments.store'); // Tạo bình luận cho bài viết
-        Route::get('{postId}', [CommentController::class, 'show']); // Hiển thị bài viết cùng với bình luận
-        Route::post('{postId}/like', [PostController::class, 'like'])->name('posts.like'); // Lượt thích của bài viết 
+        Route::get('{post}', [CommentController::class, 'show'])->name('posts.show'); // Hiển thị bài viết cùng với bình luận
+        Route::post('{post}/like', [PostController::class, 'like'])->name('posts.like'); // Lượt thích của bài viết
 
-        Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show'); // Thông báo bài viết cần sửa
-
+        // Để lấy danh sách bình luận của bài viết dưới dạng JSON
+        Route::get('/{post}/comments', [CommentController::class, 'index']);
     });
 
     // Route quản lý bình luận bài viết
     Route::prefix('comments')->group(function () {
-        Route::post('{commentId}/like', [CommentController::class, 'like']); // Lượt thích cho bình luận bài viết
+        Route::post('{comment}/like', [CommentController::class, 'like']); // Lượt thích cho bình luận bài viết
+        Route::post('/{comment}/relay', [CommentController::class, 'relay'])->name('comments.relay');
     });
+
 
     // Route quản lý Group
     Route::prefix('users')->group(function () {
@@ -159,8 +164,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
 });
-// Để lấy danh sách bình luận của bài viết dưới dạng JSON
-Route::get('/posts/{post}/comments', [CommentController::class, 'index']);
 
 Route::get('/check-login', function () {
     return response()->json(['isLoggedIn' => Auth::check()]);

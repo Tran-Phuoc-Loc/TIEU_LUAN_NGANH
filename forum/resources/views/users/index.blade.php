@@ -14,7 +14,7 @@
             <div class="post-meta d-flex justify-content-between align-items-start">
                 <div class="d-flex align-items-center">
                     <a href="{{ route('users.profile.index', ['user' => $post->user->id]) }}">
-                        <img src="{{ $post->user->profile_picture ? asset('storage/' . $post->user->profile_picture) : asset('storage/images/avataricon.png') }}" alt="Avatar" class="post-avatar">
+                        <img src="{{ $post->user->profile_picture ? asset('storage/' . $post->user->profile_picture) : asset('storage/images/avataricon.png') }}" alt="Avatar" class="post-avatar" loading="lazy">
                     </a>
                     <span class="post-author">Đăng bởi: <strong>{{ $post->user->username }}</strong></span> |
                     <span class="post-time">{{ $post->created_at->diffForHumans() }}</span>
@@ -70,7 +70,7 @@
 
                 @if($post->image_url)
                 <div class="post-image">
-                    <img src="{{ asset('storage/' . $post->image_url) }}" alt="{{ $post->title }}">
+                    <img src="{{ asset('storage/' . $post->image_url) }}" alt="{{ $post->title }}" loading="lazy">
                 </div>
                 @endif
 
@@ -106,7 +106,7 @@
         <span class="close" style="cursor:pointer;">&times;</span>
         <div class="modal-body">
             <h5 id="modalPostTitle">Bình luận cho bài viết</h5>
-            <div class="comments-list">
+            <div class="comments-list" style="max-height: 400px; overflow-y: auto;">
                 @if(isset($comments) && $comments->count() > 0)
                 @foreach($comments as $comment)
                 <div class="comment">
@@ -129,35 +129,39 @@
                         <button class="share-button" data-comment-id="{{ $comment->id }}">
                             <i class="fas fa-share-alt"></i> Chia sẻ
                         </button>
-                        <button class="relay-button" data-comment-id="{{ $comment->id }}">
-                            <i class="fas fa-retweet"></i> Relay
+                        <button class="reply-button" data-comment-id="${comment.id}">
+                            <i class="fas fa-reply"></i> Trả lời
                         </button>
                     </div>
+                    <div class="replies" id="replies-${comment.id}"></div> <!-- Khu vực để hiển thị các bình luận trả lời -->
                 </div>
-                @endforeach
-                @else
-                <p>Chưa có bình luận nào.</p>
-                @endif
             </div>
-            @if(auth()->check())
-            <form id="commentForm" action="{{ route('comments.store', $post->id) }}" method="POST" enctype="multipart/form-data" style="margin-top: auto;">
-                @csrf
-                <div class="textarea-container">
-                    <textarea name="content" class="form-control" rows="3" placeholder="Nhập bình luận của bạn" required></textarea>
-                    <input type="file" name="image" class="file-input" accept="image/*" id="fileInput" style="display:none;">
-                    <button type="button" class="file-icon" onclick="document.getElementById('fileInput').click();">
-                        <i class="fas fa-upload"></i> <!-- Icon tải lên -->
-                    </button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-arrow-right"></i> <!-- Hình mũi tên -->
-                    </button>
-                </div>
-            </form>
-            @else
-            <p>Vui lòng <a href="{{ route('login') }}">đăng nhập</a> để bình luận.</p>
-            @endif
         </div>
+        @endforeach
+        @else
+        <p>Chưa có bình luận nào.</p>
+        @endif
     </div>
+    @if(auth()->check())
+    <form id="commentForm" action="{{ route('comments.store', $post->id) }}" method="POST" enctype="multipart/form-data" style="margin-top: auto;">
+        @csrf
+        <div class="textarea-container">
+            <input type="hidden" id="parent_id" name="parent_id" value="">
+            <textarea name="content" class="form-control" rows="3" placeholder="Nhập bình luận của bạn" required></textarea>
+            <input type="file" name="image" class="file-input" accept="image/*" id="fileInput" style="display:none;">
+            <button type="button" class="file-icon" onclick="document.getElementById('fileInput').click();">
+                <i class="fas fa-upload"></i> <!-- Icon tải lên -->
+            </button>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-arrow-right"></i> <!-- Hình mũi tên -->
+            </button>
+        </div>
+    </form>
+    @else
+    <p>Vui lòng <a href="{{ route('login') }}">đăng nhập</a> để bình luận.</p>
+    @endif
+</div>
+</div>
 </div>
 
 <!-- Modal Đăng Nhập -->

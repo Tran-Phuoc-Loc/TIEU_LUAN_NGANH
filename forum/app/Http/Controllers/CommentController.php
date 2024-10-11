@@ -17,18 +17,20 @@ class CommentController extends Controller
         $post = Post::findOrFail($postId);
 
         // Xác thực dữ liệu
-        $request->validate([
+        $validated = $request->validate([
             'content' => 'required|string|max:255',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+            'parent_id' => 'nullable|integer|exists:comments,id',
         ]);
-
 
         // Tạo bình luận mới
         $comment = new Comment();
-        $comment->content = $request->content;
+        $comment->content = $validated['content'];
         $comment->post_id = $post->id;
         $comment->user_id = Auth::id(); // Lấy ID của người dùng đã đăng nhập
+        $comment->parent_id = $validated['parent_id'] ?? null; // Null nếu không phải trả lời bình luận nào
 
+        // Kiểm tra nếu có hình ảnh được tải lên
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('comments', 'public');
             $comment->image_url = $imagePath;
@@ -36,9 +38,7 @@ class CommentController extends Controller
 
         // Lưu bình luận và kiểm tra kết quả
         try {
-            if (!$comment->save()) {
-                return response()->json(['success' => false, 'message' => 'Không thể lưu bình luận.'], 500);
-            }
+            $comment->save();
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Có lỗi xảy ra: ' . $e->getMessage()], 500);
         }
@@ -58,20 +58,42 @@ class CommentController extends Controller
 
     public function index($postId)
     {
-        $comments = Comment::with('user')->where('post_id', $postId)->get()->map(function ($comment) {
-            return [
-                'id' => $comment->id,
-                'content' => $comment->content,
-                'created_at' => $comment->created_at, // Trả về đối tượng Carbon
-                'likes_count' => $comment->likes_count ?? 0, // Đặt giá trị mặc định là 0
-                'user' => [
-                    'id' => $comment->user->id,
-                    'username' => $comment->user->username,
-                    'avatar_url' => $comment->user->avatar_url,
-                ],
-                'image_url' => $comment->image_url,
-            ];
-        });
+        // Lấy tất cả bình luận cho bài viết cùng với người dùng
+        $comments = Comment::with('user')
+            ->where('post_id', $postId)
+            ->whereNull('parent_id') // Chỉ lấy bình luận gốc (không có parent_id)
+            ->get()
+            ->map(function ($comment) {
+                // Lấy các trả lời cho bình luận gốc
+                $replies = $comment->replies()->with('user')->get()->map(function ($reply) {
+                    return [
+                        'id' => $reply->id,
+                        'content' => $reply->content,
+                        'created_at' => $reply->created_at,
+                        'likes_count' => $reply->likes_count ?? 0,
+                        'user' => [
+                            'id' => $reply->user->id,
+                            'username' => $reply->user->username,
+                            'avatar_url' => $reply->user->avatar_url,
+                        ],
+                        'image_url' => $reply->image_url,
+                    ];
+                });
+
+                return [
+                    'id' => $comment->id,
+                    'content' => $comment->content,
+                    'created_at' => $comment->created_at,
+                    'likes_count' => $comment->likes_count ?? 0,
+                    'user' => [
+                        'id' => $comment->user->id,
+                        'username' => $comment->user->username,
+                        'avatar_url' => $comment->user->avatar_url,
+                    ],
+                    'image_url' => $comment->image_url,
+                    'replies' => $replies, // Thêm phần replies vào bình luận
+                ];
+            });
 
         // Trả về JSON chứa danh sách bình luận
         return response()->json([
@@ -79,7 +101,7 @@ class CommentController extends Controller
         ]);
     }
 
-    public function show($postId)   
+    public function show($postId)
     {
         $post = Post::with('user')->find($postId);
 
@@ -121,6 +143,32 @@ class CommentController extends Controller
         return response()->json([
             'success' => true,
             'new_like_count' => $comment->likes_count,
+        ]);
+    }
+
+    public function reply(Request $request, $commentId)
+    {
+        $request->validate([
+            'content' => 'required|string|max:255',
+        ]);
+
+        $comment = Comment::findOrFail($commentId);
+
+        $reply = new Comment();
+        $reply->content = $request->content;
+        $reply->user_id = Auth::id();
+        $reply->parent_id = $commentId; // Gán ID bình luận cha
+        $reply->save();
+
+        return response()->json([
+            'success' => true,
+            'reply' => [
+                'user' => [
+                    'username' => auth()->user()->username,
+                ],
+                'content' => $reply->content,
+                'created_at_diff' => $reply->created_at->diffForHumans(),
+            ],
         ]);
     }
 }
