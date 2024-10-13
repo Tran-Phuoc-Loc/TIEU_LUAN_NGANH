@@ -17,7 +17,13 @@
                         <img src="{{ $post->user->profile_picture ? asset('storage/' . $post->user->profile_picture) : asset('storage/images/avataricon.png') }}" alt="Avatar" class="post-avatar" loading="lazy">
                     </a>
                     <span class="post-author">Đăng bởi: <strong>{{ $post->user->username }}</strong></span> |
-                    <span class="post-time">{{ $post->created_at->diffForHumans() }}</span>
+                    <span class="post-time">
+                        @if($post->published_at)
+                        {{ $post->published_at->isoFormat('MMM Do YYYY, h:mm a') }}
+                        @else
+                        {{ $post->created_at->isoFormat('MMM Do YYYY, h:mm a') }}
+                        @endif
+                    </span>
                 </div>
 
                 <div class="dropdown">

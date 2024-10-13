@@ -134,7 +134,7 @@ Route::middleware(['auth'])->group(function () {
     // Route quản lý bình luận bài viết
     Route::prefix('comments')->group(function () {
         Route::post('{comment}/like', [CommentController::class, 'like']); // Lượt thích cho bình luận bài viết
-        Route::post('/{comment}/relay', [CommentController::class, 'relay'])->name('comments.relay');
+        // Route::post('/{comment}/relay', [CommentController::class, 'relay'])->name('comments.relay');
     });
 
 

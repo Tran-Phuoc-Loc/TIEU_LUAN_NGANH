@@ -137,29 +137,29 @@ class CommentController extends Controller
         ]);
     }
 
-    public function reply(Request $request, $commentId)
-    {
-        $request->validate([
-            'content' => 'required|string|max:255',
-        ]);
+    // public function reply(Request $request, $commentId)
+    // {
+    //     $request->validate([
+    //         'content' => 'required|string|max:255',
+    //     ]);
 
-        $comment = Comment::findOrFail($commentId);
+    //     $comment = Comment::findOrFail($commentId);
 
-        $reply = new Comment();
-        $reply->content = $request->content;
-        $reply->user_id = Auth::id();
-        $reply->parent_id = $commentId; // Gán ID bình luận cha
-        $reply->save();
+    //     $reply = new Comment();
+    //     $reply->content = $request->content;
+    //     $reply->user_id = Auth::id();
+    //     $reply->parent_id = $commentId; // Gán ID bình luận cha
+    //     $reply->save();
 
-        return response()->json([
-            'success' => true,
-            'reply' => [
-                'user' => [
-                    'username' => auth()->user()->username,
-                ],
-                'content' => $reply->content,
-                'created_at_diff' => $reply->created_at->diffForHumans(),
-            ],
-        ]);
-    }
+    //     return response()->json([
+    //         'success' => true,
+    //         'reply' => [
+    //             'user' => [
+    //                 'username' => auth()->user()->username,
+    //             ],
+    //             'content' => $reply->content,
+    //             'created_at_diff' => $reply->created_at->diffForHumans(),
+    //         ],
+    //     ]);
+    // }
 }

@@ -62,43 +62,40 @@ class AdminPostController extends Controller
         // Lấy bài viết theo ID
         $post = Post::findOrFail($id);
 
-        // Validate dữ liệu bao gồm cả danh mục và ảnh
+        // Validate dữ liệu
         $validatedData = $request->validate([
             'title' => 'required|max:255',
             'content' => 'required',
+            'edit_reason' => 'nullable|string|max:255',
             'status' => 'required|in:draft,published',
-            'category_id' => 'required|exists:categories,id', // Kiểm tra danh mục có tồn tại
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Kiểm tra định dạng ảnh và kích thước
+            'category_id' => 'required|exists:categories,id',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         // Cập nhật bài viết với dữ liệu từ form
         $post->title = $validatedData['title'];
         $post->content = $validatedData['content'];
+        $post->edit_reason = $validatedData['edit_reason'];
         $post->status = $validatedData['status'];
         $post->category_id = $validatedData['category_id'];
 
         // Nếu có file ảnh được tải lên
         if ($request->hasFile('image')) {
-            // Xóa ảnh cũ nếu có
             if ($post->image_url) {
-                Storage::disk('public')->delete($post->image_url); // Xóa ảnh cũ từ storage
+                Storage::disk('public')->delete($post->image_url);
             }
-
-            // Lưu ảnh mới
             $path = $request->file('image')->store('images', 'public');
-            $post->image_url = $path; // Lưu đường dẫn ảnh vào DB
+            $post->image_url = $path;
+        }
+
+        // Gửi thông báo đến người dùng
+        $user = User::find($post->user_id); // Lấy user liên quan đến bài viết
+        if ($user) {
+            $user->notify(new PostUpdated($post)); // Gửi thông báo đến người dùng
         }
 
         // Lưu các thay đổi
         $post->save();
-
-        // Gửi thông báo cho tác giả bài viết nếu người chỉnh sửa không phải tác giả (admin sửa bài viết của user)
-        if (auth()->user()->id !== $post->user_id) {
-            $user = $post->user; // Sử dụng quan hệ tác giả
-            if ($user) {
-                $user->notify(new PostUpdated($post));
-            }
-        }
 
         return redirect()->route('admin.posts.index')->with('success', 'Bài viết đã được cập nhật.');
     }

@@ -36,9 +36,9 @@ class PostUpdated extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+            ->subject('Bài viết đã được cập nhật')
+            ->line('Bài viết của bạn đã được cập nhật bởi admin.')
+            ->action('Xem bài viết', route('posts.show', $this->post->id));
     }
 
     /**
@@ -53,5 +53,4 @@ class PostUpdated extends Notification
             'post_id' => $this->post->id,
         ];
     }
-    
 }

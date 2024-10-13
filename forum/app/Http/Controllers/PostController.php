@@ -125,9 +125,6 @@ class PostController extends Controller
 
         $post->save();
 
-        // Gửi thông báo cho tác giả bài viết
-        $post->author->notify(new PostUpdated($post));
-
         return redirect()->route('users.index')->with('success', 'Bài viết đã được cập nhật.');
     }
 

@@ -3,33 +3,37 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Post;
+use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
 {
     public function index()
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         // Lấy thông báo chưa đọc
         $unreadNotifications = $user->unreadNotifications;
 
-        // Lấy thông báo đã đọc
+        // Lấy thông báo đã đọc với phân trang
         $readNotifications = $user->notifications()->whereNotNull('read_at')->paginate(10);
 
-        // Đánh dấu tất cả thông báo chưa đọc là đã đọc
-        $user->unreadNotifications->markAsRead();
-        // dd($readNotifications);
-        // dd($readNotifications->items());
+        // Lấy thông tin bài viết từ thông báo đầu tiên chưa đọc (nếu có)
+        $post = null;
+        if ($unreadNotifications->isNotEmpty()) {
+            // Giả sử thông báo chứa post_id
+            $postId = $unreadNotifications->first()->data['post_id'];
+            $post = Post::find($postId);
+        }
 
-        return view('notifications.index', compact('unreadNotifications', 'readNotifications'));
+        return view('notifications.index', compact('unreadNotifications', 'readNotifications', 'post'));
     }
 
-    // Đánh dấu thông báo
     public function markAllAsRead()
     {
-        // Đánh dấu tất cả thông báo chưa đọc của người dùng hiện tại là đã đọc
-        auth()->user()->unreadNotifications->markAsRead();
+        Auth::user()->unreadNotifications->markAsRead();
 
         return redirect()->route('notifications.index')->with('success', 'Tất cả thông báo đã được đánh dấu là đã đọc.');
     }
 }
+
