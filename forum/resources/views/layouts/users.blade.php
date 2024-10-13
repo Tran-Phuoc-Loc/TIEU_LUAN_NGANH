@@ -548,13 +548,33 @@
                 commentsList.empty(); // Làm sạch danh sách bình luận
                 if (data.comments && data.comments.length > 0) {
                     data.comments.forEach(comment => {
-                        const createdAt = moment(comment.created_at).fromNow(); // Xử lý ngày tháng
-                        const likesCount = comment.likes_count || 0; // Đặt mặc định là 0 nếu undefined
+                        const commentHtml = createCommentHtml(comment); // Tạo bình luận HTML
+                        commentsList.append(commentHtml); // Thêm bình luận vào danh sách
 
-                        const commentHtml = `
+                        // Nếu bình luận có replies, gọi đệ quy xử lý replies
+                        if (comment.replies && comment.replies.length > 0) {
+                            handleReplies(comment.replies, comment.id); // Xử lý replies lồng nhau
+                        }
+                    });
+                } else {
+                    commentsList.append('<p>Chưa có bình luận nào.</p>');
+                }
+                commentForm.attr('action', `users/posts/${postId}/comments`); // Cập nhật thuộc tính action của form
+            });
+
+            // Hàm tạo comment HTML
+            function createCommentHtml(comment) {
+                const createdAt = moment(comment.created_at).fromNow(); // Xử lý thời gian
+                const likesCount = comment.likes_count || 0; // Đặt giá trị mặc định cho lượt thích
+                const repliedToUser = comment.replied_to_user ? `Trả lời ${comment.replied_to_user.username}` : ''; // Người được trả lời
+                const avatarUrl = comment.user.profile_picture ? `/storage/${comment.user.profile_picture}` : '/storage/images/avataricon.png';
+                // console.log('Avatar URL:', comment.user.profile_picture);
+
+                return `
                     <div class="comment" id="comment-${comment.id}">
-                        <img src="${comment.user.avatar_url ? '/storage/' + comment.user.avatar_url : '/storage/images/avataricon.png'}" alt="Avatar" class="comment-avatar" loading="lazy">
+                        <img src="${avatarUrl}" alt="Avatar" class="comment-avatar" loading="lazy">
                         <strong>${comment.user.username}</strong>: <small>${createdAt}</small>
+                        <div class="reply-to-user">${repliedToUser}</div> <!-- Hiển thị người được trả lời -->
                         <h6>${comment.content}</h6>
                         ${comment.image_url ? `<div class="comment-image"><img src="/storage/${comment.image_url}" alt="Comment Image" loading="lazy"></div>` : ''}
                         <div class="comment-actions">
@@ -565,47 +585,25 @@
                                 <i class="fas fa-reply"></i> Trả lời
                             </button>
                         </div>
-                        <div class="replies" id="replies-${comment.id}"></div>
+                        <div class="replies" id="replies-${comment.id}"></div> <!-- Nơi để hiển thị các replies -->
                     </div>
-                    `;
+                `;
+            }
 
-                        // Nếu bình luận có `parent_id`, thêm vào khu vực trả lời của comment cha
-                        if (comment.parent_id) {
-                            $(`#replies-${comment.parent_id}`).append(commentHtml);
-                        } else {
-                            commentsList.append(commentHtml);
-                        }
+            // Hàm đệ quy để xử lý replies
+            function handleReplies(replies, parentId) {
+                replies.forEach(reply => {
+                    const replyHtml = createCommentHtml(reply); // Tạo reply HTML
+                    $(`#replies-${parentId}`).append(replyHtml); // Thêm reply vào đúng vị trí
 
-                        // Xử lý các replies nếu có
-                        if (comment.replies && comment.replies.length > 0) {
-                            comment.replies.forEach(reply => {
-                                const replyHtml = `
-                            <div class="comment reply" id="comment-${reply.id}">
-                                <img src="${reply.user.avatar_url ? '/storage/' + reply.user.avatar_url : '/storage/images/avataricon.png'}" alt="Avatar" class="comment-avatar" loading="lazy">
-                                <strong>${reply.user.username}</strong>: <small>${moment(reply.created_at).fromNow()}</small>
-                                <div id="replyToUser" class="reply-to-user" style="margin-bottom: 10px;">
-                                    <h6>${reply.content}</h6>
-                                </div>
-                                ${reply.image_url ? `<div class="comment-image"><img src="/storage/${reply.image_url}" alt="Comment Image" loading="lazy"></div>` : ''}
-                                <div class="comment-actions">
-                                    <button class="like-button" data-comment-id="${reply.id}">
-                                        <i class="far fa-thumbs-up"></i> <span class="like-count">${reply.likes_count || 0}</span>
-                                    </button>
-                                    <button class="reply-button" data-comment-id="${comment.id}">
-                                        <i class="fas fa-reply"></i> Trả lời
-                                    </button>
-                                </div>
-                            </div>
-                            `;
-                                $(`#replies-${comment.id}`).append(replyHtml); // Thêm reply vào đúng chỗ
-                            });
-                        }
-                    });
-                } else {
-                    commentsList.append('<p>Chưa có bình luận nào.</p>');
-                }
-                commentForm.attr('action', `users/posts/${postId}/comments`); // Cập nhật thuộc tính action của form
-            });
+                    // Nếu reply này có replies con (nhiều cấp), tiếp tục đệ quy
+                    if (reply.replies && reply.replies.length > 0) {
+                        handleReplies(reply.replies, reply.id); // Gọi lại đệ quy để xử lý
+                    }
+                });
+            }
+
+
         });
 
         // Đóng modal khi nhấn nút đóng
@@ -645,7 +643,7 @@
                 formData.append('parent_id', parentId); // Gửi parent_id nếu có
             }
 
-            console.log('Parent ID:', parentId); // Debug giá trị parent_id
+            // console.log('Parent ID:', parentId); // Debug giá trị parent_id
 
             $.ajax({
                 url: $(this).attr('action'),
@@ -657,15 +655,16 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(data) {
+                    // console.log(data); // Kiểm tra phản hồi từ API
                     if (data.success && data.comment) {
                         const likesCount = data.comment.likes_count || 0; // Đặt mặc định là 0 nếu undefined
+                        const repliedToUser = data.comment.replied_to_user ? `Trả lời ${data.comment.replied_to_user.username}` : ''; // Lấy tên người dùng được trả lời
                         const commentHtml = `
                         <div class="comment" id="comment-${data.comment.id}">
-                            <img src="${data.comment.user.avatar_url ? '/storage/' + data.comment.user.avatar_url : '/storage/images/avataricon.png'}" alt="Avatar" class="comment-avatar" loading="lazy">
+                            <img src="${data.comment.user.profile_picture ? '/storage/' + data.comment.user.profile_picture : '/storage/images/avataricon.png'}" alt="Avatar" class="comment-avatar" loading="lazy">
                             <strong>${data.comment.user.username}</strong>: <small>Vừa xong</small>
-                            <div id="replyToUser" class="reply-to-user" style="margin-bottom: 10px;">
-                                <h6>${data.comment.content}</h6>
-                            </div>
+                            <div class="reply-to-user">${repliedToUser}</div> <!-- Hiển thị người được trả lời -->
+                            <h6>${data.comment.content}</h6>
                             ${data.comment.image_url ? `<div class="comment-image"><img src="/storage/${data.comment.image_url}" alt="Comment Image" loading="lazy"></div>` : ''}
                             <div class="comment-actions">
                                 <button class="like-button" data-comment-id="${data.comment.id}">
@@ -685,12 +684,10 @@
                         } else {
                             commentsList.append(commentHtml);
                         }
+
                         commentForm[0].reset(); // Đặt lại form
                         $('#parent_id').val(0); // Đặt lại parent_id về 0 sau khi bình luận thành công
                         parentId = null; // Reset biến parentId
-
-                        // Reset thông báo tên người trả lời
-                        $('#replyToUser').text('');
                     } else {
                         alert('Đã có lỗi xảy ra. Vui lòng thử lại.');
                     }
@@ -707,11 +704,14 @@
             const commentId = $(this).data('comment-id');
 
             // Lấy tên người đã bình luận
-            const commentUserName = $(this).closest('.comment').find('.comment-username').text();
+            const commentUserName = $(this).closest('.comment').find('strong').first().text();
 
             $('#parent_id').val(commentId); // Đặt parent_id là ID của bình luận cần trả lời
             parentId = commentId; // Cập nhật biến parentId
             $('textarea[name="content"]').focus(); // Đưa con trỏ chuột vào ô nhập liệu
+
+            // Chèn thông báo vào textarea (tạm thời để hiển thị)
+            $('textarea[name="content"]').val(`@${commentUserName} `);
 
             // Hiển thị thông báo về việc trả lời
             $('#replyToUser').text(`Đang trả lời bình luận của ${commentUserName}:`);

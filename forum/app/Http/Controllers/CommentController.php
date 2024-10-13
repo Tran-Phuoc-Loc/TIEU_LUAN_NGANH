@@ -58,27 +58,31 @@ class CommentController extends Controller
 
     public function index($postId)
     {
-        // Lấy tất cả bình luận cho bài viết cùng với người dùng
+        // Lấy tất cả bình luận cho bài viết cùng với người dùng và các reply lồng nhau
         $comments = Comment::with('user')
             ->where('post_id', $postId)
             ->whereNull('parent_id') // Chỉ lấy bình luận gốc (không có parent_id)
             ->get()
             ->map(function ($comment) {
-                // Lấy các trả lời cho bình luận gốc
-                $replies = $comment->replies()->with('user')->get()->map(function ($reply) {
-                    return [
-                        'id' => $reply->id,
-                        'content' => $reply->content,
-                        'created_at' => $reply->created_at,
-                        'likes_count' => $reply->likes_count ?? 0,
-                        'user' => [
-                            'id' => $reply->user->id,
-                            'username' => $reply->user->username,
-                            'avatar_url' => $reply->user->avatar_url,
-                        ],
-                        'image_url' => $reply->image_url,
-                    ];
-                });
+                // Hàm đệ quy để lấy các replies nhiều cấp
+                $fetchReplies = function ($comment) use (&$fetchReplies) {
+                    return $comment->replies()->with('user')->get()->map(function ($reply) use ($fetchReplies) {
+                        return [
+                            'id' => $reply->id,
+                            'content' => $reply->content,
+                            'created_at' => $reply->created_at,
+                            'likes_count' => $reply->likes_count ?? 0,
+                            'user' => [
+                                'id' => $reply->user->id,
+                                'username' => $reply->user->username,
+                                'profile_picture' => $reply->user->profile_picture,
+                            ],
+                            'image_url' => $reply->image_url,
+                            // Gọi lại hàm để lấy các replies của reply hiện tại (nếu có)
+                            'replies' => $fetchReplies($reply),
+                        ];
+                    });
+                };
 
                 return [
                     'id' => $comment->id,
@@ -88,14 +92,14 @@ class CommentController extends Controller
                     'user' => [
                         'id' => $comment->user->id,
                         'username' => $comment->user->username,
-                        'avatar_url' => $comment->user->avatar_url,
+                        'profile_picture' => $comment->user->profile_picture,
                     ],
                     'image_url' => $comment->image_url,
-                    'replies' => $replies, // Thêm phần replies vào bình luận
+                    'replies' => $fetchReplies($comment), // Gọi hàm để lấy tất cả replies
                 ];
             });
 
-        // Trả về JSON chứa danh sách bình luận
+        // Trả về JSON chứa danh sách bình luận và replies
         return response()->json([
             'comments' => $comments,
         ]);

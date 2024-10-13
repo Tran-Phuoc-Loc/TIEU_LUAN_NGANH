@@ -110,7 +110,7 @@
                 @if(isset($comments) && $comments->count() > 0)
                 @foreach($comments as $comment)
                 <div class="comment">
-                    <img src="{{ $comment->user->avatar_url ? asset('storage/' . $comment->user->avatar_url) : asset('storage/images/avataricon.png') }}" alt="Avatar" class="comment-avatar" loading="lazy">
+                    <img src="{{ $comment->user->profile_picture ? asset('storage/' . $comment->user->profile_picture) : asset('storage/images/avataricon.png') }}" alt="Avatar" class="comment-avatar" loading="lazy">
                     <strong>{{ $comment->user->username }}</strong>:
                     <small>
                         {{ $comment->created_at->isoFormat('DD/MM/YYYY HH:mm') }}
