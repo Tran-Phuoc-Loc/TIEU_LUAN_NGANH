@@ -101,19 +101,6 @@ class CommentController extends Controller
         ]);
     }
 
-    public function show($postId)
-    {
-        $post = Post::with('user')->find($postId);
-
-        $comments = Comment::where('post_id', $postId)->with('user')->get();
-
-        // Log::info('Post:', ['post' => $post]);
-        // Log::info('Comments:', ['comments' => $comments]);
-        // dd($post, $comments); // Hiển thị dữ liệu để kiểm tra
-
-        return view('users.index', ['post' => $post, 'comments' => $comments]);
-    }
-
     public function like($id)
     {
         // Kiểm tra xem người dùng đã đăng nhập chưa

@@ -126,7 +126,7 @@
                         <button class="like-button" data-comment-id="${comment.id}">
                             <i class="far fa-thumbs-up"></i> <span class="like-count">${comment.likes_count}</span>
                         </button>
-                        <button class="share-button" data-comment-id="{{ $comment->id }}">
+                        <button class="share-button" data-comment-id="${comment.id}">
                             <i class="fas fa-share-alt"></i> Chia sẻ
                         </button>
                         <button class="reply-button" data-comment-id="${comment.id}">
@@ -146,7 +146,7 @@
     <form id="commentForm" action="{{ route('comments.store', $post->id) }}" method="POST" enctype="multipart/form-data" style="margin-top: auto;">
         @csrf
         <div class="textarea-container">
-            <input type="hidden" id="parent_id" name="parent_id" value="">
+            <input type="hidden" id="parent_id" name="parent_id" value="0">
             <textarea name="content" class="form-control" rows="3" placeholder="Nhập bình luận của bạn" required></textarea>
             <input type="file" name="image" class="file-input" accept="image/*" id="fileInput" style="display:none;">
             <button type="button" class="file-icon" onclick="document.getElementById('fileInput').click();">

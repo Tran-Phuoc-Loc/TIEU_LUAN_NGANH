@@ -85,7 +85,7 @@ class PostController extends Controller
     }
 
 
-    public function update(Request $request, Post $post, $id)
+    public function update(Request $request, Post $post)
     {
         // dd($request->all());
         $validatedData = $request->validate([
@@ -97,7 +97,6 @@ class PostController extends Controller
         ]);
 
         // Tìm bài viết và cập nhật
-        $post = Post::findOrFail($id);
         $post->title = $validatedData['title'];
         $post->content = $validatedData['content'];
         $post->status = $validatedData['status'];
@@ -105,6 +104,13 @@ class PostController extends Controller
 
         // Tạo slug từ tiêu đề
         $post->slug = Str::slug($validatedData['title']); // Cập nhật slug từ tiêu đề
+
+        // Nếu trạng thái là published, cập nhật thời gian published_at
+        if ($post->status === 'published') {
+            $post->published_at = now(); // Reset thời gian khi được công bố
+        } else {
+            $post->published_at = null; // Reset nếu quay về draft
+        }
 
         // Xử lý upload ảnh nếu có
         if ($request->hasFile('image')) {
@@ -208,12 +214,18 @@ class PostController extends Controller
 
     public function destroy($id)
     {
+        // Tìm bài viết theo ID
         $post = Post::findOrFail($id);
+
         // Kiểm tra quyền truy cập
         if (Auth::id() !== $post->user->id) {
             abort(403, 'Unauthorized action.');
         }
 
+        // Xóa tất cả bình luận liên quan đến bài viết
+        $post->comments()->delete(); // Giả sử bạn đã định nghĩa mối quan hệ comments trong model Post
+
+        // Xóa bài viết
         $post->delete();
 
         return redirect()->route('users.posts.drafts')->with('success', 'Bài viết đã được xóa.');

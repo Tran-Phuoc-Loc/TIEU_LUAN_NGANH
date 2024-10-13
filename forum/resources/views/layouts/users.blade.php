@@ -153,17 +153,14 @@
             margin: 10px 0;
             text-align: center;
             width: 100%;
-            height: 400px;
+            height: auto;
             overflow: hidden;
             /* Đảm bảo kích thước không vượt quá phần tử chứa */
         }
 
         .post-image img {
-            max-width: 100%;
             width: 100%;
-            height: 100%;
-            object-fit: cover;
-            /* Căn chỉnh phù hợp khung chứa, giữ nguyên khung hình */
+            height: auto;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
@@ -522,6 +519,14 @@
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
+    // Định nghĩa hàm redirectToLogin
+    function redirectToLogin() {
+        window.location.href = '/login'; // Chuyển hướng đến trang đăng nhập
+    }
+
+    // Định nghĩa parentId như một biến toàn cục
+    let parentId = null;
+
     $(document).ready(function() {
         const commentModal = $('#commentModal'); // Modal để hiển thị bình luận
         const commentForm = $('#commentForm'); // Form để gửi bình luận
@@ -536,14 +541,15 @@
 
             $('#modalPostTitle').text(postTitle); // Cập nhật tiêu đề trong modal
             commentModal.show(); // Hiển thị modal
+            $('#parent_id').val(0); // Reset parent_id khi mở modal
 
             // Gọi API để lấy danh sách bình luận
             $.get(`users/posts/${postId}/comments`, function(data) {
                 commentsList.empty(); // Làm sạch danh sách bình luận
-                if (data.comments.length > 0) {
+                if (data.comments && data.comments.length > 0) {
                     data.comments.forEach(comment => {
                         const createdAt = moment(comment.created_at).fromNow(); // Xử lý ngày tháng
-                        const likesCount = (typeof comment.likes_count !== 'undefined') ? comment.likes_count : 0; // Đặt mặc định là 0 nếu undefined
+                        const likesCount = comment.likes_count || 0; // Đặt mặc định là 0 nếu undefined
 
                         const commentHtml = `
                     <div class="comment" id="comment-${comment.id}">
@@ -561,14 +567,13 @@
                         </div>
                         <div class="replies" id="replies-${comment.id}"></div>
                     </div>
-                `;
+                    `;
 
                         // Nếu bình luận có `parent_id`, thêm vào khu vực trả lời của comment cha
                         if (comment.parent_id) {
-                            $(`#replies-${comment.parent_id}`).append(commentHtml); // Thêm bình luận trả lời dưới bình luận cha
+                            $(`#replies-${comment.parent_id}`).append(commentHtml);
                         } else {
-                            // Nếu không có `parent_id`, bình luận là mới (bình luận gốc)
-                            commentsList.append(commentHtml); // Thêm bình luận mới vào danh sách chính
+                            commentsList.append(commentHtml);
                         }
 
                         // Xử lý các replies nếu có
@@ -578,15 +583,20 @@
                             <div class="comment reply" id="comment-${reply.id}">
                                 <img src="${reply.user.avatar_url ? '/storage/' + reply.user.avatar_url : '/storage/images/avataricon.png'}" alt="Avatar" class="comment-avatar" loading="lazy">
                                 <strong>${reply.user.username}</strong>: <small>${moment(reply.created_at).fromNow()}</small>
-                                <h6>${reply.content}</h6>
+                                <div id="replyToUser" class="reply-to-user" style="margin-bottom: 10px;">
+                                    <h6>${reply.content}</h6>
+                                </div>
                                 ${reply.image_url ? `<div class="comment-image"><img src="/storage/${reply.image_url}" alt="Comment Image" loading="lazy"></div>` : ''}
                                 <div class="comment-actions">
                                     <button class="like-button" data-comment-id="${reply.id}">
-                                        <i class="far fa-thumbs-up"></i> <span class="like-count">${reply.likes_count}</span>
+                                        <i class="far fa-thumbs-up"></i> <span class="like-count">${reply.likes_count || 0}</span>
+                                    </button>
+                                    <button class="reply-button" data-comment-id="${comment.id}">
+                                        <i class="fas fa-reply"></i> Trả lời
                                     </button>
                                 </div>
                             </div>
-                        `;
+                            `;
                                 $(`#replies-${comment.id}`).append(replyHtml); // Thêm reply vào đúng chỗ
                             });
                         }
@@ -601,138 +611,15 @@
         // Đóng modal khi nhấn nút đóng
         closeButton.on('click', function() {
             commentModal.hide();
+            $('#parent_id').val(0); // Reset parent_id khi đóng modal
         });
 
         // Đóng modal khi nhấn ra ngoài modal
         $(window).on('click', function(event) {
             if ($(event.target).is(commentModal)) {
                 commentModal.hide();
+                $('#parent_id').val(0); // Reset parent_id khi đóng modal
             }
-        });
-
-        // Gửi bình luận
-        commentForm.on('submit', function(e) {
-            e.preventDefault(); // Ngăn chặn tải lại trang
-            const formData = new FormData(this);
-
-            $.ajax({
-                url: $(this).attr('action'),
-                method: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(data) {
-                    console.log(data);
-                    if (data.success && data.comment) {
-                        const likesCount = data.comment.likes_count || 0; // Đặt mặc định là 0 nếu undefined
-                        const commentHtml = `
-                        <div class="comment">
-                            <img src="${data.comment.user.avatar_url ? '/storage/' + data.comment.user.avatar_url : '/storage/images/avataricon.png'}" alt="Avatar" class="comment-avatar" loading="lazy">
-                            <strong>${data.comment.user.username}</strong>:<small>Vừa xong</small>
-                            <h6>${data.comment.content}</h6>
-                            ${data.comment.image_url ? `<div class="comment-image"><img src="/storage/${data.comment.image_url}" alt="Comment Image" loading="lazy"></div>` : ''}
-                            <div class="comment-actions">
-                                <button class="like-button" data-comment-id="${data.comment.id}">
-                                    <i class="far fa-thumbs-up"></i>  <span class="like-count">${data.comment.likes_count}</span>
-                                </button>
-                                <button class="share-button" data-comment-id="${data.comment.id}">
-                                    <i class="fas fa-share-alt"></i> Chia sẻ
-                                </button>
-                                 <button class="reply-button" data-comment-id="${data.comment.id}">
-                            <i class="fas fa-reply"></i> Trả lời
-                            </button>
-                        </div>
-                        <div class="replies" id="replies-${data.comment.id}"></div> <!-- Khu vực để hiển thị các bình luận trả lời -->
-                    </div>
-                `;
-
-                        // Nếu có parent_id thì thêm bình luận vào khu vực trả lời của comment cha
-                        if (data.comment.parent_id) {
-                            $(`#replies-${data.comment.parent_id}`).append(commentHtml);
-                        } else {
-                            // Nếu không có parent_id, bình luận là mới
-                            commentsList.append(commentHtml);
-                        }
-                        commentForm[0].reset(); // Đặt lại form
-                        $('#parent_id').val(0); // Đặt lại parent_id về 0 sau khi bình luận thành công
-                    } else {
-                        alert('Đã có lỗi xảy ra. Vui lòng thử lại.');
-                    }
-                },
-                error: function(xhr) {
-                    console.error('Có lỗi xảy ra:', xhr);
-                }
-            });
-        });
-
-        // Khi người dùng nhấn nút "Trả lời", cập nhật parent_id trong form
-        $(document).on('click', '.reply-button', function() {
-            const commentId = $(this).data('comment-id');
-            $('#parent_id').val(commentId); // Đặt parent_id là ID của bình luận cần trả lời
-            $('textarea[name="content"]').focus(); // Đưa con trỏ chuột vào ô nhập liệu
-        });
-
-        // Xử lý sự kiện nhấn nút like
-        $(document).on('click', '.like-button', function(e) {
-            e.preventDefault(); // Ngăn chặn hành động mặc định của link
-
-            const button = $(this);
-            const commentId = button.data('comment-id'); // Lấy ID bình luận
-            const postId = button.data('post-id'); // Lấy ID bài viết
-            const likeCountElement = button.find('.like-count');
-
-            // Gọi API để kiểm tra đăng nhập
-            $.ajax({
-                url: '/check-login', // Route để kiểm tra đăng nhập
-                method: 'GET',
-                success: function(data) {
-                    if (!data.isLoggedIn) {
-                        // Hiển thị modal nếu người dùng chưa đăng nhập
-                        $('#modalTitle').text('Đăng Nhập');
-                        $('#modalMessage').text('Vui lòng đăng nhập để thích.');
-                        loginModal.show(); // Hiển thị modal
-                        return;
-                    }
-
-                    // Thực hiện yêu cầu thích
-                    let likeUrl;
-                    if (commentId) {
-                        likeUrl = `/comments/${commentId}/like`; // URL cho like comment
-                    } else {
-                        likeUrl = `users/posts/${postId}/like`; // URL cho like bài viết
-                    }
-                    $.ajax({
-                        url: likeUrl,
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        success: function(data) {
-                            // console.log('Phản hồi từ máy chủ:', data); // Xem phản hồi đầy đủ
-                            if (data.success) {
-                                // Cập nhật giao diện
-                                button.toggleClass('liked'); // Thay đổi class để hiển thị trạng thái
-
-                                // Cập nhật số lượng like
-                                likeCountElement.text(data.new_like_count); // Sử dụng giá trị từ phản hồi
-                            } else {
-                                alert('Đã có lỗi xảy ra. Vui lòng thử lại.');
-                            }
-                        },
-                        error: function(xhr) {
-                            console.error('Có lỗi xảy ra khi thực hiện yêu cầu like:', xhr);
-                            alert('Có lỗi xảy ra. Vui lòng thử lại.');
-                        }
-                    });
-                },
-                error: function(xhr) {
-                    console.error('Có lỗi xảy ra khi kiểm tra đăng nhập:', xhr);
-                    alert('Có lỗi xảy ra khi kiểm tra đăng nhập.');
-                }
-            });
         });
 
         // Đóng modal đăng nhập
@@ -746,77 +633,226 @@
             }
         });
 
-        $(document).ready(function() {
-            $(document).on('click', '.report-button', function(e) {
-                e.preventDefault();
+        // Gửi bình luận
+        commentForm.on('submit', function(e) {
+            e.preventDefault(); // Ngăn chặn tải lại trang
+            const formData = new FormData(this);
 
-                const postId = $(this).data('post-id');
+            // Gửi giá trị null hoặc không gửi trường parent_id nếu không có bình luận cha
+            if (parentId === null || parentId === 0) {
+                formData.delete('parent_id'); // Xóa trường parent_id nếu không có bình luận cha
+            } else {
+                formData.append('parent_id', parentId); // Gửi parent_id nếu có
+            }
 
-                // Kiểm tra trạng thái đăng nhập
+            console.log('Parent ID:', parentId); // Debug giá trị parent_id
+
+            $.ajax({
+                url: $(this).attr('action'),
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(data) {
+                    if (data.success && data.comment) {
+                        const likesCount = data.comment.likes_count || 0; // Đặt mặc định là 0 nếu undefined
+                        const commentHtml = `
+                        <div class="comment" id="comment-${data.comment.id}">
+                            <img src="${data.comment.user.avatar_url ? '/storage/' + data.comment.user.avatar_url : '/storage/images/avataricon.png'}" alt="Avatar" class="comment-avatar" loading="lazy">
+                            <strong>${data.comment.user.username}</strong>: <small>Vừa xong</small>
+                            <div id="replyToUser" class="reply-to-user" style="margin-bottom: 10px;">
+                                <h6>${data.comment.content}</h6>
+                            </div>
+                            ${data.comment.image_url ? `<div class="comment-image"><img src="/storage/${data.comment.image_url}" alt="Comment Image" loading="lazy"></div>` : ''}
+                            <div class="comment-actions">
+                                <button class="like-button" data-comment-id="${data.comment.id}">
+                                    <i class="far fa-thumbs-up"></i> <span class="like-count">${likesCount}</span>
+                                </button>
+                                <button class="reply-button" data-comment-id="${data.comment.id}">
+                                    <i class="fas fa-reply"></i> Trả lời
+                                </button>
+                            </div>
+                            <div class="replies" id="replies-${data.comment.id}"></div> <!-- Khu vực để hiển thị các bình luận trả lời -->
+                        </div>
+                        `;
+
+                        // Nếu có parent_id thì thêm bình luận vào khu vực trả lời của comment cha
+                        if (data.comment.parent_id) {
+                            $(`#replies-${data.comment.parent_id}`).append(commentHtml);
+                        } else {
+                            commentsList.append(commentHtml);
+                        }
+                        commentForm[0].reset(); // Đặt lại form
+                        $('#parent_id').val(0); // Đặt lại parent_id về 0 sau khi bình luận thành công
+                        parentId = null; // Reset biến parentId
+
+                        // Reset thông báo tên người trả lời
+                        $('#replyToUser').text('');
+                    } else {
+                        alert('Đã có lỗi xảy ra. Vui lòng thử lại.');
+                    }
+                },
+                error: function(xhr) {
+                    console.error('Có lỗi xảy ra:', xhr);
+                    alert('Có lỗi xảy ra. Vui lòng thử lại.');
+                }
+            });
+        });
+
+        // Khi người dùng nhấn nút "Trả lời", cập nhật parentId
+        $(document).on('click', '.reply-button', function() {
+            const commentId = $(this).data('comment-id');
+
+            // Lấy tên người đã bình luận
+            const commentUserName = $(this).closest('.comment').find('.comment-username').text();
+
+            $('#parent_id').val(commentId); // Đặt parent_id là ID của bình luận cần trả lời
+            parentId = commentId; // Cập nhật biến parentId
+            $('textarea[name="content"]').focus(); // Đưa con trỏ chuột vào ô nhập liệu
+
+            // Hiển thị thông báo về việc trả lời
+            $('#replyToUser').text(`Đang trả lời bình luận của ${commentUserName}:`);
+        });
+
+        // Hàm kiểm tra tính hợp lệ của parent_id
+        function isValidParentId(parentId) {
+            return parentId === '0' || !isNaN(parentId); // Hoặc thêm logic kiểm tra ID tồn tại
+        }
+    });
+    // Xử lý sự kiện nhấn nút like
+    $(document).on('click', '.like-button', function(e) {
+        e.preventDefault(); // Ngăn chặn hành động mặc định của link
+
+        const button = $(this);
+        const commentId = button.data('comment-id'); // Lấy ID bình luận
+        const postId = button.data('post-id'); // Lấy ID bài viết
+        const likeCountElement = button.find('.like-count');
+
+        // Gọi API để kiểm tra đăng nhập
+        $.ajax({
+            url: '/check-login', // Route để kiểm tra đăng nhập
+            method: 'GET',
+            success: function(data) {
+                if (!data.isLoggedIn) {
+                    // Hiển thị modal nếu người dùng chưa đăng nhập
+                    $('#modalTitle').text('Đăng Nhập');
+                    $('#modalMessage').text('Vui lòng đăng nhập để thích.');
+                    loginModal.show(); // Hiển thị modal
+                    return;
+                }
+
+                // Thực hiện yêu cầu thích
+                let likeUrl;
+                if (commentId) {
+                    likeUrl = `/comments/${commentId}/like`; // URL cho like comment
+                } else {
+                    likeUrl = `users/posts/${postId}/like`; // URL cho like bài viết
+                }
                 $.ajax({
-                    url: '/check-login', // Route để kiểm tra đăng nhập
-                    method: 'GET',
+                    url: likeUrl,
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
                     success: function(data) {
-                        if (!data.isLoggedIn) {
-                            // Nếu chưa đăng nhập, hiển thị cảnh báo
-                            alert('Bạn cần đăng nhập để báo cáo bài viết.');
-                            redirectToLogin(); // Chuyển hướng đến trang đăng nhập
-                            return;
+                        // console.log('Phản hồi từ máy chủ:', data); // Xem phản hồi đầy đủ
+                        if (data.success) {
+                            // Cập nhật giao diện
+                            button.toggleClass('liked'); // Thay đổi class để hiển thị trạng thái
+
+                            // Cập nhật số lượng like
+                            likeCountElement.text(data.new_like_count); // Sử dụng giá trị từ phản hồi
+                        } else {
+                            alert('Đã có lỗi xảy ra. Vui lòng thử lại.');
                         }
-
-                        // Hiển thị hộp thoại xác nhận
-                        const reason = prompt("Nhập lý do báo cáo:");
-                        if (!reason) {
-                            alert('Bạn cần nhập lý do để báo cáo.')
-                            return; // Nếu không xác nhận, thoát hàm
-                        }
-
-                        // Gán lý do vào input ẩn
-                        $('#reasonInput-' + postId).val(reason);
-
-                        // Gửi yêu cầu AJAX để báo cáo
-                        $.ajax({
-                            url: '/admin/reports/store',
-                            method: 'POST',
-                            data: {
-                                post_id: postId,
-                                reason: reason, // Sử dụng lý do người dùng nhập
-                                _token: $('meta[name="csrf-token"]').attr('content') // CSRF token
-                            },
-                            success: function(response) {
-                                alert('Bài viết đã được báo cáo.');
-                                // Có thể làm mới trang hoặc cập nhật giao diện người dùng
-                            },
-                            error: function(xhr) {
-                                console.error(xhr);
-                                alert('Có lỗi xảy ra. Vui lòng thử lại.');
-                            }
-                        });
                     },
                     error: function(xhr) {
-                        console.error('Có lỗi xảy ra khi kiểm tra đăng nhập:', xhr);
+                        console.error('Có lỗi xảy ra khi thực hiện yêu cầu like:', xhr);
                         alert('Có lỗi xảy ra. Vui lòng thử lại.');
                     }
                 });
-            });
+            },
+            error: function(xhr) {
+                console.error('Có lỗi xảy ra khi kiểm tra đăng nhập:', xhr);
+                alert('Có lỗi xảy ra khi kiểm tra đăng nhập.');
+            }
         });
-        $(document).ready(function() {
-            $('.toggle-content').click(function() {
-                var preview = $(this).siblings('.post-description').find('.content-preview');
-                var fullContent = $(this).siblings('.post-description').find('.content-full');
+    });
 
-                if (fullContent.is(':visible')) {
-                    fullContent.hide();
-                    preview.show();
-                    $(this).text('Xem thêm');
-                } else {
-                    fullContent.show();
-                    preview.hide();
-                    $(this).text('Ẩn bớt');
+    $(document).ready(function() {
+        $(document).on('click', '.report-button', function(e) {
+            e.preventDefault();
+
+            const postId = $(this).data('post-id');
+
+            // Kiểm tra trạng thái đăng nhập
+            $.ajax({
+                url: '/check-login', // Route để kiểm tra đăng nhập
+                method: 'GET',
+                success: function(data) {
+                    if (!data.isLoggedIn) {
+                        // Nếu chưa đăng nhập, hiển thị cảnh báo
+                        alert('Bạn cần đăng nhập để báo cáo bài viết.');
+                        redirectToLogin(); // Chuyển hướng đến trang đăng nhập
+                        return;
+                    }
+
+                    // Hiển thị hộp thoại xác nhận
+                    const reason = prompt("Nhập lý do báo cáo:");
+                    if (!reason) {
+                        alert('Bạn cần nhập lý do để báo cáo.')
+                        return; // Nếu không xác nhận, thoát hàm
+                    }
+
+                    // Gán lý do vào input ẩn
+                    $('#reasonInput-' + postId).val(reason);
+
+                    // Gửi yêu cầu AJAX để báo cáo
+                    $.ajax({
+                        url: '/admin/reports/store',
+                        method: 'POST',
+                        data: {
+                            post_id: postId,
+                            reason: reason, // Sử dụng lý do người dùng nhập
+                            _token: $('meta[name="csrf-token"]').attr('content') // CSRF token
+                        },
+                        success: function(response) {
+                            alert('Bài viết đã được báo cáo.');
+                            // Có thể làm mới trang hoặc cập nhật giao diện người dùng
+                        },
+                        error: function(xhr) {
+                            console.error(xhr);
+                            alert('Có lỗi xảy ra. Vui lòng thử lại.');
+                        }
+                    });
+                },
+                error: function(xhr) {
+                    console.error('Có lỗi xảy ra khi kiểm tra đăng nhập:', xhr);
+                    alert('Có lỗi xảy ra. Vui lòng thử lại.');
                 }
             });
         });
     });
+    $(document).ready(function() {
+        $('.toggle-content').click(function() {
+            var preview = $(this).siblings('.post-description').find('.content-preview');
+            var fullContent = $(this).siblings('.post-description').find('.content-full');
+
+            if (fullContent.is(':visible')) {
+                fullContent.hide();
+                preview.show();
+                $(this).text('Xem thêm');
+            } else {
+                fullContent.show();
+                preview.hide();
+                $(this).text('Ẩn bớt');
+            }
+        });
+    });
+
     $(document).ready(function() {
         // Khi nhấn nút Lưu bài viết
         $('.save-post').on('click', function() {
