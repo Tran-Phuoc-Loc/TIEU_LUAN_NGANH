@@ -6,72 +6,133 @@
 <style>
     /* CSS riêng cho trang này */
     .chat-container {
-    display: flex; /* Sử dụng flexbox để tạo bố cục */
-    margin-top: 20px; /* Khoảng cách phía trên */
-}
+        display: flex;
+        margin-top: 20px;
+        height: 90vh;
+    }
 
-.group-list {
-    background-color: #f8f9fa; /* Màu nền nhẹ cho danh sách nhóm */
-    padding: 20px; /* Khoảng cách bên trong */
-    border-radius: 5px; /* Bo góc */
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
-    overflow-y: auto; /* Cho phép cuộn dọc */
-    max-height: 500px;
-}
+    .group-list {
+        background-color: #f1f1f1;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+        max-height: 100%;
+    }
 
-.chat-area {
-    padding: 20px; /* Khoảng cách bên trong */
-    border-left: 1px solid #dee2e6; /* Đường viền trái */
-}
+    .group-list ul {
+        list-style: none;
+        padding-left: 0;
+    }
 
-.chat-title {
-    margin-bottom: 20px; /* Khoảng cách dưới tiêu đề chat */
-}
+    .group-list .list-group-item {
+        border: none;
+        padding: 15px 10px;
+        margin-bottom: 10px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        transition: background-color 0.3s ease;
+    }
 
-.chat-messages {
-    max-height: 400px; /* Giới hạn chiều cao */
-    overflow-y: auto; /* Thêm cuộn dọc */
-    margin-bottom: 20px; /* Khoảng cách bên dưới */
-    padding: 10px; /* Khoảng cách bên trong */
-    background-color: #ffffff; /* Màu nền trắng cho tin nhắn */
-    border-radius: 5px; /* Bo góc */
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
-}
+    .group-list .list-group-item:hover {
+        background-color: #e9ecef;
+    }
 
-.chat-message {
-    margin-bottom: 10px; /* Khoảng cách giữa các tin nhắn */
-    padding: 8px; /* Khoảng cách bên trong */
-    border-radius: 5px; /* Bo góc */
-}
+    .chat-area {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
+        border-left: 1px solid #e2e2e2;
+        background-color: #fafafa;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        width: 100%;
+    }
 
-.chat-message.sent {
-    background-color: #d1e7dd; /* Màu nền cho tin nhắn đã gửi */
-    align-self: flex-end; /* Đẩy tin nhắn sang bên phải */
-}
+    .chat-title {
+        margin-bottom: 20px;
+        font-weight: bold;
+        font-size: 1.5em;
+    }
 
-.chat-message.received {
-    background-color: #f8d7da; /* Màu nền cho tin nhắn nhận được */
-    align-self: flex-start; /* Đẩy tin nhắn sang bên trái */
-}
+    .chat-messages {
+        flex: 1;
+        max-height: 100%;
+        overflow-y: auto;
+        margin-bottom: 20px;
+        padding: 10px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        position: relative;
+    }
 
-.timestamp {
-    font-size: 0.8em; /* Kích thước chữ nhỏ hơn */
-    color: gray; /* Màu chữ xám */
-    display: block; /* Hiển thị trên dòng mới */
-}
+    .chat-message {
+        margin-bottom: 10px;
+        padding: 10px 15px;
+        border-radius: 18px;
+        max-width: 75%;
+        position: relative;
+        word-wrap: break-word;
+        font-size: 1rem;
+    }
 
-.chat-input {
-    display: flex; /* Hiện thị dạng flex */
-}
+    /* Tin nhắn "sent" sẽ được căn bên phải và lệch nhẹ sang trái */
+    .chat-message.sent {
+        background-color: #daf8cb;
+        align-self: flex-end;
+        margin-left: auto;
+        transform: translateX(-10px);
+        /* Di chuyển sang trái */
+        border-bottom-right-radius: 0;
+    }
 
-.input-group {
-    flex: 1; /* Chiếm toàn bộ không gian có sẵn */
-}
+    /* Tin nhắn "received" sẽ căn bên trái và lệch nhẹ sang phải */
+    .chat-message.received {
+        background-color: #f1f0f0;
+        align-self: flex-start;
+        transform: translateX(10px);
+        /* Di chuyển sang phải */
+        border-bottom-left-radius: 0;
+    }
 
-.form-control {
-    border-radius: 5px; /* Bo góc cho ô nhập */
-    margin-right: 10px; /* Khoảng cách bên phải */
-}
+    .timestamp {
+        font-size: 0.75em;
+        color: #666;
+        margin-top: 5px;
+        display: block;
+    }
+
+    .chat-input {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .input-group {
+        flex: 1;
+        display: flex;
+        align-items: center;
+    }
+
+    .form-control {
+        border-radius: 20px;
+        padding: 10px 15px;
+        border: 1px solid #ddd;
+        margin-right: 10px;
+    }
+
+    .btn-primary {
+        border-radius: 20px;
+        padding: 10px 20px;
+        background-color: #007bff;
+        border-color: #007bff;
+    }
 </style>
 @endsection
 @section('content')
@@ -82,9 +143,9 @@
             <h3>Danh sách nhóm</h3>
             <ul class="list-group">
                 @foreach($userGroups as $userGroup)
-                    <li class="list-group-item">
-                        <a href="{{ route('groups.chat', $userGroup->id) }}">{{ $userGroup->name }}</a>
-                    </li>
+                <li class="list-group-item">
+                    <a href="{{ route('groups.chat', $userGroup->id) }}">{{ $userGroup->name }}</a>
+                </li>
                 @endforeach
             </ul>
         </div>
@@ -95,11 +156,11 @@
 
             <div class="chat-messages mb-3">
                 @foreach ($group->chats as $chat)
-                    <div class="chat-message @if($chat->user_id === Auth::id()) sent @else received @endif">
-                        <strong>{{ $chat->user->username }}:</strong>
-                        <p>{{ $chat->message }}</p>
-                        <span class="timestamp">{{ $chat->created_at->diffForHumans() }}</span>
-                    </div>
+                <div class="chat-message @if($chat->user_id === Auth::id()) sent @else received @endif">
+                    <strong>{{ $chat->user->username }}:</strong>
+                    <p>{{ $chat->message }}</p>
+                    <span class="timestamp">{{ $chat->created_at->diffForHumans() }}</span>
+                </div>
                 @endforeach
             </div>
 

@@ -24,7 +24,7 @@
         /* Kiểu cho các bài viết */
         .post-container {
             margin: 0 auto;
-            padding: 0;
+            /* padding: 0; */
             max-width: 100%;
         }
 
@@ -208,7 +208,7 @@
 
         /* Hàng */
         .row {
-            margin: auto;
+            /* margin: auto; */
             margin-left: 215px;
             /* Khoảng cách bên trái để tránh bị chồng lên bởi vertical-navbar */
             margin-top: 20px;
@@ -423,7 +423,7 @@
                                 <li>
                                     <a href="{{ route('notifications.index') }}"
                                         class="dropdown-item {{ auth()->user()->unreadNotifications->count() > 0 ? 'new-notification' : '' }}">
-                                        Thông báo
+                                        <i class="fas fa-bell"></i> Thông báo
                                         @if(auth()->user()->unreadNotifications->count() > 0)
                                         <span class="badge">{{ auth()->user()->unreadNotifications->count() }}</span>
                                         @endif
@@ -480,14 +480,14 @@
                 <hr class="my-4">
                 <nav class="navbar navbar-dark flex-column">
                     <ul class="navbar-nav">
-                        <li class="nav-item">
+                        <li class="nav-item" style="padding-bottom: 10px;">
                             <a href="{{ route('users.posts.create') }}" class="btn btn-success">Tạo Bài viết</a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item" style="padding-bottom: 10px;">
                             <a href="{{ route('users.groups.create') }}" class="btn btn-success">Tạo Group</a>
                         </li>
-                        <li class="nav-item">
-                            <a href="{{ route('groups.chat', $group->id) }}">Chat trong nhóm</a>
+                        <li class="nav-item" style="text-align: center; ">
+                            <a href="{{ route('groups.chat', $group->id) }}"><i class="fas fa-comment-sms" style="font-size: 40px"></i></a>
                         </li>
                     </ul>
                 </nav>
@@ -503,7 +503,7 @@
                             <span class="circle-icon"><i class="fas fa-plus"></i></span>
                         </a>
                         <a class="nav-link" href="{{ route('categories.index') }}">Danh mục</a>
-                        <a class="nav-link" href="#">Liên hệ</a>
+                        <a class="nav-link" href="{{ route('groups.chat', $group->id) }}"><i class="fas fa-comment-sms" style="font-size: 40px"></i></a>
                     </div>
                 </div>
             </nav>
@@ -885,6 +885,7 @@
                     },
                     success: function(response) {
                         if (response.success) {
+                            // Lưu bài viết vào thư mục mới được tạo
                             savePost(postId, response.folder_id);
                         } else {
                             alert(response.message);

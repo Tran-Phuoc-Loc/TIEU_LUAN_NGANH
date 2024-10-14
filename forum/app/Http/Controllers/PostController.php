@@ -369,7 +369,11 @@ class PostController extends Controller
 
     public function showSavedPosts()
     {
-        $savedPosts = SavedPost::with('post')->where('user_id', Auth::id())->get();
-        return view('users.posts.savePost', compact('savedPosts'));
+        // Tải các thư mục kèm theo bài viết đã lưu trong từng thư mục
+        $folders = Folder::with('savedPosts.post')
+            ->where('user_id', Auth::id())
+            ->get();
+
+        return view('users.posts.savePost', compact('folders'));
     }
 }

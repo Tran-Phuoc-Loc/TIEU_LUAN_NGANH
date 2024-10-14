@@ -82,6 +82,17 @@ Route::middleware(['auth'])->group(function () {
         return view('users.index', compact('posts')); // Hiển thị trang người dùng với danh sách bài viết
     })->name('dashboard');
 
+    // Route để tạo thư mục
+    Route::post('/folders', [FolderController::class, 'store'])->name('folders.store');
+    // Route cho trang hiển thị danh sách thư mục
+    Route::get('users/folders', [FolderController::class, 'index'])->name('users.folders.index');
+
+    // Route API để lấy các bài viết đã lưu của người dùng
+    Route::get('/api/saved-posts', [FolderController::class, 'getSavedPosts']);
+    Route::get('api/posts/{postId}/comments', [FolderController::class, 'getComments']);
+
+
+
     // Route cho hồ sơ người dùng
     Route::prefix('users')->group(function () {
         // Hiển thị hồ sơ người dùng
@@ -103,9 +114,6 @@ Route::middleware(['auth'])->group(function () {
         // Route để hiển thị danh sách bài viết
         Route::get('/drafts', [PostController::class, 'drafts'])->name('users.posts.drafts'); // Hiển thị danh sách bài viết ở trạng thái draft
         Route::get('/published', [PostController::class, 'published'])->name('users.posts.published'); // Hiển thị danh sách bài viết đã xuất bản
-
-        // Route để tạo thư mục
-        Route::post('/folders', [FolderController::class, 'create'])->name('folders.create');
 
         // Route để quản lý bài viết đã lưu
         Route::get('/savepost', [PostController::class, 'showSavedPosts'])->name('users.posts.savePost');

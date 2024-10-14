@@ -19,4 +19,10 @@ class Folder extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    // Mối quan hệ với bảng saved_posts
+    public function savedPosts()
+    {
+        return $this->hasMany(SavedPost::class);
+    }
 }
