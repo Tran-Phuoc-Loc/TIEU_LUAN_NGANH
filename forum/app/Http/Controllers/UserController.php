@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\Auth\ProfileUpdateRequest;
 use App\Http\Requests\UserUpdateRequest;
 use App\Models\User;
+use App\Models\SavedPost;
 use Illuminate\Http\Request;
 use App\Models\Post;
 use App\Models\Folder;
@@ -27,8 +28,11 @@ class UserController extends Controller
         // Lấy danh sách thư mục của người dùng hiện tại
         $folders = Folder::where('user_id', Auth::id())->get();
 
+        // Lấy danh sách bài viết đã lưu của người dùng hiện tại
+        $savedPosts = SavedPost::where('user_id', Auth::id())->pluck('post_id')->toArray();
+
         // Trả về view với các biến cần thiết
-        return view('users.index', compact('users', 'posts', 'group', 'folders'));
+        return view('users.index', compact('users', 'posts', 'group', 'folders', 'savedPosts'));
     }
 
     public function show(User $user)

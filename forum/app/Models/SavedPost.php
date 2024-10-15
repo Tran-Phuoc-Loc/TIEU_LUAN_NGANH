@@ -21,4 +21,10 @@ class SavedPost extends Model
     {
         return $this->belongsTo(Folder::class);
     }
+
+    // Quan hệ với User
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

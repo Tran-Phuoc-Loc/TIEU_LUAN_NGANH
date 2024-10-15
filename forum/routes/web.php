@@ -88,9 +88,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('users/folders', [FolderController::class, 'index'])->name('users.folders.index');
 
     // Route API để lấy các bài viết đã lưu của người dùng
+    // Route::delete('/users/posts/unsave-post', [FolderController::class, 'unsavePost']); // xóa bài viết
     Route::get('/api/saved-posts', [FolderController::class, 'getSavedPosts']);
     Route::get('api/posts/{postId}/comments', [FolderController::class, 'getComments']);
-
+    Route::delete('/api/posts/{postId}/unsave', [FolderController::class, 'unsavePost']);
 
 
     // Route cho hồ sơ người dùng

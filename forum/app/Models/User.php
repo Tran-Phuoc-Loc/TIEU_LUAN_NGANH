@@ -106,4 +106,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Chat::class);
     }
+
+    // Quan hệ với SavedPost
+    public function savedPosts()
+    {
+        return $this->hasMany(SavedPost::class);
+    }
 }

@@ -854,10 +854,31 @@
     });
 
     $(document).ready(function() {
-        // Khi nhấn nút Lưu bài viết
-        $('.save-post').on('click', function() {
+        $(document).on('click', '.save-post', function(e) {
+            e.preventDefault();
+
             const postId = $(this).data('post-id');
-            $('#folderModal').data('post-id', postId).modal('show');
+
+            // Kiểm tra trạng thái đăng nhập
+            $.ajax({
+                url: '/check-login', // Route để kiểm tra đăng nhập
+                method: 'GET',
+                success: function(data) {
+                    if (!data.isLoggedIn) {
+                        // Nếu chưa đăng nhập, hiển thị cảnh báo và chuyển hướng đến trang đăng nhập
+                        alert('Bạn cần đăng nhập để lưu bài viết.');
+                        window.location.href = '/login'; // Chuyển hướng đến trang đăng nhập
+                        return;
+                    }
+
+                    // Nếu đã đăng nhập, hiển thị modal để chọn thư mục
+                    $('#folderModal').data('post-id', postId).modal('show');
+                },
+                error: function(xhr) {
+                    console.error('Có lỗi xảy ra khi kiểm tra đăng nhập:', xhr);
+                    alert('Có lỗi xảy ra. Vui lòng thử lại.');
+                }
+            });
         });
 
         // Xử lý lưu bài viết vào thư mục
@@ -918,7 +939,9 @@
                     if (response.success) {
                         alert('Bài viết đã được lưu!');
                         $('#folderModal').modal('hide');
-                        $('.save-post[data-post-id="' + postId + '"]').replaceWith('<button class="btn btn-link" disabled><i class="fas fa-bookmark"></i> Đã lưu</button>');
+                        $('.save-post[data-post-id="' + postId + '"]').replaceWith(
+                            '<button class="btn btn-link unsave-post" data-post-id="' + postId + '"><i class="fas fa-bookmark"></i> Bỏ lưu</button>'
+                        );
                     } else {
                         alert(response.message);
                     }
@@ -931,6 +954,36 @@
                 }
             });
         }
+        // Hàm xử lý khi người dùng bấm "Bỏ lưu"
+        $(document).on('click', '.unsave-post', function() {
+            const postId = $(this).data('post-id');
+
+            $.ajax({
+                url: '/api/posts/' + postId + '/unsave',
+                method: 'DELETE',
+                data: {
+                    post_id: postId,
+                    _token: $('meta[name="csrf-token"]').attr('content') // Laravel CSRF token
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert('Bài viết đã được bỏ lưu!');
+
+                        // Thay đổi nút "Bỏ lưu" thành "Lưu"
+                        $('.unsave-post[data-post-id="' + postId + '"]').replaceWith(
+                            '<button class="btn btn-link save-post" data-post-id="' + postId + '"><i class="fas fa-bookmark"></i> Lưu</button>'
+                        );
+                        location.reload(); 
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function(jqXHR) {
+                    console.error(jqXHR.responseText);
+                    alert('Có lỗi xảy ra. Vui lòng thử lại.');
+                }
+            });
+        });
     });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>

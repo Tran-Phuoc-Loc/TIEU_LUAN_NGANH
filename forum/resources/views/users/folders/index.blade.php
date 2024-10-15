@@ -46,7 +46,7 @@
                                         <div class="post-actions">
                                             <button class="like-button" data-post-id="${post.id}"><i class="far fa-thumbs-up fa-lg"></i> <span class="like-count">${post.like_count}</span></button>
                                             <span class="comment-toggle" style="cursor:pointer;" data-post-id="${post.id}"><i class="fas fa-comment-dots"></i> Xem Bình Luận (${post.comments_count})</span>
-                                            <button class="btn btn-link save-post" data-post-id="${post.id}"><i class="fas fa-bookmark"></i> Lưu</button>
+                                            <button class="btn btn-link unsave-post" data-post-id="${post.id}"><i class="fas fa-bookmark"></i> Bỏ lưu</button>
                                         </div>
                                     </div>
                                 </div>
@@ -121,7 +121,6 @@
                 }
             });
         });
-
 
         // Toggle nội dung bài viết
         $(document).on('click', '.toggle-content', function() {
