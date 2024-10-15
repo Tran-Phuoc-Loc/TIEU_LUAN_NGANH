@@ -519,6 +519,30 @@
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
+    // Xử lý chia sẻ lên Facebook
+    $('.share-facebook').on('click', function(event) {
+        event.preventDefault();
+        var url = $(this).data('url');
+        var facebookUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url);
+        window.open(facebookUrl, 'facebook-share-dialog', 'width=626,height=436');
+    });
+
+    // Xử lý chia sẻ lên Twitter
+    $('.share-twitter').on('click', function(event) {
+        event.preventDefault();
+        var url = $(this).data('url');
+        var twitterUrl = 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(url) + '&text=Check out this post!';
+        window.open(twitterUrl, 'twitter-share-dialog', 'width=626,height=436');
+    });
+
+    // Xử lý chia sẻ lên LinkedIn
+    $('.share-linkedin').on('click', function(event) {
+        event.preventDefault();
+        var url = $(this).data('url');
+        var linkedinUrl = 'https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(url);
+        window.open(linkedinUrl, 'linkedin-share-dialog', 'width=626,height=436');
+    });
+
     // Định nghĩa hàm redirectToLogin
     function redirectToLogin() {
         window.location.href = '/login'; // Chuyển hướng đến trang đăng nhập
@@ -973,7 +997,7 @@
                         $('.unsave-post[data-post-id="' + postId + '"]').replaceWith(
                             '<button class="btn btn-link save-post" data-post-id="' + postId + '"><i class="fas fa-bookmark"></i> Lưu</button>'
                         );
-                        location.reload(); 
+                        location.reload();
                     } else {
                         alert(response.message);
                     }
@@ -984,6 +1008,16 @@
                 }
             });
         });
+    });
+    // Hiển thị modal đổi tên với folder id tương ứng
+    $(document).on('click', '.rename-folder', function() {
+        var folderId = $(this).data('folder-id');
+        // Lấy form action hiện tại và thay thế {folder_id} bằng folderId thực
+        var formAction = '{{ route("folders.rename", ["folder_id" => ":folder_id"]) }}';
+        formAction = formAction.replace(':folder_id', folderId);
+
+        $('#renameFolderForm').attr('action', formAction);
+        $('#renameModal').modal('show');
     });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>

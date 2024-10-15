@@ -45,23 +45,38 @@ class FolderController extends Controller
     {
         // Lấy danh sách bài viết đã lưu của người dùng hiện tại
         $savedPosts = SavedPost::where('user_id', Auth::id())
-            ->with('post.user', 'post.category') // Lấy cả thông tin người viết và danh mục
+            ->with(['post.user', 'post.category', 'post.comments.user', 'folder']) // Lấy cả thông tin người viết, danh mục, comment, thư mục
             ->whereHas('post', function ($query) {
-                $query->where('status', 'published'); // Chỉ lấy bài viết còn công khai
+                $query->where('status', 'published');
             })
             ->get()
-            ->map(function ($savedPost) {
+            ->groupBy('folder.name') // Theo nhóm tên thư mục
+            ->map(function ($group, $folderName) {
                 return [
-                    'id' => $savedPost->post->id,
-                    'title' => $savedPost->post->title,
-                    'content' => $savedPost->post->content,
-                    'image_url' => $savedPost->post->image_url,
-                    'like_count' => $savedPost->post->like_count,
-                    'comments_count' => $savedPost->post->comments_count,
-                    'published_at' => $savedPost->post->published_at ? $savedPost->post->published_at->isoFormat('MMM Do YYYY, h:mm a') : $savedPost->post->created_at->isoFormat('MMM Do YYYY, h:mm a'),
-                    'category' => $savedPost->post->category ? $savedPost->post->category->name : 'Không có danh mục',
-                    'author' => $savedPost->post->user->username,
-                    'author_avatar' => $savedPost->post->user->profile_picture ? asset('storage/' . $savedPost->post->user->profile_picture) : asset('storage/images/avataricon.png'),
+                    'folder' => $folderName,
+                    'posts' => $group->map(function ($savedPost) {
+                        return [
+                            'id' => $savedPost->post->id,
+                            'title' => $savedPost->post->title,
+                            'content' => $savedPost->post->content,
+                            'image_url' => $savedPost->post->image_url,
+                            'like_count' => $savedPost->post->like_count,
+                            'comments_count' => $savedPost->post->comments_count,
+                            'published_at' => $savedPost->post->published_at ? $savedPost->post->published_at->isoFormat('MMM Do YYYY, h:mm a') : $savedPost->post->created_at->isoFormat('MMM Do YYYY, h:mm a'),
+                            'category' => $savedPost->post->category ? $savedPost->post->category->name : 'Không có danh mục',
+                            'author' => $savedPost->post->user->username,
+                            'author_avatar' => $savedPost->post->user->profile_picture ? asset('storage/' . $savedPost->post->user->profile_picture) : asset('storage/images/avataricon.png'),
+                            'comments' => $savedPost->post->comments->map(function ($comment) {
+                                return [
+                                    'id' => $comment->id,
+                                    'user' => $comment->user->username,
+                                    'content' => $comment->content,
+                                    'created_at' => $comment->created_at->diffForHumans(),
+                                    'profile_picture' => $comment->user->profile_picture ? asset('storage/' . $comment->user->profile_picture) : asset('storage/images/avataricon.png'),
+                                ];
+                            }),
+                        ];
+                    })
                 ];
             });
 
@@ -96,5 +111,29 @@ class FolderController extends Controller
         return response()->json([
             'comments' => $comments
         ]);
+    }
+
+    public function deleteFolder($folderId)
+    {
+        $folder = Folder::where('user_id', Auth::id())->findOrFail($folderId);
+
+        // Xóa toàn bộ bài viết đã lưu trong thư mục
+        $folder->savedPosts()->delete();
+
+        // Xóa thư mục
+        $folder->delete();
+
+        return redirect()->back()->with('success', 'Thư mục và các bài viết đã lưu đã được xóa.');
+    }
+
+    public function renameFolder(Request $request, $folderId)
+    {
+        $folder = Folder::where('user_id', Auth::id())->findOrFail($folderId);
+
+        // Đổi tên thư mục
+        $folder->name = $request->input('new_name');
+        $folder->save();
+
+        return redirect()->back()->with('success', 'Thư mục đã được đổi tên thành công.');
     }
 }

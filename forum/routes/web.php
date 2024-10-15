@@ -92,7 +92,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/api/saved-posts', [FolderController::class, 'getSavedPosts']);
     Route::get('api/posts/{postId}/comments', [FolderController::class, 'getComments']);
     Route::delete('/api/posts/{postId}/unsave', [FolderController::class, 'unsavePost']);
-
+    Route::delete('/folders/{folder_id}', [FolderController::class, 'deleteFolder'])->name('folders.delete');
+    Route::post('/folders/{folder_id}/rename', [FolderController::class, 'renameFolder'])->name('folders.rename');
 
     // Route cho hồ sơ người dùng
     Route::prefix('users')->group(function () {

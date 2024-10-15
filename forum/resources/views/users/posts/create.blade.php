@@ -3,7 +3,8 @@
 @section('title', 'Tạo bài viết mới')
 
 @section('content')
-<div class="welcome-contents">
+<div class="row">
+    <div class="post-container">
     @if(session('error'))
     <div class="alert alert-danger alert-dismissible fade show text-center" role="alert" style="position: fixed; top: 10px; right: 10px; width: 300px;">
         {{ session('error') }}
@@ -76,5 +77,6 @@
         <button type="submit" class="btn btn-success">Xuất Bản</button>
     </form>
     @endif
+    </div>
 </div>
 @endsection

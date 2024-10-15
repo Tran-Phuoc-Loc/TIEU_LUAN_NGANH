@@ -3,13 +3,15 @@
 @section('title', 'Chào Mừng Đến TechTalks')
 
 @section('content')
-<div class="welcome-content">
-    <h1>Chào mừng bạn đến với <strong>TechTalks</strong> <br> Hãy tham gia cùng chúng tôi và bắt đầu thảo luận ngay hôm nay!</h1>
-    <p>Trang chào mừng này là nơi bắt đầu cho hành trình của bạn trong cộng đồng <strong>TechTalks</strong>.</p>
-    <p>Đừng bỏ lỡ cơ hội để tham gia cùng chúng tôi trong những cuộc thảo luận sôi động về công nghệ. Khám phá, chia sẻ và học hỏi ngay hôm nay!</p>
-</div>
-
 <div class="row">
+    <div class="post-container">
+        <div class="welcome-content">
+            <h1>Chào mừng bạn đến với <strong>TechTalks</strong> <br> Hãy tham gia cùng chúng tôi và bắt đầu thảo luận ngay hôm nay!</h1>
+            <p>Trang chào mừng này là nơi bắt đầu cho hành trình của bạn trong cộng đồng <strong>TechTalks</strong>.</p>
+            <p>Đừng bỏ lỡ cơ hội để tham gia cùng chúng tôi trong những cuộc thảo luận sôi động về công nghệ. Khám phá, chia sẻ và học hỏi ngay hôm nay!</p>
+        </div>
+    </div>
+
     <div class="col-md-4">
         <div class="card mb-4 shadow-sm">
             <div class="card-body">

@@ -1,33 +1,83 @@
 @extends('layouts.users')
 
 @section('content')
-<div class="welcome-contents">
-    <h1>Bài Viết Đã Lưu Theo Thư Mục</h1>
+<div class="container">
+    <div class="post-container">
+        <h1 class="text-primary">Bài Viết Đã Lưu Theo Thư Mục</h1>
 
-    @if(session('success'))
+        @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
+        @endif
 
-    @if($folders->isEmpty())
-        <p>Không có thư mục nào hoặc không có bài viết nào đã lưu.</p>
-    @else
-        @foreach($folders as $folder)
-            <div class="folder-section">
-                <h3>Thư mục: {{ $folder->name }}</h3>
+        @if($folders->isEmpty())
+        <p class="text-warning">Không có thư mục nào hoặc không có bài viết nào đã lưu.</p>
+        @else
+            @foreach($folders as $folder)
+            <div class="col-md-12" style="margin-bottom: 12px;">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Thư mục: {{ $folder->name }}</h5>
 
-                @if($folder->savedPosts->isEmpty())
-                    <p>Thư mục này chưa có bài viết nào.</p>
-                @else
-                    <ul class="list-group">
-                        @foreach($folder->savedPosts as $savedPost)
+                        <!-- Nút Xóa và Đổi Tên -->
+                        <div class="folder-actions">
+                            <form action="{{ route('folders.delete', $folder->id) }}" method="POST" style="display: inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm" 
+                                    onclick="return confirm('Bạn có chắc muốn xóa thư mục này không? Toàn bộ bài viết đã lưu sẽ bị xóa!')">
+                                    Xóa
+                                </button>
+                            </form>
+
+                            <button class="btn btn-secondary btn-sm rename-folder" data-folder-id="{{ $folder->id }}">
+                                Đổi tên
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        @if($folder->savedPosts->isEmpty())
+                        <p class="text-muted">Thư mục này chưa có bài viết nào.</p>
+                        @else
+                        <ul class="list-group list-group-flush">
+                            @foreach($folder->savedPosts as $savedPost)
                             <li class="list-group-item">
-                                <a href="{{ route('users.folders.index', $savedPost->post->id) }}">{{ $savedPost->post->title }}</a>
+                                <a href="{{ route('users.folders.index', $savedPost->post->id) }}" class="text-primary">
+                                    {{ $savedPost->post->title }}
+                                </a>
                             </li>
-                        @endforeach
-                    </ul>
-                @endif
+                            @endforeach
+                        </ul>
+                        @endif
+                    </div>
+                </div>
             </div>
-        @endforeach
-    @endif
+            @endforeach
+
+        @endif
+    </div>
 </div>
+
+<!-- Modal Đổi Tên -->
+<div class="modal fade" id="renameModal" tabindex="-1" aria-labelledby="renameModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="renameModalLabel">Đổi Tên Thư Mục</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="renameFolderForm" action="" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <input type="text" class="form-control" name="new_name" placeholder="Nhập tên mới cho thư mục" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @endsection

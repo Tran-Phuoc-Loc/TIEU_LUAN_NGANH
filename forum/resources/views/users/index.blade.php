@@ -89,17 +89,24 @@
                             <i class="fas fa-comment-dots"></i> Xem Bình Luận ({{ $post->comments_count }})
                         </span>
                         @if (in_array($post->id, $savedPosts))
-                        <button class="btn btn-link unsave-post" data-post-id="{{ $post->id }}">
+                        <button class="btn btn-outline-danger unsave-post" data-post-id="{{ $post->id }}">
                             <i class="fas fa-bookmark"></i> Bỏ lưu
                         </button>
                         @else
-                        <button class="btn btn-link save-post" data-post-id="{{ $post->id }}">
+                        <button class="btn btn-outline-primary save-post" data-post-id="{{ $post->id }}">
                             <i class="fas fa-bookmark"></i> Lưu
                         </button>
                         @endif
-                        <button class="btn btn-link" id="sharePost">
-                            Chia sẻ
-                        </button>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="shareDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-share-alt"></i> Chia sẻ
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="shareDropdown">
+                                <li><a class="dropdown-item share-facebook" href="#" data-url="{{ route('users.index', $post->id) }}"><i class="fab fa-facebook"></i> Facebook</a></li>
+                                <li><a class="dropdown-item share-twitter" href="#" data-url="{{ route('users.index', $post->id) }}"><i class="fab fa-twitter"></i> Twitter</a></li>
+                                <li><a class="dropdown-item share-linkedin" href="#" data-url="{{ route('users.index', $post->id) }}"><i class="fab fa-linkedin"></i> LinkedIn</a></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
