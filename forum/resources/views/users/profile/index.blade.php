@@ -109,7 +109,7 @@
             </nav>
         </header>
         <div class="container mt-5">
-            <h1>Thông Tin Người Dùng</h1>
+            <h1 class="mb-4">Thông Tin Người Dùng</h1>
 
             <!-- Nội dung của bạn ở đây -->
             <div class="content">
@@ -122,7 +122,7 @@
 
                 <!-- Hiển thị thông tin người dùng -->
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-4 text-center">
                         @if(isset($user))
                         @if($user->profile_picture)
                         <img src="{{ asset('storage/' . $user->profile_picture) }}" alt="Avatar" class="img-thumbnail" loading="lazy">
@@ -136,12 +136,12 @@
                     <div class="col-md-8">
                         <div class="mb-3">
                             <label for="username" class="form-label">Tên:</label>
-                            <p>{{ $user->username }}</p>
+                            <p class="form-text">{{ $user->username }}</p>
                         </div>
 
                         <div class="mb-3">
                             <label for="email" class="form-label">Email:</label>
-                            <p>{{ $user->email }}</p>
+                            <p class="form-text">{{ $user->email }}</p>
                         </div>
 
                         <!-- Hiển thị danh sách các bài viết của người dùng -->
@@ -155,33 +155,43 @@
                         </div>
                         <div class="mb-3">
                             <label for="create_at" class="form-label">Ngày tham gia:</label>
-                            <p>{{ $user->created_at ? $user->created_at->format('d/m/Y') : 'N/A' }}</p>
+                            <p class="form-text">{{ $user->created_at ? $user->created_at->format('d/m/Y') : 'N/A' }}</p>
                         </div>
 
                         <div class="mb-3">
                             <label for="status" class="form-label">Trạng thái tài khoản:</label>
-                            <p>{{ ucfirst($user->status) }}</p>
+                            <p class="form-text">{{ ucfirst($user->status) }}</p>
                         </div>
 
                         <div class="mb-3">
                             <label for="post_count" class="form-label">Số lượng bài viết:</label>
-                            <p>{{ $user->post_count }}</p>
+                            <p class="form-text">{{ $user->post_count }}</p>
                         </div>
 
                         <div class="mb-3">
                             <label for="favorite_posts" class="form-label">Bài viết yêu thích:</label>
-                            <p>{{ $user->favorite_posts ?? 'Chưa có bài viết yêu thích' }}</p>
+                            @if($favoritePosts->isEmpty())
+                            <p>Chưa có bài viết yêu thích.</p>
+                            @else
+                            <ul class="list-group">
+                                @foreach($favoritePosts as $post)
+                                <li class="list-group-item">
+                                    <a href="{{ route('posts.show', $post->id) }}">{{ $post->title }}</a>
+                                    <span class="badge bg-primary float-end">{{ $post->likes_count }} lượt thích</span>
+                                </li>
+                                @endforeach
+                            </ul>
+                            @endif
                         </div>
 
                         <!-- Kiểm tra nếu người dùng hiện tại là chủ sở hữu -->
                         @if(Auth::check() && Auth::user()->id === $user->id)
                         <!-- Nút chỉnh sửa thông tin -->
-                        <a href="{{ route('users.profile.edit', $user->id) }}" class="btn btn-primary">Chỉnh Sửa Thông Tin</a>
-
-                        <!-- Nút để quay lại trang trước -->
-                        <a href="{{ url()->previous() }}" class="btn btn-secondary">Quay lại</a>
+                        <div class="mt-4">
+                            <a href="{{ route('users.profile.edit', $user->id) }}" class="btn btn-primary">Chỉnh Sửa Thông Tin</a>
+                            <a href="{{ url()->previous() }}" class="btn btn-secondary">Quay lại</a>
+                        </div>
                         @endif
-
                     </div>
                 </div>
             </div>

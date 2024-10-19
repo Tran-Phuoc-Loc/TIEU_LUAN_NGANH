@@ -28,37 +28,60 @@ class AdminController extends Controller
         $newRegistrationsToday = User::whereDate('created_at', Carbon::today())->count();
 
         // Tổng số báo cáo vi phạm
-        $totalReports = Report::count(); // Giả sử bạn có bảng `reports`
+        $totalReports = Report::count();
 
-        // Hoạt động gần đây (lấy từ bảng Post và Comment với người dùng liên quan)
-        $recentActivities = [
-            'posts' => Post::with('user')->latest()->take(5)->get(),
-            'comments' => Comment::with('user')->latest()->take(5)->get()
-        ];
-
-        // 1. Những người dùng hoạt động nhiều nhất (bỏ admin ra)
+        // Những người dùng hoạt động nhiều nhất (bỏ admin ra)
         $mostActiveUsers = User::withCount('posts', 'comments')
-            ->where('role', '!=', 'admin') 
+            ->where('role', '!=', 'admin')
             ->orderByDesc('posts_count')
             ->orderByDesc('comments_count')
             ->take(5) // Lấy 5 người dùng hoạt động nhiều nhất
             ->get();
 
-
-        // 2. Số nhóm tạo ra
+        // Số nhóm tạo ra
         $totalGroups = Group::count();
 
-        // 3. Tỷ lệ bài viết theo trạng thái
-        $postStatusCount = Post::selectRaw('status, COUNT(*) as count')
-            ->groupBy('status')
-            ->get();
-
-        // 4. Thống kê danh mục bài viết (danh mục có nhiều bài viết nhất)
+        // Thống kê danh mục bài viết (danh mục có nhiều bài viết nhất)
         $topCategories = Category::withCount('posts')
             ->orderByDesc('posts_count')
             ->take(5) // Lấy 5 danh mục có nhiều bài viết nhất
             ->get();
 
-        return view('admin.dashboard', compact('totalUsers', 'totalPosts', 'totalLikes', 'newRegistrationsToday', 'totalReports', 'recentActivities', 'mostActiveUsers', 'totalGroups', 'postStatusCount', 'topCategories'));
+        // Tỷ lệ bài viết theo trạng thái (xử lý trước khi gửi sang view)
+        $postStatusData = Post::selectRaw('status, COUNT(*) as count')
+            ->groupBy('status')
+            ->get();
+
+        // Tạo hai mảng: một cho labels và một cho counts
+        $statusLabels = $postStatusData->pluck('status')->toArray();
+        $statusCounts = $postStatusData->pluck('count')->toArray();
+
+        // Dữ liệu cho biểu đồ hoạt động
+        $activityData = [];
+        for ($i = 0; $i < 7; $i++) {
+            $date = Carbon::today()->subDays($i)->toDateString();
+            $postsCount = Post::whereDate('created_at', $date)->count();
+            $commentsCount = Comment::whereDate('created_at', $date)->count();
+
+            $activityData[] = [
+                'date' => $date,
+                'posts_count' => $postsCount,
+                'comments_count' => $commentsCount,
+            ];
+        }
+
+        return view('admin.dashboard', compact(
+            'totalUsers',
+            'totalPosts',
+            'totalLikes',
+            'newRegistrationsToday',
+            'totalReports',
+            'mostActiveUsers',
+            'totalGroups',
+            'statusLabels',
+            'statusCounts',
+            'topCategories',
+            'activityData'
+        ));
     }
 }

@@ -8,8 +8,8 @@
 <!-- Thanh tìm kiếm -->
 <form method="GET" action="{{ route('admin.users.index') }}" class="mb-4">
     <div class="input-group">
-        <input type="text" name="search" class="form-control" placeholder="Tìm kiếm người dùng..." value="{{ $search }}">
-        <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+        <input type="text" name="search" class="form-control form-control-lg" placeholder="Tìm kiếm người dùng..." value="{{ $search }}">
+        <button type="submit" class="btn btn-primary btn-lg">Tìm kiếm</button>
     </div>
 </form>
 
@@ -17,7 +17,6 @@
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>ID</th>
             <th>Tên người dùng</th>
             <th>Email</th>
             <th>Vai trò</th>
@@ -29,17 +28,16 @@
     <tbody>
         @if ($users->isEmpty())
         <tr>
-            <td colspan="7" class="text-center">Không tìm thấy người dùng</td>
+            <td colspan="6" class="text-center">Không tìm thấy người dùng</td>
         </tr>
         @else
         @foreach ($users as $user)
         <tr>
-            <td>{{ $user->id }}</td>
             <td>{{ $user->username }}</td>
             <td>{{ $user->email }}</td>
             <td>{{ $user->role }}</td>
-            <td>{{ $user->status }}</td>
-            <td>{{ $user->created_at }}</td>
+            <td>{{ ucfirst($user->status) }}</td>
+            <td>{{ $user->created_at->format('d/m/Y') }}</td>
             <td>
                 <a href="#" class="btn btn-sm btn-warning">Chỉnh sửa</a>
 
@@ -51,7 +49,6 @@
                     <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
                 </form>
                 @endif
-
             </td>
         </tr>
         @endforeach

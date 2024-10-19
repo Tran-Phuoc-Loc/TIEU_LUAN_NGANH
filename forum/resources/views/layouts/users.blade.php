@@ -594,22 +594,49 @@
                 const avatarUrl = comment.user.profile_picture ? `/storage/${comment.user.profile_picture}` : '/storage/images/avataricon.png';
                 // console.log('Avatar URL:', comment.user.profile_picture);
 
+                // Thông báo nếu bình luận gốc đã bị xóa
+                const commentContent = comment.is_deleted ? '<i>Bình luận này đã bị xóa.</i>' : comment.content;
+
+                // Khởi tạo deleteButton mặc định là chuỗi rỗng
+                let deleteButton = '';
+
+                // Kiểm tra nếu người dùng là chủ của bình luận, cho phép xóa
+                if (comment.is_owner) {
+                    deleteButton = `<button class="delete-button" data-comment-id="${comment.id}">
+                            <i class="fas fa-trash-alt"></i> Xóa
+                        </button>`;
+                }
+
                 return `
-                    <div class="comment" id="comment-${comment.id}">
-                        <img src="${avatarUrl}" alt="Avatar" class="comment-avatar" loading="lazy">
-                        <strong>${comment.user.username}</strong>: <small>${createdAt}</small>
-                        <div class="reply-to-user">${repliedToUser}</div> <!-- Hiển thị người được trả lời -->
-                        <h6>${comment.content}</h6>
-                        ${comment.image_url ? `<div class="comment-image"><img src="/storage/${comment.image_url}" alt="Comment Image" loading="lazy"></div>` : ''}
-                        <div class="comment-actions">
-                            <button class="like-button" data-comment-id="${comment.id}">
-                                <i class="far fa-thumbs-up"></i> <span class="like-count">${likesCount}</span>
-                            </button>
-                            <button class="reply-button" data-comment-id="${comment.id}">
-                                <i class="fas fa-reply"></i> Trả lời
-                            </button>
+                    <div class="comment p-3 mb-3 border rounded shadow-sm" id="comment-${comment.id}" style="background-color: #f9f9f9;">
+                        <div class="d-flex align-items-center mb-2">
+                            <img src="${avatarUrl}" alt="Avatar" class="rounded-circle me-3" width="40" height="40" loading="lazy" style="border: 1px solid #ddd;">
+                            <div>
+                                <strong>${comment.user.username}</strong>
+                                <small class="text-muted"> • ${createdAt}</small>
+                            </div>
                         </div>
-                        <div class="replies" id="replies-${comment.id}"></div> <!-- Nơi để hiển thị các replies -->
+                        <div class="ms-4">
+                            ${repliedToUser ? `<div class="text-muted small mb-1">${repliedToUser}</div>` : ''}
+                            <p class="mb-2" style="font-size: 1rem; line-height: 1.5;">${commentContent}</p>
+                            ${comment.image_url ? `<div class="comment-image mb-2"><img src="/storage/${comment.image_url}" class="img-fluid rounded" alt="Comment Image" loading="lazy" style="max-width: 100%; height: auto;"></div>` : ''}
+                            
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex">
+                                    <button class="btn btn-sm btn-outline-secondary like-button me-2" data-comment-id="${comment.id}" style="border-radius: 20px; padding: 5px 10px;">
+                                        <i class="far fa-thumbs-up"></i> <span class="like-count">${likesCount}</span>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-primary reply-button" data-comment-id="${comment.id}" style="border-radius: 20px; padding: 5px 10px;">
+                                        <i class="fas fa-reply"></i> Trả lời
+                                    </button>
+                                </div>
+                                ${deleteButton ? `
+                                    <button class="btn btn-sm btn-outline-danger delete-button" data-comment-id="${comment.id}" data-post-id="${postId}" style="border-radius: 20px; padding: 5px 10px;">
+                                        <i class="fas fa-trash-alt"></i> Xóa
+                                    </button>` : ''}
+                            </div>
+                        </div>
+                        <div class="replies ms-4 mt-3" id="replies-${comment.id}"></div> <!-- Vùng replies -->
                     </div>
                 `;
             }
@@ -626,8 +653,36 @@
                     }
                 });
             }
+        });
+        // Xử lý sự kiện xóa bình luận
+        $(document).on('click', '.delete-button', function() {
+            const commentId = parseInt($(this).data('comment-id')); // Chuyển đổi commentId thành số nguyên
+            const postId = $(this).data('post-id'); // Giữ nguyên postId nếu nó cũng là số nguyên
 
-
+            console.log("Comment ID:", commentId);
+            console.log("Post ID:", postId);
+            if (confirm('Bạn có chắc muốn xóa bình luận này không?')) {
+                $.ajax({
+                    url: '/users/posts/' + postId + '/comments/' + commentId, // Sử dụng commentId ở đây
+                    method: 'DELETE',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content') // CSRF token để bảo mật
+                    },
+                    success: function(response) {
+                        console.log(response);
+                        if (response.success) {
+                            $(`#comment-${commentId}`).remove(); // Xóa bình luận khỏi giao diện
+                            alert('Bình luận đã được xóa.');
+                        } else {
+                            alert(response.message || 'Có lỗi xảy ra khi xóa bình luận.'); // Cung cấp thông tin chi tiết từ phản hồi
+                        }
+                    },
+                    error: function(jqXHR) {
+                        console.error(jqXHR.responseText);
+                        alert('Có lỗi xảy ra. Vui lòng thử lại.');
+                    }
+                });
+            }
         });
 
         // Đóng modal khi nhấn nút đóng
@@ -667,8 +722,6 @@
                 formData.append('parent_id', parentId); // Gửi parent_id nếu có
             }
 
-            // console.log('Parent ID:', parentId); // Debug giá trị parent_id
-
             $.ajax({
                 url: $(this).attr('action'),
                 method: 'POST',
@@ -679,28 +732,8 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(data) {
-                    // console.log(data); // Kiểm tra phản hồi từ API
                     if (data.success && data.comment) {
-                        const likesCount = data.comment.likes_count || 0; // Đặt mặc định là 0 nếu undefined
-                        const repliedToUser = data.comment.replied_to_user ? `Trả lời ${data.comment.replied_to_user.username}` : ''; // Lấy tên người dùng được trả lời
-                        const commentHtml = `
-                        <div class="comment" id="comment-${data.comment.id}">
-                            <img src="${data.comment.user.profile_picture ? '/storage/' + data.comment.user.profile_picture : '/storage/images/avataricon.png'}" alt="Avatar" class="comment-avatar" loading="lazy">
-                            <strong>${data.comment.user.username}</strong>: <small>Vừa xong</small>
-                            <div class="reply-to-user">${repliedToUser}</div> <!-- Hiển thị người được trả lời -->
-                            <h6>${data.comment.content}</h6>
-                            ${data.comment.image_url ? `<div class="comment-image"><img src="/storage/${data.comment.image_url}" alt="Comment Image" loading="lazy"></div>` : ''}
-                            <div class="comment-actions">
-                                <button class="like-button" data-comment-id="${data.comment.id}">
-                                    <i class="far fa-thumbs-up"></i> <span class="like-count">${likesCount}</span>
-                                </button>
-                                <button class="reply-button" data-comment-id="${data.comment.id}">
-                                    <i class="fas fa-reply"></i> Trả lời
-                                </button>
-                            </div>
-                            <div class="replies" id="replies-${data.comment.id}"></div> <!-- Khu vực để hiển thị các bình luận trả lời -->
-                        </div>
-                        `;
+                        const commentHtml = createCommentHtml(data.comment); // Sử dụng hàm tạo HTML
 
                         // Nếu có parent_id thì thêm bình luận vào khu vực trả lời của comment cha
                         if (data.comment.parent_id) {
@@ -722,6 +755,7 @@
                 }
             });
         });
+
 
         // Khi người dùng nhấn nút "Trả lời", cập nhật parentId
         $(document).on('click', '.reply-button', function() {

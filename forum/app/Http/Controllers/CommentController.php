@@ -58,20 +58,23 @@ class CommentController extends Controller
 
     public function index($postId)
     {
-        // Lấy tất cả bình luận cho bài viết cùng với người dùng và các reply lồng nhau
+        $currentUserId = Auth::id(); // Lấy ID người dùng hiện tại
+
+        // Lấy tất cả bình luận gốc cho bài viết cùng với người dùng và các reply lồng nhau
         $comments = Comment::with('user')
             ->where('post_id', $postId)
             ->whereNull('parent_id') // Chỉ lấy bình luận gốc (không có parent_id)
             ->get()
-            ->map(function ($comment) {
+            ->map(function ($comment) use ($currentUserId) {
                 // Hàm đệ quy để lấy các replies nhiều cấp
-                $fetchReplies = function ($comment) use (&$fetchReplies) {
-                    return $comment->replies()->with('user')->get()->map(function ($reply) use ($fetchReplies) {
+                $fetchReplies = function ($comment) use (&$fetchReplies, $currentUserId) {
+                    return $comment->replies()->with('user')->get()->map(function ($reply) use ($fetchReplies, $currentUserId) {
                         return [
                             'id' => $reply->id,
                             'content' => $reply->content,
                             'created_at' => $reply->created_at,
                             'likes_count' => $reply->likes_count ?? 0,
+                            'is_owner' => $currentUserId === $reply->user_id, // Kiểm tra quyền xóa
                             'user' => [
                                 'id' => $reply->user->id,
                                 'username' => $reply->user->username,
@@ -89,6 +92,7 @@ class CommentController extends Controller
                     'content' => $comment->content,
                     'created_at' => $comment->created_at,
                     'likes_count' => $comment->likes_count ?? 0,
+                    'is_owner' => $currentUserId === $comment->user_id, // Kiểm tra quyền xóa
                     'user' => [
                         'id' => $comment->user->id,
                         'username' => $comment->user->username,
@@ -137,29 +141,36 @@ class CommentController extends Controller
         ]);
     }
 
-    // public function reply(Request $request, $commentId)
-    // {
-    //     $request->validate([
-    //         'content' => 'required|string|max:255',
-    //     ]);
+    public function destroy($postId, $commentId)
+    {
+        Log::info("Attempting to delete comment with ID: {$commentId}");
 
-    //     $comment = Comment::findOrFail($commentId);
+        // Tìm bình luận theo ID
+        $comment = Comment::find($commentId);
 
-    //     $reply = new Comment();
-    //     $reply->content = $request->content;
-    //     $reply->user_id = Auth::id();
-    //     $reply->parent_id = $commentId; // Gán ID bình luận cha
-    //     $reply->save();
+        if (!$comment) {
+            Log::info("Comment not found for ID: {$commentId}"); // Thêm thông tin log
+            return response()->json(['success' => false, 'message' => 'ID bình luận không hợp lệ.'], 404);
+        }
 
-    //     return response()->json([
-    //         'success' => true,
-    //         'reply' => [
-    //             'user' => [
-    //                 'username' => auth()->user()->username,
-    //             ],
-    //             'content' => $reply->content,
-    //             'created_at_diff' => $reply->created_at->diffForHumans(),
-    //         ],
-    //     ]);
-    // }
+        // Kiểm tra quyền sở hữu bình luận
+        if ($comment->user_id !== Auth::id()) {
+            return response()->json(['success' => false, 'message' => 'Bạn không có quyền xóa bình luận này.'], 403);
+        }
+
+        // Ghi log bình luận con trước khi xóa
+        $replies = Comment::where('parent_id', $comment->id)->get();
+        Log::info("Replies before deletion: ", $replies->toArray());
+        foreach ($replies as $reply) {
+            $reply->parent_id = null; // Đặt parent_id thành null để chuyển lên làm cha
+            $reply->save();
+        }
+        // Ghi log bình luận con sau khi chuyển đổi
+        $updatedReplies = Comment::where('parent_id', null)->get(); // Lấy lại các bình luận đã được chuyển
+        Log::info("Replies after deletion: ", $updatedReplies->toArray());
+        // Xóa bình luận
+        $comment->delete();
+
+        return response()->json(['success' => true, 'message' => 'Bình luận đã được xóa.']);
+    }
 }

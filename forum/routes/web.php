@@ -139,13 +139,20 @@ Route::middleware(['auth'])->group(function () {
 
         // Để lấy danh sách bình luận của bài viết dưới dạng JSON
         Route::get('/{post}/comments', [CommentController::class, 'index']);
+
+        // Route để xóa bình luận
+        // Route::delete('{post}/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy')
+        // ->where(['comment' => '[0-9]+']); // Đảm bảo comment là một số nguyên
     });
 
     // Route quản lý bình luận bài viết
     Route::prefix('comments')->group(function () {
         Route::post('{comment}/like', [CommentController::class, 'like']); // Lượt thích cho bình luận bài viết
-        // Route::post('/{comment}/relay', [CommentController::class, 'relay'])->name('comments.relay');
     });
+    Route::delete('users/posts/{post}/comments/{id}', [CommentController::class, 'destroy']);
+
+
+
 
 
     // Route quản lý Group

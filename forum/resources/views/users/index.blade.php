@@ -83,7 +83,7 @@
                 <div class="post-footer">
                     <div class="post-actions">
                         <button class="like-button" data-post-id="{{ $post->id }}">
-                            <i class="far fa-thumbs-up fa-lg"></i> <span class="like-count">{{ $post->like_count }}</span>
+                            <i class="far fa-thumbs-up fa-lg"></i> <span class="like-count">{{ $post->likes_count }}</span>
                         </button>
                         <span class="comment-toggle" style="cursor:pointer;" data-post-id="{{ $post->id }}">
                             <i class="fas fa-comment-dots"></i> Xem Bình Luận ({{ $post->comments_count }})

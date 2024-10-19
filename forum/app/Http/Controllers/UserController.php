@@ -19,11 +19,14 @@ class UserController extends Controller
     {
         $users = User::all(); // Lấy tất cả người dùng
 
-        // Lấy tất cả bài viết đã xuất bản
-        $posts = Post::with('user')->where('status', 'published')->get();
+        // Lấy tất cả bài viết đã xuất bản và đếm số lượng like và comment
+        $posts = Post::with('user')
+            ->withCount('likes', 'comments') // Đếm số like và comment
+            ->where('status', 'published')
+            ->get();
 
         // Kiểm tra xem người dùng đã đăng nhập chưa
-        $group = Auth::check() ? Auth::user()->group : null; // Nếu đã đăng nhập thì lấy nhóm, nếu không thì null
+        $group = Auth::check() ? Auth::user()->group : null;
 
         // Lấy danh sách thư mục của người dùng hiện tại
         $folders = Folder::where('user_id', Auth::id())->get();
@@ -37,29 +40,27 @@ class UserController extends Controller
 
     public function show(User $user)
     {
-        // Dừng chương trình và hiển thị dữ liệu của user (dùng để kiểm tra)
-        // dd($user);
-
         // Lấy ID từ đối tượng user đã được truyền vào
         $id = $user->id;
-
+    
         // Đếm số lượng bài viết đã xuất bản
         $publishedCount = Post::where('user_id', $id)->where('status', 'published')->count();
-
-        // Nếu người dùng hiện tại là chủ sở hữu của hồ sơ, đếm bài viết dạng draft
-        // $draftCount = 0;
-        // if (Auth::id() !== $user->id) {
-        //     // Đếm số lượng bài viết ở dạng draft
-        //     $draftCount = Post::where('user_id', $id)->where('status', 'draft')->count();
-        // }
-        // Kiểm tra các bài viết dạng draft
+    
+        // Lấy danh sách bài viết dạng draft
         $draftPosts = Post::where('user_id', $id)->where('status', 'draft')->get();
         $draftCount = $draftPosts->count();
-        // Log::info('Draft Count:', ['draftCount' => $draftCount]);
-        // Log::info('User ID:', ['userId' => $user->id]);
+    
+        // Lấy danh sách bài viết yêu thích
+        $favoritePosts = Post::with('user')
+            ->whereHas('likes', function($query) use ($id) {
+                $query->where('user_id', $id);
+            })
+            ->get();
+    
         // Trả về view và truyền dữ liệu người dùng cùng các bài viết của họ
-        return view('users.profile.index', compact('user', 'publishedCount', 'draftCount'));
+        return view('users.profile.index', compact('user', 'publishedCount', 'draftCount', 'favoritePosts'));
     }
+    
 
     public function update(UserUpdateRequest $request, $id)
     {
