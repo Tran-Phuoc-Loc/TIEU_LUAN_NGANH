@@ -85,7 +85,17 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Hoạt động gần đây</h5>
+                    <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                        <h5 class="card-title mb-0">Hoạt động gần đây</h5>
+                        <!-- Bộ chọn khoảng thời gian -->
+                        <select id="timeRangeFilter" class="form-select w-auto">
+                            <option value="7">Tuần qua</option>
+                            <option value="30">Tháng qua</option>
+                            <option value="365">Năm qua</option>
+                            <option value="all">Từ bài viết đầu tiên</option>
+                        </select>
+                    </div>
+
                     <canvas id="recentActivityChart" style="max-width: 100%;"></canvas> <!-- Biểu đồ hoạt động gần đây -->
                 </div>
             </div>
@@ -93,7 +103,9 @@
         <div class="col-md-4">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Tỷ lệ bài viết</h5>
+                    <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                        <h5 class="card-title">Tỷ lệ bài viết</h5>
+                    </div>
                     <canvas id="postStatusChart" style="max-width: 100%;"></canvas> <!-- Biểu đồ trạng thái -->
                 </div>
             </div>

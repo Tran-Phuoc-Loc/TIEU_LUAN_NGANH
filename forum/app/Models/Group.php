@@ -10,7 +10,7 @@ class Group extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'description', 'creator_id', 'requires_approval'];
+    protected $fillable = ['name', 'description', 'creator_id', 'requires_approval', 'groups'];
 
     // Định nghĩa mối quan hệ nhiều-nhiều với model User
     public function users(): BelongsToMany
@@ -24,6 +24,7 @@ class Group extends Model
         return $this->belongsTo(User::class, 'creator_id');
     }
 
+    // Quan hệ với yêu cầu tham gia
     public function memberRequests()
     {
         return $this->hasMany(GroupJoinRequest::class);

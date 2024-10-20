@@ -8,6 +8,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\Admin\AdminCategoryController;
 use App\Http\Controllers\Admin\AdminPostController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\AdminGroupController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\Auth\LoginController;
@@ -39,13 +40,23 @@ Route::get('/users', [UserController::class, 'index'])->name('users.index');
 Route::get('/', function () {
     return view('welcome');
 });
+
 // Route cho tìm kiếm
 Route::get('/users/posts', [PostController::class, 'index'])->name('users.posts.index');
 Route::post('/admin/reports/store', [ReportController::class, 'store'])->name('admin.reports.store');
+
 // Route cho admin
 Route::middleware(['auth', RoleMiddleware::class . ':admin'])->group(function () {
     // Dashboard của admin
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/get-activity-data', [AdminController::class, 'getActivityData']);
+
+    // Quản lý groups
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::resource('groups', AdminGroupController::class);
+        Route::get('admin/groups/{group}', [AdminGroupController::class, 'show'])->name('admin.groups.show');
+
+    });
 
     // Route cho quản lý User
     Route::get('/admin/users', [AdminUserController::class, 'index'])->name('admin.users.index');
@@ -68,6 +79,7 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin'])->group(function ()
         Route::post('{id}/process', [ReportController::class, 'process'])->name('admin.reports.process'); // Xử lý báo cáo
     });
 
+    // Quản lý bài viết
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('posts', AdminPostController::class);
         Route::post('posts/bulk-action', [AdminPostController::class, 'bulkAction'])->name('posts.bulkAction');

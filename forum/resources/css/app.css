@@ -195,7 +195,6 @@ img.img-thumbnail:hover {
     font-size: 16px; /* Kích thước font cho nút chính */
     background: linear-gradient(135deg, #ff57b9, #a704fd); /* Gradient cho nút chính */
     border: none; /* Không có viền */
-    margin: 20px 0; /* Khoảng cách trên và dưới */
 }
 
 .btn-primary:hover {
@@ -220,7 +219,6 @@ img.img-thumbnail:hover {
 }
 
 .btn-secondary {
-    padding: 15px; /* Padding cho nút phụ */
     font-size: 16px; /* Kích thước font cho nút phụ */
     background-color: #6c757d; /* Màu nền cho nút phụ */
     border-color: #6c757d; /* Màu viền cho nút phụ */
@@ -233,7 +231,6 @@ img.img-thumbnail:hover {
 }
 
 .btn-danger {
-    padding: 15px;
     font-size: 16px;
     background: linear-gradient(45deg, #ff4d4d, #cc0000);
     border: none;

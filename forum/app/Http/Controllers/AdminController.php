@@ -56,19 +56,6 @@ class AdminController extends Controller
         $statusLabels = $postStatusData->pluck('status')->toArray();
         $statusCounts = $postStatusData->pluck('count')->toArray();
 
-        // Dữ liệu cho biểu đồ hoạt động
-        $activityData = [];
-        for ($i = 0; $i < 7; $i++) {
-            $date = Carbon::today()->subDays($i)->toDateString();
-            $postsCount = Post::whereDate('created_at', $date)->count();
-            $commentsCount = Comment::whereDate('created_at', $date)->count();
-
-            $activityData[] = [
-                'date' => $date,
-                'posts_count' => $postsCount,
-                'comments_count' => $commentsCount,
-            ];
-        }
 
         return view('admin.dashboard', compact(
             'totalUsers',
@@ -80,8 +67,41 @@ class AdminController extends Controller
             'totalGroups',
             'statusLabels',
             'statusCounts',
-            'topCategories',
-            'activityData'
+            'topCategories'
         ));
+    }
+
+    public function getActivityData(Request $request)
+    {
+        $range = $request->get('range'); // Lấy giá trị khoảng thời gian từ request
+
+        // Tính ngày bắt đầu dựa trên lựa chọn của người dùng
+        if ($range == 'all') {
+            $startDate = Post::orderBy('created_at', 'asc')->first()->created_at; // Ngày của bài viết đầu tiên
+        } else {
+            $startDate = Carbon::today()->subDays($range); // Ngày dựa trên số ngày: 7, 30, 365
+        }
+
+        // Lấy dữ liệu bài viết và bình luận trong khoảng thời gian đã chọn
+        $activityData = [];
+        $endDate = Carbon::today();
+
+        for ($date = $startDate; $date <= $endDate; $date->addDay()) {
+            $postsCount = Post::whereDate('created_at', $date->toDateString())->count();
+            $commentsCount = Comment::whereDate('created_at', $date->toDateString())->count();
+
+            $activityData[] = [
+                'date' => $date->toDateString(),
+                'posts_count' => $postsCount,
+                'comments_count' => $commentsCount,
+            ];
+        }
+
+        // Trả về dữ liệu JSON
+        return response()->json([
+            'labels' => array_column($activityData, 'date'),
+            'postsCounts' => array_column($activityData, 'posts_count'),
+            'commentsCounts' => array_column($activityData, 'comments_count'),
+        ]);
     }
 }

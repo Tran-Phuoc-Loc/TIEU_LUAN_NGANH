@@ -38,6 +38,11 @@
                                 <i class="fas fa-file-alt"></i> Posts
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" href="{{ route('admin.groups.index') }}">
+                                <i class="fas fa-user-group"></i> Group
+                            </a>
+                        </li>
                         <hr class="bg-secondary">
                         <li class="nav-item">
                             <a class="nav-link text-light" href="#">
@@ -84,24 +89,23 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 
-    @php
-    $activityLabelsJson = json_encode(array_column($activityData, 'date'));
-    $activityPostsCountsJson = json_encode(array_column($activityData, 'posts_count'));
-    $activityCommentsCountsJson = json_encode(array_column($activityData, 'comments_count'));
-    $statusLabelsJson = json_encode($statusLabels);
-    $statusCountsJson = json_encode($statusCounts);
-    @endphp
+    @if(isset($statusLabels) && isset($statusCounts))
+        @php
+            $statusLabelsJson = json_encode($statusLabels);
+            $statusCountsJson = json_encode($statusCounts);
+        @endphp
+    @else
+        @php
+            $statusLabelsJson = json_encode([]); // Mảng rỗng
+            $statusCountsJson = json_encode([]); // Mảng rỗng
+        @endphp
+    @endif
 
     <script>
         $(document).ready(function() {
             // Biến dữ liệu biểu đồ trạng thái bài viết
-            var statusLabels = JSON.parse('{!! json_encode($statusLabels) !!}');
-            var statusCounts = JSON.parse('{!! json_encode($statusCounts) !!}');
-
-            // Dữ liệu cho biểu đồ hoạt động
-            var activityLabels = JSON.parse('{!! $activityLabelsJson !!}'); //chuyển đổi chuỗi (string) ở định dạng JSON thành một đối tượng JavaScript (JavaScript Object)
-            var activityPostsCounts = JSON.parse('{!! $activityPostsCountsJson !!}');
-            var activityCommentsCounts = JSON.parse('{!! $activityCommentsCountsJson !!}');
+            var statusLabels = JSON.parse('{!! $statusLabelsJson !!}');
+            var statusCounts = JSON.parse('{!! $statusCountsJson !!}');
 
             // Lấy context của canvas cho biểu đồ
             var ctx = $('#postStatusChart');
@@ -154,83 +158,79 @@
                     }
                 });
             }
-            // Biểu đồ hoạt động người dùng
-            var ctxActivity = $('#recentActivityChart');
+            // Khi người dùng thay đổi bộ lọc thời gian
+            $('#timeRangeFilter').change(function() {
+                var selectedRange = $(this).val(); // Lấy giá trị của khoảng thời gian
+                loadActivityData(selectedRange); // Gọi hàm để tải dữ liệu mới
+            });
 
-            if (ctxActivity.length) {
-                var recentActivityChart = new Chart(ctxActivity, {
-                    type: 'line',
+            function loadActivityData(range) {
+                $.ajax({
+                    url: '/get-activity-data', // API hoặc route để lấy dữ liệu
+                    type: 'GET',
                     data: {
-                        labels: activityLabels, // Các nhãn theo ngày
-                        datasets: [{
-                            label: 'Bài viết',
-                            data: activityPostsCounts, // Dữ liệu bài viết
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                            fill: true,
-                            pointRadius: 0, // Không hiển thị các điểm để tránh nhồi nhét
-                            borderWidth: 1
-                        }, {
-                            label: 'Bình luận',
-                            data: activityCommentsCounts, // Dữ liệu bình luận
-                            borderColor: 'rgba(255, 159, 64, 1)',
-                            backgroundColor: 'rgba(255, 159, 64, 0.2)',
-                            fill: true,
-                            pointRadius: 0, // Không hiển thị các điểm để tránh nhồi nhét
-                            borderWidth: 1
-                        }]
+                        range: range // Gửi khoảng thời gian (7 ngày, 30 ngày, 365 ngày, hoặc "all")
                     },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                display: true
-                            },
-                            title: {
-                                display: true,
-                                text: 'Hoạt động của người dùng'
-                            },
-                            zoom: {
-                                pan: {
-                                    enabled: true, // Kích hoạt kéo để cuộn
-                                    mode: 'x',
-                                },
-                                zoom: {
-                                    wheel: {
-                                        enabled: true, // Kích hoạt zoom bằng chuột
-                                    },
-                                    mode: 'x', // Chỉ zoom theo trục X
-                                }
-                            }
-                        },
-                        scales: {
-                            x: {
-                                type: 'time', // Hiển thị trục thời gian
-                                time: {
-                                    unit: 'day', // Đơn vị ngày
-                                    tooltipFormat: 'PPP',
-                                    displayFormats: {
-                                        day: 'MMM d' // Định dạng hiển thị ngày
-                                    }
-                                },
-                                ticks: {
-                                    autoSkip: true, // Tự động bỏ bớt các nhãn không cần thiết
-                                    maxTicksLimit: 10 // Giới hạn tối đa số lượng nhãn
-                                }
-                            },
-                            y: {
-                                beginAtZero: true
-                            }
-                        },
-                        // Giảm số lượng điểm cần hiển thị (Decimation)
-                        decimation: {
-                            enabled: true,
-                            algorithm: 'lttb', // Lấy mẫu theo thuật toán lttb (đường thấp hơn mức thấp nhất)
-                            samples: 100 // Chỉ hiển thị 100 điểm dữ liệu
-                        }
+                    success: function(response) {
+                        console.log(response);
+                        // Cập nhật dữ liệu biểu đồ
+                        var activityLabels = response.labels;
+                        var activityPostsCounts = response.postsCounts;
+                        var activityCommentsCounts = response.commentsCounts;
+
+                        // Cập nhật dữ liệu vào biểu đồ
+                        recentActivityChart.data.labels = activityLabels;
+                        recentActivityChart.data.datasets[0].data = activityPostsCounts;
+                        recentActivityChart.data.datasets[1].data = activityCommentsCounts;
+                        recentActivityChart.update(); // Cập nhật biểu đồ
                     }
                 });
             }
+
+            // Tải dữ liệu mặc định (7 ngày) khi trang vừa được tải
+            loadActivityData(7);
+            var ctx = $('#recentActivityChart'); // Giả sử bạn đã có ID của canvas là 'recentActivityChart'
+            var recentActivityChart = new Chart(ctx, {
+                type: 'line', // Biểu đồ dạng đường
+                data: {
+                    labels: [], // Nhãn trục X sẽ được cập nhật sau
+                    datasets: [{
+                            label: 'Số bài viết',
+                            data: [], // Dữ liệu bài viết
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Số bình luận',
+                            data: [], // Dữ liệu bình luận
+                            backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: 'time', // Trục thời gian
+                            time: {
+                                unit: 'day', // Mặc định là ngày
+                                tooltipFormat: 'MMM d', // Định dạng tooltip
+                                displayFormats: {
+                                    day: 'MMM d',
+                                    week: 'MMM d',
+                                    month: 'MMM yyyy'
+                                }
+                            }
+                        },
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
 
             function updateDateTime() {
                 var today = new Date();
