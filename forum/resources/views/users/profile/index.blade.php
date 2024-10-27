@@ -168,6 +168,8 @@
                             <p class="form-text">{{ $user->post_count }}</p>
                         </div>
 
+                        <!-- Kiểm tra nếu người dùng hiện tại là chủ sở hữu -->
+                        @if(Auth::check() && Auth::user()->id === $user->id)
                         <div class="mb-3">
                             <label for="favorite_posts" class="form-label">Bài viết yêu thích:</label>
                             @if($favoritePosts->isEmpty())
@@ -184,8 +186,6 @@
                             @endif
                         </div>
 
-                        <!-- Kiểm tra nếu người dùng hiện tại là chủ sở hữu -->
-                        @if(Auth::check() && Auth::user()->id === $user->id)
                         <!-- Nút chỉnh sửa thông tin -->
                         <div class="mt-4">
                             <a href="{{ route('users.profile.edit', $user->id) }}" class="btn btn-primary">Chỉnh Sửa Thông Tin</a>

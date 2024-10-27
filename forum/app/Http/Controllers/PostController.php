@@ -283,6 +283,11 @@ class PostController extends Controller
     {
         $query = $request->input('query');
 
+        // Kiểm tra nếu người dùng không nhập gì
+        if (empty($query)) {
+            return redirect()->route('users.index')->with('error', 'Vui lòng nhập ký tự để tìm kiếm.');
+        }
+
         // Khởi tạo truy vấn cho bài viết
         $postsQuery = Post::where('status', 'published')->with(['user', 'category']);
 
@@ -338,7 +343,7 @@ class PostController extends Controller
 
         // Kiểm tra xem người dùng có quyền truy cập bài viết
         if (Auth::id() !== $post->user_id) {
-            return redirect()->route('users.index')->with('error', 'Bạn không có quyền truy cập bài viết này.');
+            return redirect()->route('users.index')->with('error', 'Bạn không có quyền truy cập hoặc chủ bài viết này đã xóa.');
         }
 
         return view('users.posts.show', compact('post')); // Trả về view để hiển thị bài viết
