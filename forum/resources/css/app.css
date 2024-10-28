@@ -1,6 +1,6 @@
 /* Cài đặt chung */
 body {
-    background-color: #f8f9fa; /* Màu nền chính của trang */
+    background-color: #d8dbdd; /* Màu nền chính của trang */
     padding-bottom: 60px;
 }
 
@@ -9,13 +9,9 @@ header {
     position: sticky; /* Giữ header cố định khi cuộn */
     top: 0; /* Đặt vị trí ở trên cùng */
     z-index: 1000; /* Đảm bảo header nằm trên các phần tử khác */
-    background: linear-gradient(56deg, #00d2d3, #3a7bd5, #673BAE, #8948b2, #FF00FF); /* Gradient màu cho header */
+    /* background: linear-gradient(56deg, #00d2d3, #3a7bd5, #673BAE, #8948b2, #FF00FF); Gradient màu cho header */
 }
 
-/* Main */
-.main {
-    flex: 1;
-}
 
 /* Navbar */
 .navbar-brand {
@@ -36,9 +32,10 @@ header {
 }
 
 .navbar-dark,
+.navbar-brand,
 .navbar-dark .nav-link,
 .navbar-dark .nav-item {
-    color: #ffffff !important; /* Màu chữ trắng cho các phần tử trong navbar tối */
+    color: #000000 !important; /* Màu chữ trắng cho các phần tử trong navbar tối */
 }
 
 .navbar-dark .navbar-toggler {

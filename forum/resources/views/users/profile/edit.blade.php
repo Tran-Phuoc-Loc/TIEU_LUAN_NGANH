@@ -120,6 +120,15 @@
                     @endif
                 </div>
 
+                <!-- Ảnh nền -->
+                <div class="mb-3">
+                    <label for="cover_image" class="form-label">Ảnh nền</label>
+                    <input type="file" class="form-control" id="cover_image" name="cover_image">
+                    @if($user->cover_image)
+                    <img src="{{ asset('storage/' . $user->cover_image) }}" alt="Ảnh nền hiện tại" class="mt-2" style="max-width: 100%; height: auto;" loading="lazy">
+                    @endif
+                </div>
+
                 <button type="submit" class="btn btn-primary">Cập nhật hồ sơ</button>
             </form>
         </div>

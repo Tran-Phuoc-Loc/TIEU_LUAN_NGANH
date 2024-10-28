@@ -18,8 +18,9 @@ use App\Http\Controllers\GroupController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\FolderController;
 use App\Http\Controllers\NotificationController;
-use App\Models\Group;
+use App\Models\SavedPost;
 use App\Models\Post;
+use App\Models\Folder;
 use Illuminate\Support\Facades\Auth;
 
 // Route cho đăng nhập
@@ -33,13 +34,8 @@ Route::post('logout', [LoginController::class, 'logout'])->name('logout')->middl
 Route::get('register', [RegisterController::class, 'create'])->name('register');
 Route::post('register', [RegisterController::class, 'store']);
 
-// Route cho user
-Route::get('/users', [UserController::class, 'index'])->name('users.index');
-
 // Route cho trang chủ
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [UserController::class, 'index'])->name('users.index');
 
 // Route cho tìm kiếm
 Route::get('/users/posts', [PostController::class, 'index'])->name('users.posts.index');

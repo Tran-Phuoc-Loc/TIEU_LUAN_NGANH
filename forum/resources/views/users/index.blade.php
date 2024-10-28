@@ -3,117 +3,200 @@
 @section('title', 'Danh sách bài viết')
 
 @section('content')
-<div class="row">
-    <div class="post-container">
-        @if($posts->isEmpty())
-        <p>Không có bài viết nào.</p>
-        @else
-        @foreach ($posts as $post)
-        @if($post->status == 'published') <!-- Kiểm tra nếu bài viết là dạng published -->
-        <div class="post-card">
-            <div class="post-meta d-flex justify-content-between align-items-start">
-                <div class="d-flex align-items-center">
-                    <a href="{{ route('users.profile.index', ['user' => $post->user->id]) }}">
-                        <img src="{{ $post->user->profile_picture ? asset('storage/' . $post->user->profile_picture) : asset('storage/images/avataricon.png') }}" alt="Avatar" class="post-avatar" loading="lazy">
-                    </a>
-                    <span class="post-author">Đăng bởi: <strong>{{ $post->user->username }}</strong></span> |
-                    <span class="post-time">
-                        @if($post->published_at)
-                        {{ $post->published_at->isoFormat('MMM Do YYYY, h:mm a') }}
-                        @else
-                        {{ $post->created_at->isoFormat('MMM Do YYYY, h:mm a') }}
-                        @endif
-                    </span>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Menu điều hướng cho màn hình lớn -->
+        <div class="col-lg-2 sidebar" style="background-color: #fff; position: fixed; height: 100vh; overflow-y: auto;">
+            <div class="vertical-navbar">
+
+                <!-- Thông tin người dùng -->
+                <div class="user-info text-center mb-4">
+                    @if(auth()->check())
+                    <img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : asset('storage/images/avataricon.png') }}"
+                        alt="Profile picture of {{ auth()->user()->username }}"
+                        class="rounded-circle"
+                        style="width: 80px; height: 80px;">
+                    <h5>{{ auth()->user()->username }}</h5>
+                    @endif
                 </div>
 
-                <div class="dropdown">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                        •••
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
-                        <li>
-                            <button class="dropdown-item report-button" data-post-id="{{ $post->id }}" style="color: red;">Báo vi phạm</button>
+                <nav class="navbar navbar-dark flex-column">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url('/') }}">Trang Chủ</a>
                         </li>
-                        <!-- Có thể thêm các hành động khác ở đây -->
-                        @if(auth()->check() && auth()->user()->id === $post->user_id)
-                        <li>
-                            <a href="{{ route('posts.edit', $post->id) }}" class="dropdown-item btn btn-warning btn-sm">Chỉnh Sửa</a>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('users.index') }}">Bài Viết</a>
                         </li>
-                        <li>
-                            <form action="{{ route('posts.recall', $post->id) }}" method="POST" style="display:inline;">
-                                @csrf
-                                @method('PUT')
-                                <button type="submit" class="dropdown-item btn btn-dark btn-sm">Thu Hồi</button>
-                            </form>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('categories.index') }}">Danh mục</a>
                         </li>
-                        @endif
                     </ul>
-                </div>
+                </nav>
+                <hr class="my-4">
+
+                <nav class="navbar navbar-dark flex-column">
+                    <ul class="navbar-nav">
+                        <li class="nav-item" style="padding-bottom: 10px;">
+                            <a href="{{ route('users.posts.create') }}" class="btn btn-success">Tạo Bài viết</a>
+                        </li>
+                        <li class="nav-item" style="padding-bottom: 10px;">
+                            <a href="{{ route('users.groups.create') }}" class="btn btn-success">Tạo Group</a>
+                        </li>
+                        <li class="nav-item" style="text-align: center;">
+                            @if ($groups->isNotEmpty())
+                            @php $firstGroup = $groups->first(); @endphp
+                            <a href="{{ route('groups.chat', $firstGroup->id) }}">
+                                <i class="fas fa-comment-sms" style="font-size: 40px"></i>
+                            </a>
+                            @endif
+                        </li>
+                    </ul>
+                </nav>
             </div>
-            <!-- danh mục -->
-            <div class="post-category mt-1">
-                @if($post->category)
-                <span>Danh mục:
-                    <a href="{{ route('categories.index', ['slug' => $post->category->slug]) }}">
-                        <strong>{{ $post->category->name }}</strong>
-                    </a>
-                </span>
+        </div>
+
+        <!-- Phần nội dung bài viết -->
+        <div class="col-lg-7 offset-lg-2" style="border: 2px solid #007bff; background-color:#fff">
+            <div class="post-container">
+                @if($posts->isEmpty())
+                <p>Không có bài viết nào.</p>
                 @else
-                <span>Không có danh mục</span>
-                @endif
-            </div>
+                @foreach ($posts as $post)
+                @if($post->status == 'published')
+                <div class="post-card">
+                    <div class="post-meta d-flex justify-content-between align-items-start">
+                        <div class="d-flex align-items-center">
+                            <a href="{{ route('users.profile.index', ['user' => $post->user->id]) }}">
+                                <img src="{{ $post->user->profile_picture ? asset('storage/' . $post->user->profile_picture) : asset('storage/images/avataricon.png') }}" alt="Avatar" class="post-avatar" loading="lazy">
+                            </a>
+                            <span class="post-author">Đăng bởi: <strong>{{ $post->user->username }}</strong></span> |
+                            <span class="post-time">
+                                @if($post->published_at)
+                                {{ $post->published_at->isoFormat('MMM Do YYYY, h:mm a') }}
+                                @else
+                                {{ $post->created_at->isoFormat('MMM Do YYYY, h:mm a') }}
+                                @endif
+                            </span>
+                        </div>
 
-            <!-- Nội dung bài viết -->
-            <div class="post-content">
-                <div class="post-title">{{ $post->title }}</div>
-                <div class="post-description">
-                    <span class="content-preview">{{ Str::limit($post->content, 100) }}</span>
-                    <span class="content-full" style="display: none;">{{ $post->content }}</span>
-                </div>
-                @if (strlen($post->content) > 100)
-                <button class="btn btn-link toggle-content">Xem thêm</button>
-                @endif
-
-                @if($post->image_url)
-                <div class="post-image">
-                    <img src="{{ asset('storage/' . $post->image_url) }}" alt="{{ $post->title }}" loading="lazy">
-                </div>
-                @endif
-
-                <div class="post-footer">
-                    <div class="post-actions">
-                        <button class="like-button" data-post-id="{{ $post->id }}">
-                            <i class="far fa-thumbs-up fa-lg"></i> <span class="like-count">{{ $post->likes_count }}</span>
-                        </button>
-                        <span class="comment-toggle" style="cursor:pointer;" data-post-id="{{ $post->id }}">
-                            <i class="fas fa-comment-dots"></i> Xem Bình Luận ({{ $post->comments_count }})
-                        </span>
-                        @if (in_array($post->id, $savedPosts))
-                        <button class="btn btn-outline-danger unsave-post" data-post-id="{{ $post->id }}">
-                            <i class="fas fa-bookmark"></i> Bỏ lưu
-                        </button>
-                        @else
-                        <button class="btn btn-outline-primary save-post" data-post-id="{{ $post->id }}">
-                            <i class="fas fa-bookmark"></i> Lưu
-                        </button>
-                        @endif
                         <div class="dropdown">
-                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="shareDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-share-alt"></i> Chia sẻ
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                •••
                             </button>
-                            <ul class="dropdown-menu" aria-labelledby="shareDropdown">
-                                <li><a class="dropdown-item share-facebook" href="#" data-url="{{ route('users.index', $post->id) }}"><i class="fab fa-facebook"></i> Facebook</a></li>
-                                <li><a class="dropdown-item share-twitter" href="#" data-url="{{ route('users.index', $post->id) }}"><i class="fab fa-twitter"></i> Twitter</a></li>
-                                <li><a class="dropdown-item share-linkedin" href="#" data-url="{{ route('users.index', $post->id) }}"><i class="fab fa-linkedin"></i> LinkedIn</a></li>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+                                <li>
+                                    <button class="dropdown-item report-button" data-post-id="{{ $post->id }}" style="color: red;">Báo vi phạm</button>
+                                </li>
+                                @if(auth()->check() && auth()->user()->id === $post->user_id)
+                                <li>
+                                    <a href="{{ route('posts.edit', $post->id) }}" class="dropdown-item btn btn-warning btn-sm">Chỉnh Sửa</a>
+                                </li>
+                                <li>
+                                    <form action="{{ route('posts.recall', $post->id) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        @method('PUT')
+                                        <button type="submit" class="dropdown-item btn btn-dark btn-sm">Thu Hồi</button>
+                                    </form>
+                                </li>
+                                @endif
                             </ul>
                         </div>
                     </div>
+                    <div class="post-category mt-1">
+                        @if($post->category)
+                        <span>Danh mục:
+                            <a href="{{ route('categories.index', ['slug' => $post->category->slug]) }}">
+                                <strong>{{ $post->category->name }}</strong>
+                            </a>
+                        </span>
+                        @else
+                        <span>Không có danh mục</span>
+                        @endif
+                    </div>
+
+                    <div class="post-content">
+                        <div class="post-title">{{ $post->title }}</div>
+                        <div class="post-description">
+                            <span class="content-preview">{{ Str::limit($post->content, 100) }}</span>
+                            <span class="content-full" style="display: none;">{{ $post->content }}</span>
+                        </div>
+                        @if (strlen($post->content) > 100)
+                        <button class="btn btn-link toggle-content">Xem thêm</button>
+                        @endif
+
+                        @if($post->image_url)
+                        <div class="post-image">
+                            <img src="{{ asset('storage/' . $post->image_url) }}" alt="{{ $post->title }}" loading="lazy">
+                        </div>
+                        @endif
+
+                        <div class="post-footer">
+                            <div class="post-actions">
+                                <button class="like-button" data-post-id="{{ $post->id }}">
+                                    <i class="far fa-thumbs-up fa-lg"></i> <span class="like-count">{{ $post->likes_count }}</span>
+                                </button>
+                                <span class="comment-toggle" style="cursor:pointer;" data-post-id="{{ $post->id }}">
+                                    <i class="fas fa-comment-dots"></i> Xem Bình Luận ({{ $post->comments_count }})
+                                </span>
+                                @if (in_array($post->id, $savedPosts))
+                                <button class="btn btn-outline-danger unsave-post" data-post-id="{{ $post->id }}">
+                                    <i class="fas fa-bookmark"></i> Bỏ lưu
+                                </button>
+                                @else
+                                <button class="btn btn-outline-primary save-post" data-post-id="{{ $post->id }}">
+                                    <i class="fas fa-bookmark"></i> Lưu
+                                </button>
+                                @endif
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="shareDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fas fa-share-alt"></i> Chia sẻ
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="shareDropdown">
+                                        <li><a class="dropdown-item share-facebook" href="#" data-url="{{ route('users.index', $post->id) }}"><i class="fab fa-facebook"></i> Facebook</a></li>
+                                        <li><a class="dropdown-item share-twitter" href="#" data-url="{{ route('users.index', $post->id) }}"><i class="fab fa-twitter"></i> Twitter</a></li>
+                                        <li><a class="dropdown-item share-linkedin" href="#" data-url="{{ route('users.index', $post->id) }}"><i class="fab fa-linkedin"></i> LinkedIn</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                @endif
+                @endforeach
+                @endif
             </div>
         </div>
-        @endif <!-- Kết thúc kiểm tra status -->
-        @endforeach
-        @endif
+
+        <!-- Sidebar phải: Gợi ý người theo dõi -->
+        <div class="col-lg-3" style="background-color: #fff; position: fixed; right: 0; height: 100vh; overflow-y: auto;">
+            <div class="right-sidebar p-3">
+                <h3 class="sidebar-title">Gợi ý theo dõi</h3>
+                <ul class="suggested-users-list list-unstyled">
+                    @forelse ($usersToFollow as $user)
+                    <li class="d-flex align-items-center mb-2 follow-item">
+                        <img
+                            src="{{ $user->profile_picture ? asset('storage/' . $user->profile_picture) : asset('storage/images/avataricon.png') }}"
+                            alt="Profile picture of {{ $user->username }}"
+                            class="rounded-circle"
+                            height="40"
+                            width="40" />
+                        <div class="info ms-2">
+                            <h5 class="mb-0">{{ $user->username }}</h5>
+                            <p class="mb-0 text-muted">{{ $user->role }}</p>
+                        </div>
+                        <div class="ms-auto">
+                            <button class="btn btn-primary btn-sm follow-btn" data-user-id="{{ $user->id }}">Theo dõi</button>
+                            <button class="btn btn-success btn-sm ms-1 friend-btn" data-user-id="{{ $user->id }}">Thêm bạn</button>
+                        </div>
+                    </li>
+                    @empty
+                    <p class="text-center">Không có người dùng nào để theo dõi.</p>
+                    @endforelse
+                </ul>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -177,7 +260,6 @@
     @else
     <p>Vui lòng <a href="{{ route('login') }}">đăng nhập</a> để bình luận.</p>
     @endif
-</div>
 </div>
 </div>
 

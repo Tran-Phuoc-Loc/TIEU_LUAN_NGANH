@@ -5,11 +5,7 @@
 @section('css')
 <style>
     /* CSS riêng cho trang này */
-    .chat-container {
-        display: flex;
-        margin-top: 20px;
-        height: 90vh;
-    }
+
 
     .group-list {
         background-color: #f1f1f1;
@@ -136,7 +132,7 @@
 </style>
 @endsection
 @section('content')
-<div class="container chat-container">
+<div class="chat-container ">
     <div class="row">
         <!-- Danh sách nhóm bên trái -->
         <div class="col-md-4 group-list">
