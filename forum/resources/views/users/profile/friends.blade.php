@@ -1,5 +1,5 @@
 @extends('layouts.users')
-@section('title', 'Thông tin người dùng')
+@section('title', 'Friends')
 
 @section('content')
 <style>
@@ -104,6 +104,40 @@
         justify-content: space-between;
         align-items: center;
     }
+
+    .friend-list {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.friend-card {
+    width: 120px; /* Chiều rộng của thẻ bạn bè */
+    border: 1px solid #ccc; /* Viền */
+    border-radius: 8px; /* Bo góc */
+    margin: 10px; /* Khoảng cách giữa các thẻ */
+    text-align: center; /* Căn giữa nội dung */
+    padding: 10px; /* Padding bên trong */
+    background-color: #f9f9f9; /* Màu nền */
+}
+
+.friend-avatar {
+    width: 80px; /* Chiều rộng ảnh */
+    height: 80px; /* Chiều cao ảnh */
+    border-radius: 50%; /* Bo tròn ảnh */
+}
+
+.friend-name {
+    display: block; /* Đảm bảo tên người bạn nằm trên một dòng mới */
+    margin-top: 5px; /* Khoảng cách phía trên tên */
+    font-weight: bold; /* Đậm */
+}
+
+.friend-status {
+    display: block; /* Đảm bảo trạng thái nằm trên một dòng mới */
+    margin-top: 5px; /* Khoảng cách phía trên trạng thái */
+    color: #555; /* Màu sắc cho trạng thái */
+}
+
 </style>
 <div class="row mx-6">
 
@@ -126,7 +160,7 @@
 
         <div class="profile-nav">
             <a href="{{ url('/') }}">Home</a>
-            <a href="{{ route('users.profile.friend', ['user' => $user->id, 'section' => 'friends']) }}">Friends</a>
+            <a href="#">Friends</a>
             <a href="{{ route('users.groups.index') }}">Groups</a>
 
             <!-- Kiểm tra nếu người dùng là chủ nhóm hoặc thành viên trong ít nhất một nhóm -->
@@ -161,7 +195,7 @@
             <!-- User Information -->
             <div class="row">
                 <!-- Khung chứa tất cả ảnh của người dùng -->
-                <div class="col-md-3 mx-auto mt-5">
+                <div class="col-md-4 mx-auto mt-5">
                     <h1 class="text-center">Tất cả ảnh của bạn</h1>
                     <div class="d-flex flex-wrap justify-content-center">
                         <!-- Ảnh đại diện -->
@@ -189,54 +223,23 @@
                     </div>
                 </div>
 
-                <!-- Thông tin cá nhân của người dùng -->
-                <div class="col-md-6 mx-auto mt-4">
-                    <h5>Thông tin cá nhân</h5>
-                    <table class="table table-bordered">
-                        <tbody>
-                            <tr>
-                                <th>Tên:</th>
-                                <td>{{ $user->username ?? 'N/A' }}</td>
-                            </tr>
-                            <tr>
-                                <th>Email:</th>
-                                <td>{{ $user->email ?? 'N/A' }}</td>
-                            </tr>
-                            <tr>
-                                <th>Số lượng bài viết đã xuất bản:</th>
-                                <td>{{ $publishedCount ?? 0 }}</td>
-                            </tr>
-                            @if(Auth::id() === $user->id)
-                            <tr>
-                                <th>Số lượng bài viết dạng draft:</th>
-                                <td>{{ $draftCount ?? 0 }}</td>
-                            </tr>
-                            <tr>
-                                <td colspan="2">
-                                    <a href="{{ route('users.posts.drafts') }}" class="btn btn-success">Những bài viết dạng draft</a>
-                                </td>
-                            </tr>
-                            @endif
-                            <tr>
-                                <th>Ngày tham gia:</th>
-                                <td>{{ $user->created_at ? $user->created_at->format('d/m/Y') : 'N/A' }}</td>
-                            </tr>
-                            <tr>
-                                <th>Trạng thái tài khoản:</th>
-                                <td>{{ ucfirst($user->status ?? 'N/A') }}</td>
-                            </tr>
-                            <tr>
-                                <th>Số lượng bài viết:</th>
-                                <td>{{ $user->post_count ?? 0 }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    @if(Auth::check() && Auth::id() === $user->id)
-                    <div class="mt-4">
-                        <a href="{{ route('users.profile.edit', $user->id) }}" class="btn btn-primary">Chỉnh Sửa Thông Tin</a>
-                        <a href="{{ url()->previous() }}" class="btn btn-secondary">Quay lại</a>
-                    </div>
+                <!-- Thông tin bạn bè của người dùng -->
+                <div class="col-md-5 mx-auto mt-4">
+                    <h5>Bạn bè</h5>
+                    <!-- Hiển thị danh sách bạn bè -->
+                    @if ($friends->isNotEmpty())
+                        <div class="friend-list">
+                            @foreach ($friends as $friend)
+                                <div class="friend-card">
+                                    <a href="{{ route('users.profile.index', ['user' => $friend->id]) }}">
+                                        <img src="{{ $friend->profile_picture ? asset('storage/' . $friend->profile_picture) : asset('storage/images/avataricon.png') }}" alt="Avatar" class="friend-avatar" loading="lazy">
+                                    </a>
+                                    <span class="friend-name">{{ $friend->username }}</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <p>Không có bạn bè nào.</p>
                     @endif
                 </div>
 
@@ -295,36 +298,6 @@
                         @endforeach
                     @else
                         <p>Không có yêu cầu kết bạn nào.</p>
-                    @endif
-
-                    <!-- Hiển thị danh sách bạn bè -->
-                    @if ($friends->isNotEmpty())
-                        <h3>Danh sách bạn bè:</h3>
-                        <ul>
-                            @foreach ($friends as $friend)
-                                <li>{{ $friend->username }}</li>
-                            @endforeach
-                        </ul>
-                    @else
-                        <p>Không có bạn bè nào.</p>
-                    @endif
-
-                    @if(Auth::check() && Auth::id() === $user->id)
-                    <div class="mb-3">
-                        <h5>Bài viết yêu thích</h5>
-                        @if($favoritePosts->isEmpty())
-                        <p>Chưa có bài viết yêu thích.</p>
-                        @else
-                        <ul class="list-group">
-                            @foreach($favoritePosts as $post)
-                            <li class="list-group-item">
-                                <a href="{{ route('posts.show', $post->id) }}">{{ $post->title }}</a>
-                                <span class="badge bg-primary float-end">{{ $post->likes_count }} lượt thích</span>
-                            </li>
-                            @endforeach
-                        </ul>
-                        @endif
-                    </div>
                     @endif
                 </div>
             </div>

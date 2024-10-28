@@ -442,20 +442,6 @@
 
     </header>
 
-    <!-- Menu điều hướng cho màn hình nhỏ -->
-    <nav class="navbar navbar-dark d-lg-none fixed-bottom">
-        <div class="container-fluid">
-            <div class="d-flex justify-content-around w-100">
-                <a class="nav-link" href="{{ url('/') }}">Trang Chủ</a>
-                <a class="nav-link" href="{{ route('users.index') }}">Bài Viết</a>
-                <a href="{{ route('users.posts.create') }}" class="btn btn-light">
-                    <span class="circle-icon"><i class="fas fa-plus"></i></span>
-                </a>
-                <a class="nav-link" href="{{ route('categories.index') }}">Danh mục</a>
-                <a class="nav-link" href="{{ route('groups.chat', $group->id) }}"><i class="fas fa-comment-sms" style="font-size: 40px"></i></a>
-            </div>
-        </div>
-    </nav>
 
     <main class="main">
         <!-- Nội dung chính -->

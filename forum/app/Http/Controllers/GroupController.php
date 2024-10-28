@@ -15,11 +15,13 @@ class GroupController extends Controller
     {
         $user = Auth::user();
 
-        // Lấy nhóm mà người dùng đã tham gia
-        $joinedGroups = $user->groups()->with('creator', 'memberRequests.user')->get();
+        // Nạp trước các nhóm mà người dùng đã tham gia
+        $joinedGroups = $user->groups()->with(['creator', 'memberRequests.user'])->get();
 
-        // Lấy nhóm mà người dùng đã tạo
-        $createdGroups = Group::where('creator_id', $user->id)->with('creator', 'memberRequests.user')->get();
+        // Nạp trước các nhóm mà người dùng đã tạo
+        $createdGroups = Group::where('creator_id', $user->id)
+            ->with(['creator', 'memberRequests.user'])
+            ->get();
 
         // Kết hợp hai tập hợp và loại bỏ nhóm trùng lặp
         $groups = $joinedGroups->merge($createdGroups)->unique('id');
@@ -71,18 +73,23 @@ class GroupController extends Controller
 
     public function show($id)
     {
-        // Lấy thông tin nhóm và các thành viên trong nhóm cùng người tạo
-        $group = Group::with('creator', 'users', 'posts')->findOrFail($id);
+        // Lấy thông tin nhóm, các thành viên trong nhóm, các bài viết liên quan đến nhóm và tin nhắn
+        $group = Group::with(['creator', 'users', 'posts', 'chats.user'])->findOrFail($id);
 
-        // Lấy các bài viết liên quan đến nhóm (nếu có)
-        $posts = Post::where('group_id', $id)->get();
+        // Lấy các bài viết liên quan đến nhóm (nếu có) - có thể bỏ qua vì đã lấy trong Group
+        // $posts = Post::where('group_id', $id)->get(); // Không cần nữa vì đã có trong $group
+
+        // Lấy các thành viên trong nhóm
         $members = $group->members;
+
+        // Lấy các yêu cầu tham gia nhóm còn chờ xử lý
+        $joinRequests = $group->joinRequests()->where('status', 'pending')->get();
 
         // Log thông tin nhóm để kiểm tra
         // Log::info('Group info: ', ['group' => $group]);
 
         // Trả về view chi tiết nhóm
-        return view('users.groups.show', compact('group', 'posts', 'members'));
+        return view('users.groups.show', compact('group', 'joinRequests', 'members'));
     }
 
     public function destroy(Group $group)
@@ -122,42 +129,23 @@ class GroupController extends Controller
         }
     }
 
-    public function leaveGroup(Group $group)
+    public function approveRequest(Group $group, $userId)
     {
-        // Kiểm tra xem người dùng có phải là thành viên không
-        if (!$group->members()->where('user_id', Auth::id())->exists()) {
-            return redirect()->back()->with('info', 'Bạn không phải là thành viên của nhóm này.');
-        }
+        // Xử lý duyệt yêu cầu tham gia nhóm
+        $group->members()->attach($userId);
+        $group->joinRequests()->where('user_id', $userId)->update(['status' => 'approved']);
 
-        // Xóa người dùng khỏi nhóm
-        $group->members()->detach(Auth::id());
-
-        return redirect()->back()->with('success', 'Bạn đã rời khỏi nhóm.');
+        return redirect()->back()->with('success', 'Đã duyệt yêu cầu tham gia.');
     }
 
-    public function approveMember(Request $request, $groupId)
+    public function rejectRequest(Group $group, $userId)
     {
-        $group = Group::findOrFail($groupId);
+        // Xử lý từ chối yêu cầu tham gia nhóm
+        $group->joinRequests()->where('user_id', $userId)->delete();
 
-        // Kiểm tra xem người dùng có quyền chấp nhận không
-        if (Auth::id() !== $group->creator_id) {
-            return redirect()->back()->with('error', 'Bạn không có quyền thực hiện hành động này.');
-        }
-
-        // Tìm yêu cầu tham gia từ người dùng
-        $memberRequest = GroupJoinRequest::where('group_id', $groupId)
-            ->where('user_id', $request->input('user_id'))
-            ->first();
-
-        if ($memberRequest) {
-            // Chấp nhận yêu cầu
-            $group->members()->attach($memberRequest->user_id);
-            $memberRequest->delete(); // Xoá yêu cầu
-            return redirect()->route('users.groups.show', $groupId)->with('success', 'Bạn đã chấp nhận yêu cầu tham gia nhóm.');
-        }
-
-        return redirect()->back()->with('error', 'Không tìm thấy yêu cầu tham gia.');
+        return redirect()->back()->with('success', 'Đã từ chối yêu cầu tham gia.');
     }
+
 
     public function kickMember($groupId, $userId)
     {

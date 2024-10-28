@@ -23,28 +23,28 @@ class UserController extends Controller
 
         // Lấy tất cả bài viết đã xuất bản và đếm số lượng like và comment
         $posts = Post::with('user')
-            ->withCount('likes', 'comments') // Đếm số like và comment
+            ->withCount('likes', 'comments')
             ->where('status', 'published')
             ->get();
 
         // Kiểm tra xem người dùng đã đăng nhập chưa
-        $user = Auth::user(); // Lấy thông tin người dùng hiện tại
+        $user = Auth::user();
         $group = Group::find($request->group_id);
+
         // Lấy danh sách người dùng gợi ý theo dõi, lấy 5 người ngẫu nhiên
         $usersToFollow = User::where('role', 'user')->inRandomOrder()->take(5)->get();
-        // Khởi tạo các biến thông báo
+
+        // Khởi tạo các biến thông báo và bài viết
         $unreadNotifications = [];
         $readNotifications = [];
         $post = null;
         $folders = [];
         $savedPosts = [];
-        $groups = collect(); // Khởi tạo $groups là một collection rỗng
+        $groups = collect();
 
-        if ($user) { // Kiểm tra nếu người dùng đã đăng nhập
-            // Lấy thông báo chưa đọc
+        if ($user) {
+            // Lấy thông báo chưa đọc và đã đọc
             $unreadNotifications = $user->unreadNotifications;
-
-            // Lấy thông báo đã đọc với phân trang
             $readNotifications = $user->notifications()->whereNotNull('read_at')->paginate(10);
 
             // Lấy thông tin bài viết từ thông báo đầu tiên chưa đọc (nếu có)
@@ -55,19 +55,15 @@ class UserController extends Controller
                 }
             }
 
-            // Lấy nhóm mà người dùng đã tham gia
+            // Lấy các nhóm đã tham gia và tạo bởi người dùng
             $joinedGroups = $user->groups()->with('creator', 'memberRequests.user')->get();
-
-            // Lấy nhóm mà người dùng đã tạo
             $createdGroups = Group::where('creator_id', $user->id)->with('creator', 'memberRequests.user')->get();
 
             // Kết hợp hai tập hợp và loại bỏ nhóm trùng lặp
             $groups = $joinedGroups->merge($createdGroups)->unique('id');
 
-            // Lấy danh sách thư mục của người dùng hiện tại
+            // Lấy danh sách thư mục và bài viết đã lưu của người dùng hiện tại
             $folders = Folder::where('user_id', $user->id)->get();
-
-            // Lấy danh sách bài viết đã lưu của người dùng hiện tại
             $savedPosts = SavedPost::where('user_id', $user->id)->pluck('post_id')->toArray();
         }
 
@@ -86,7 +82,7 @@ class UserController extends Controller
         ));
     }
 
-    public function show(User $user)
+    public function show(User $user, $section = 'profile')
     {
         // Lấy ID từ đối tượng user đã được truyền vào
         $id = $user->id;
@@ -98,6 +94,9 @@ class UserController extends Controller
         $draftPosts = Post::where('user_id', $id)->where('status', 'draft')->get();
         $draftCount = $draftPosts->count();
 
+        // Khởi tạo biến friends từ quan hệ đã định nghĩa trong model User
+        $friends = $user->friends; // Lấy danh sách bạn bè của người dùng
+
         // Lấy danh sách bài viết yêu thích
         $favoritePosts = Post::with('user')
             ->whereHas('likes', function ($query) use ($id) {
@@ -105,10 +104,25 @@ class UserController extends Controller
             })
             ->get();
 
-        // Trả về view và truyền dữ liệu người dùng cùng các bài viết của họ
-        return view('users.profile.index', compact('user', 'publishedCount', 'draftCount', 'favoritePosts'));
-    }
+        // Lấy thông tin về tình trạng kết bạn
+        $friendship = Auth::user()->sentFriendRequests->where('receiver_id', $user->id)->first();
 
+        // Kiểm tra xem người dùng hiện tại có phải là người đang được xem hay không
+        $isOwnProfile = Auth::user()->id === $user->id;
+
+        $receivedFriendRequests = Auth::user()->receivedFriendRequests; // Lấy danh sách yêu cầu kết bạn nhận được
+
+        // Lấy tất cả nhóm mà người dùng đã tạo
+        $ownedGroups = Group::where('creator_id', $id)->get();
+
+        if ($section === 'friends') {
+            // Truyền biến cần thiết
+            return view('users.profile.friends', compact('friends', 'user', 'isOwnProfile', 'receivedFriendRequests'));
+        }
+
+        // Trả về view và truyền dữ liệu người dùng cùng các bài viết của họ
+        return view('users.profile.index', compact('user', 'publishedCount', 'draftCount', 'favoritePosts', 'friendship', 'isOwnProfile', 'ownedGroups', 'receivedFriendRequests', 'friends'));
+    }
 
     public function update(UserUpdateRequest $request, $id)
     {
@@ -170,5 +184,15 @@ class UserController extends Controller
     public function edit(User $user)
     {
         return view('users.profile.edit', compact('user'));
+    }
+
+    public function friend(User $user)
+    {
+        // Lấy ID từ đối tượng user đã được truyền vào
+        $id = $user->id;
+        $friends = $user->friends; // Lấy danh sách bạn bè của người dùng
+        // Kiểm tra xem người dùng hiện tại có phải là người đang được xem hay không
+        $isOwnProfile = Auth::user()->id === $user->id;
+        return view('users.profile.friends', compact('friends', 'user', 'isOwnProfile'));
     }
 }

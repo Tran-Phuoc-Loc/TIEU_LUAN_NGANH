@@ -2,18 +2,39 @@
 
 @section('title', 'Danh sách Nhóm')
 
-@section('css')
 <style>
     /* CSS riêng cho trang này */
 
+    body {
+        background-color: #f8f9fa;
+        /* Màu nền nhẹ cho toàn bộ trang */
+        font-family: Arial, sans-serif;
+    }
+
+    .chat-container {
+        padding: 20px;
+        max-width: 1200px;
+        /* Giới hạn chiều rộng tối đa cho trang */
+        margin: auto;
+        /* Căn giữa trang */
+    }
 
     .group-list {
-        background-color: #f1f1f1;
+        background-color: #ffffff;
+        /* Nền trắng cho danh sách nhóm */
         padding: 20px;
         border-radius: 10px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         overflow-y: auto;
-        max-height: 100%;
+        height: calc(100vh - 40px);
+        /* Chiều cao tối đa cho danh sách nhóm */
+        margin-right: 20px;
+        /* Khoảng cách bên phải */
+    }
+
+    .group-list h3 {
+        margin-bottom: 15px;
+        /* Khoảng cách dưới tiêu đề */
     }
 
     .group-list ul {
@@ -23,16 +44,18 @@
 
     .group-list .list-group-item {
         border: none;
-        padding: 15px 10px;
+        padding: 15px;
         margin-bottom: 10px;
-        background-color: #fff;
+        background-color: #f8f9fa;
         border-radius: 8px;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         transition: background-color 0.3s ease;
+        cursor: pointer;
+        /* Con trỏ thay đổi khi hover */
     }
 
     .group-list .list-group-item:hover {
         background-color: #e9ecef;
+        /* Màu nền khi hover */
     }
 
     .chat-area {
@@ -40,29 +63,27 @@
         display: flex;
         flex-direction: column;
         padding: 20px;
-        border-left: 1px solid #e2e2e2;
-        background-color: #fafafa;
         border-radius: 10px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        width: 100%;
+        background-color: #ffffff;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
 
     .chat-title {
         margin-bottom: 20px;
         font-weight: bold;
         font-size: 1.5em;
+        color: #343a40;
+        /* Màu chữ tiêu đề */
     }
 
     .chat-messages {
         flex: 1;
-        max-height: 100%;
         overflow-y: auto;
         margin-bottom: 20px;
         padding: 10px;
-        background-color: #ffffff;
+        background-color: #f8f9fa;
         border-radius: 10px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        position: relative;
+        box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
     }
 
     .chat-message {
@@ -75,23 +96,24 @@
         font-size: 1rem;
     }
 
-    /* Tin nhắn "sent" sẽ được căn bên phải và lệch nhẹ sang trái */
+    /* Tin nhắn "sent" sẽ được căn bên phải */
     .chat-message.sent {
         background-color: #daf8cb;
+        /* Màu nền cho tin nhắn gửi */
         align-self: flex-end;
         margin-left: auto;
-        transform: translateX(-10px);
-        /* Di chuyển sang trái */
+        /* Căn bên phải */
         border-bottom-right-radius: 0;
+        /* Bo tròn góc dưới bên phải */
     }
 
-    /* Tin nhắn "received" sẽ căn bên trái và lệch nhẹ sang phải */
+    /* Tin nhắn "received" sẽ căn bên trái */
     .chat-message.received {
         background-color: #f1f0f0;
+        /* Màu nền cho tin nhắn nhận */
         align-self: flex-start;
-        transform: translateX(10px);
-        /* Di chuyển sang phải */
         border-bottom-left-radius: 0;
+        /* Bo tròn góc dưới bên trái */
     }
 
     .timestamp {
@@ -99,13 +121,14 @@
         color: #666;
         margin-top: 5px;
         display: block;
+        /* Hiển thị timestamp trên dòng mới */
     }
 
     .chat-input {
         display: flex;
         align-items: center;
         padding: 10px;
-        background-color: #fff;
+        background-color: #ffffff;
         border-radius: 10px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
@@ -121,22 +144,43 @@
         padding: 10px 15px;
         border: 1px solid #ddd;
         margin-right: 10px;
+        transition: border-color 0.3s;
+        /* Hiệu ứng khi focus */
+    }
+
+    .form-control:focus {
+        border-color: #007bff;
+        /* Màu viền khi focus */
+        outline: none;
+        /* Bỏ outline mặc định */
     }
 
     .btn-primary {
         border-radius: 20px;
         padding: 10px 20px;
         background-color: #007bff;
+        /* Màu nền nút */
         border-color: #007bff;
+        transition: background-color 0.3s;
+        /* Hiệu ứng khi hover */
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+        /* Màu nền khi hover */
+        border-color: #0056b3;
     }
 </style>
-@endsection
+
 @section('content')
-<div class="chat-container ">
+<div class="chat-container">
     <div class="row">
         <!-- Danh sách nhóm bên trái -->
-        <div class="col-md-4 group-list">
+        <div class="col-md-3 group-list">
             <h3>Danh sách nhóm</h3>
+            @if($userGroups->isEmpty())
+            <p>Bạn cần tham gia nhóm để nhắn tin.</p>
+            @else
             <ul class="list-group">
                 @foreach($userGroups as $userGroup)
                 <li class="list-group-item">
@@ -144,13 +188,25 @@
                 </li>
                 @endforeach
             </ul>
+            @endif
+
+            <!-- Danh sách bạn bè -->
+            <h3>Danh sách bạn bè</h3>
+            <ul class="list-group">
+                @foreach($friends as $friend)
+                <li class="list-group-item">
+                    <a href="{{ route('chat.private.show', $friend->id) }}">{{ $friend->username }}</a>
+                </li>
+                @endforeach
+            </ul>
+
         </div>
 
         <!-- Khu vực chat bên phải -->
         <div class="col-md-8 chat-area">
+            @if(isset($group))
             <h3 class="chat-title">Chat trong nhóm: {{ $group->name }}</h3>
-
-            <div class="chat-messages mb-3">
+            <div class="chat-messages" id="group-chat-messages">
                 @foreach ($group->chats as $chat)
                 <div class="chat-message @if($chat->user_id === Auth::id()) sent @else received @endif">
                     <strong>{{ $chat->user->username }}:</strong>
@@ -159,15 +215,95 @@
                 </div>
                 @endforeach
             </div>
-
-            <form action="{{ route('chats.store', $group->id) }}" method="POST" class="chat-input">
+            <form action="{{ route('chats.store', ['group' => $group->id]) }}" method="POST" class="chat-input">
                 @csrf
                 <div class="input-group">
                     <input type="text" name="message" class="form-control" placeholder="Nhập tin nhắn..." required>
                     <button class="btn btn-primary" type="submit">Gửi</button>
                 </div>
             </form>
+
+            @elseif(isset($receiver))
+            <h3 class="chat-title">Chat với: {{ $receiver->username }}</h3>
+            <div class="chat-messages" id="private-chat-messages">
+                @foreach ($messages as $message)
+                <div class="chat-message @if($message->sender_id === Auth::id()) sent @else received @endif">
+                    <strong>{{ $message->sender->username }}:</strong>
+                    <p>{{ $message->message }}</p>
+                    <span class="timestamp">{{ $message->created_at->diffForHumans() }}</span>
+                </div>
+                @endforeach
+            </div>
+            <form action="{{ route('private.chat.store', ['receiverId' => $receiver->id]) }}" method="POST" class="chat-input">
+                @csrf
+                <div class="input-group">
+                    <input type="text" name="message" class="form-control" placeholder="Nhập tin nhắn..." required>
+                    <button class="btn btn-primary" type="submit">Gửi</button>
+                </div>
+            </form>
+            @else
+            <p>Chọn một nhóm hoặc một người bạn để bắt đầu nhắn tin.</p>
+            @endif
         </div>
     </div>
 </div>
+
+
+<!-- CSS -->
+<style>
+    .chat-container {
+        margin-top: 20px;
+    }
+
+    .group-list {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+    }
+
+    .chat-area {
+        background-color: #ffffff;
+        padding: 15px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .chat-messages {
+        max-height: 400px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+
+    .chat-message.sent {
+        text-align: right;
+    }
+
+    .chat-message.received {
+        text-align: left;
+    }
+
+    .timestamp {
+        font-size: 0.8em;
+        color: #999;
+    }
+</style>
+
+<!-- JavaScript -->
+<script>
+    // Tự động cuộn xuống cuối khi có tin nhắn mới
+    document.addEventListener("DOMContentLoaded", function() {
+        const groupChatMessages = document.getElementById('group-chat-messages');
+        const privateChatMessages = document.getElementById('private-chat-messages');
+
+        if (groupChatMessages) {
+            groupChatMessages.scrollTop = groupChatMessages.scrollHeight;
+        }
+        if (privateChatMessages) {
+            privateChatMessages.scrollTop = privateChatMessages.scrollHeight;
+        }
+    });
+</script>
+
 @endsection

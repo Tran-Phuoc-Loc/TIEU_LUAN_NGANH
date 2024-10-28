@@ -6,7 +6,7 @@
 <div class="container-fluid">
     <div class="row">
         <!-- Menu điều hướng cho màn hình lớn -->
-        <div class="col-lg-2 sidebar" style="background-color: #fff; position: fixed; height: 100vh; overflow-y: auto;">
+        <div class="col-lg-2 sidebar d-none d-lg-block" style="background-color: #fff; position: fixed; height: 100vh; overflow-y: auto;">
             <div class="vertical-navbar">
 
                 <!-- Thông tin người dùng -->
@@ -57,7 +57,7 @@
         </div>
 
         <!-- Phần nội dung bài viết -->
-        <div class="col-lg-7 offset-lg-2" style="border: 2px solid #007bff; background-color:#fff">
+        <div class="col-lg-7 offset-lg-2" style="border: 2px solid #007bff; background-color:#fff;">
             <div class="post-container">
                 @if($posts->isEmpty())
                 <p>Không có bài viết nào.</p>
@@ -169,7 +169,7 @@
         </div>
 
         <!-- Sidebar phải: Gợi ý người theo dõi -->
-        <div class="col-lg-3" style="background-color: #fff; position: fixed; right: 0; height: 100vh; overflow-y: auto;">
+        <div class="col-lg-3 d-none d-lg-block" style="background-color: #fff; position: fixed; right: 0; height: 100vh; overflow-y: auto;">
             <div class="right-sidebar p-3">
                 <h3 class="sidebar-title">Gợi ý theo dõi</h3>
                 <ul class="suggested-users-list list-unstyled">

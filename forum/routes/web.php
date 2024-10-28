@@ -17,6 +17,7 @@ use App\Http\Middleware\RoleMiddleware;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\FolderController;
+use App\Http\Controllers\FriendshipController;
 use App\Http\Controllers\NotificationController;
 use App\Models\SavedPost;
 use App\Models\Post;
@@ -51,7 +52,6 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin'])->group(function ()
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('groups', AdminGroupController::class);
         Route::get('admin/groups/{group}', [AdminGroupController::class, 'show'])->name('admin.groups.show');
-
     });
 
     // Route cho quản lý User
@@ -107,7 +107,8 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('users')->group(function () {
         // Hiển thị hồ sơ người dùng
         Route::get('{user}', [UserController::class, 'show'])->name('users.profile.index'); // Hiển thị hồ sơ người dùng
-
+        // Định nghĩa route cho việc kết bạn
+        Route::get('{user}/profile/friend/{section?}', [UserController::class, 'show'])->name('users.profile.friend');
         // Chỉnh sửa hồ sơ người dùng
         Route::get('{user}/edit', [UserController::class, 'edit'])->name('users.profile.edit'); // Hiển thị trang chỉnh sửa hồ sơ người dùng
         Route::put('{user}', [UserController::class, 'update'])->name('users.profile.update'); // Xử lý cập nhật hồ sơ người dùng
@@ -160,8 +161,15 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('users/posts/{post}/comments/{id}', [CommentController::class, 'destroy']);
 
 
+    // Quản lý kết bạn
+    Route::post('/friend-request/send/{id}', [FriendshipController::class, 'sendRequest'])->name('friend.sendRequest');
+    Route::post('/friend-request/accept/{id}', [FriendshipController::class, 'acceptRequest'])->name('friend.acceptRequest');
+    Route::post('/friend-request/decline/{id}', [FriendshipController::class, 'declineRequest'])->name('friend.declineRequest');
+    Route::post('/friend-request/cancel/{id}', [FriendshipController::class, 'cancelRequest'])->name('friend.cancelRequest');
 
-
+    // Route để hiển thị chat cá nhân giữa người dùng đăng nhập và bạn bè
+    Route::get('/chat/private/{receiverId}', [ChatController::class, 'showPrivateChat'])->name('chat.private.show');
+    Route::post('/chat/private/{receiverId}/store', [ChatController::class, 'storePrivateMessage'])->name('private.chat.store');
 
     // Route quản lý Group
     Route::prefix('users')->group(function () {
@@ -178,7 +186,8 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/groups/{group}', [GroupController::class, 'destroy'])->name('groups.destroy');
         Route::post('groups/{group}/leave', [GroupController::class, 'leaveGroup'])->name('groups.leave');
         // Định nghĩa route cho việc chấp nhận yêu cầu tham gia nhóm
-        Route::post('/groups/{group}/approve', [GroupController::class, 'approveMember'])->name('groups.approve');
+        Route::post('/groups/{group}/approve/{user}', [GroupController::class, 'approveRequest'])->name('groups.approve');
+        Route::delete('/groups/{group}/reject/{user}', [GroupController::class, 'rejectRequest'])->name('groups.reject');
         Route::delete('/groups/{group}/kick/{user}', [GroupController::class, 'kickMember'])->name('groups.kick');
     });
 

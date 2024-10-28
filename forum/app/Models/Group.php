@@ -24,6 +24,11 @@ class Group extends Model
         return $this->belongsTo(User::class, 'creator_id');
     }
 
+    public function isOwner($userId)
+    {
+        return $this->creator_id === $userId;
+    }
+
     // Quan hệ với yêu cầu tham gia
     public function memberRequests()
     {
@@ -33,9 +38,10 @@ class Group extends Model
     // Thành viên
     public function members()
     {
-        return $this->belongsToMany(User::class, 'group_user', 'group_id', 'user_id');
+        return $this->belongsToMany(User::class, 'group_user', 'group_id', 'user_id')
+                    ->withPivot('created_at');
     }
-
+     
     public function chats()
     {
         return $this->hasMany(Chat::class);
@@ -50,5 +56,15 @@ class Group extends Model
     public function joinRequests()
     {
         return $this->hasMany(GroupJoinRequest::class);
+    }
+
+    public function hasJoinRequest($userId)
+    {
+        return $this->memberRequests()->where('user_id', $userId)->exists();
+    }
+
+    public function isMember(User $user)
+    {
+        return $this->members()->where('user_id', $user->id)->exists();
     }
 }

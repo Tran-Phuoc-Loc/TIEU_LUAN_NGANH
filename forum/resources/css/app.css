@@ -413,8 +413,11 @@ footer {
         margin: auto !important;
         padding-top: 20px
     }
-}
 
+    .main {
+        margin-left: 80px;
+    }
+}
 /* Dùng cho màn hình nhỏ */
 @media (max-width: 768px) {
     .login-container,
@@ -485,6 +488,9 @@ footer {
         padding: 10px 15px; /* Thay đổi kích thước của các liên kết */
     }
 
+    .main {
+        margin-left: 80px;
+    }
 
 }
 @media (max-width: 576px) {
