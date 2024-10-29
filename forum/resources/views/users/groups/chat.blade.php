@@ -184,7 +184,7 @@
             <ul class="list-group">
                 @foreach($userGroups as $userGroup)
                 <li class="list-group-item">
-                    <a href="{{ route('groups.chat', $userGroup->id) }}">{{ $userGroup->name }}</a>
+                    <a href="{{ route('groups.chat', ['group' => $userGroup->id]) }}">{{ $userGroup->name }}</a>
                 </li>
                 @endforeach
             </ul>
@@ -195,7 +195,7 @@
             <ul class="list-group">
                 @foreach($friends as $friend)
                 <li class="list-group-item">
-                    <a href="{{ route('chat.private.show', $friend->id) }}">{{ $friend->username }}</a>
+                    <a href="{{ route('chat.private.show', ['receiverId' => $friend->id, 'group' => $group->id ?? null]) }}">{{ $friend->username }}</a>
                 </li>
                 @endforeach
             </ul>
@@ -215,11 +215,12 @@
                 </div>
                 @endforeach
             </div>
-            <form action="{{ route('chats.store', ['group' => $group->id]) }}" method="POST" class="chat-input">
+            <!-- Form chat nhóm -->
+            <form id="group-chat-form" class="chat-input" onsubmit="event.preventDefault(); sendMessage('{{ $group->id }}', true);">
                 @csrf
                 <div class="input-group">
                     <input type="text" name="message" class="form-control" placeholder="Nhập tin nhắn..." required>
-                    <button class="btn btn-primary" type="submit">Gửi</button>
+                    <button type="button" class="btn btn-primary" onclick="sendMessage('{{ $group->id }}', true);">Gửi</button>
                 </div>
             </form>
 
@@ -229,16 +230,17 @@
                 @foreach ($messages as $message)
                 <div class="chat-message @if($message->sender_id === Auth::id()) sent @else received @endif">
                     <strong>{{ $message->sender->username }}:</strong>
-                    <p>{{ $message->message }}</p>
+                    <p>{{ $message->content }}</p>
                     <span class="timestamp">{{ $message->created_at->diffForHumans() }}</span>
                 </div>
                 @endforeach
             </div>
-            <form action="{{ route('private.chat.store', ['receiverId' => $receiver->id]) }}" method="POST" class="chat-input">
+            <!-- Form chat cá nhân -->
+            <form id="private-chat-form" class="chat-input" onsubmit="event.preventDefault(); sendMessage('{{ $receiver->id }}');">
                 @csrf
                 <div class="input-group">
                     <input type="text" name="message" class="form-control" placeholder="Nhập tin nhắn..." required>
-                    <button class="btn btn-primary" type="submit">Gửi</button>
+                    <button type="button" class="btn btn-primary" onclick="sendMessage('{{ $receiver->id }}');">Gửi</button>
                 </div>
             </form>
             @else

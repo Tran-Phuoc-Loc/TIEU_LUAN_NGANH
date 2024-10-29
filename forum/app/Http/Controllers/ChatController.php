@@ -58,11 +58,13 @@ class ChatController extends Controller
         ]);
     }
 
-    public function showPrivateChat($receiverId)
+    public function showPrivateChat($receiverId, $groupId = null)
     {
         $receiver = User::find($receiverId); // Lấy thông tin người nhận
         // Lấy danh sách bạn bè đã kết bạn
         $friends = Auth::user()->friends;
+
+        // Lấy danh sách tin nhắn
         $messages = PrivateMessage::where(function ($query) use ($receiverId) {
             $query->where('sender_id', Auth::id())
                 ->where('receiver_id', $receiverId);
@@ -72,7 +74,7 @@ class ChatController extends Controller
         })->orderBy('created_at')
             ->get();
 
-        return view('users.groups.chat', compact('messages', 'friends' , 'receiver'));
+        return view('users.groups.chat', compact('messages', 'friends', 'receiver', 'groupId'));
     }
 
     public function storePrivateMessage(Request $request, $receiverId)
@@ -81,12 +83,20 @@ class ChatController extends Controller
             'message' => 'required|string|max:255',
         ]);
 
-        PrivateMessage::create([
+        $message = PrivateMessage::create([
             'sender_id' => Auth::id(),
             'receiver_id' => $receiverId,
-            'message' => $request->message,
+            'content' => $request->message,
         ]);
 
-        return redirect()->route('users.groups.chat', ['receiverId' => $receiverId]);
+        // Thay vì chuyển hướng, trả về JSON
+        return response()->json([
+            'sender' => [
+                'username' => Auth::user()->username,
+                'id' => Auth::id(),
+            ],
+            'content' => $message->content,
+            'created_at' => $message->created_at,
+        ]);
     }
 }

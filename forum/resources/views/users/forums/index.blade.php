@@ -7,12 +7,13 @@
         <div class="col-lg-2 col-md-1 sidebar d-none d-md-block" style="background-color: #fff; position: fixed; height: 100vh; overflow-y: auto;">
             <div class="vertical-navbar">
                 <!-- Thông tin người dùng -->
-                <div class="user-info text-center mb-4">
+                <div class="user-info text-center mb-4" style="background-color: black;background-image: linear-gradient(135deg, #52545f 0%, #383a45 50%);">
                     @if(auth()->check())
                     <img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : asset('storage/images/avataricon.png') }}"
                         alt="Profile picture of {{ auth()->user()->username }}"
                         class="rounded-circle" style="width: 45px; height: 50px;">
-                    <h5 class="d-none d-lg-block">{{ auth()->user()->username }}</h5>
+                    <h5 class="d-none d-md-block" style="color: #fff;">{{ auth()->user()->username }}</h5>
+                    <hr style="border-top: 1px solid black; margin: 10px 0;">
                     @endif
                 </div>
 
@@ -83,8 +84,8 @@
                 @foreach ($posts as $post)
                 <li>
                     <h4><a href="{{ route('forums.show', $post->id) }}" style="text-decoration: none; color: #007bff;">
-                    {{ $post->title }}
-                </a></h4>
+                            {{ $post->title }}
+                        </a></h4>
                     <p>{{ $post->content }}</p>
                     <p><small>Viết bởi: {{ $post->user->username ?? 'Không có tên' }} - {{ $post->created_at->format('d-m-Y H:i') }}</small></p>
                 </li>

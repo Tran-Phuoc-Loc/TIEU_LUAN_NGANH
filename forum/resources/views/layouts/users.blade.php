@@ -476,6 +476,94 @@
         window.open(linkedinUrl, 'linkedin-share-dialog', 'width=626,height=436');
     });
 
+    const currentUserId = '{{ Auth::id() }}';
+
+    // Hàm chung cho gọi API
+    function sendApiRequest(url, method = 'GET', bodyData = null) {
+        const options = {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        };
+
+        if (bodyData) {
+            options.body = JSON.stringify(bodyData);
+        }
+
+        return fetch(url, options)
+            .then(response => response.json())
+            .catch(error => console.error('Error:', error));
+    }
+
+    // Hàm gửi tin nhắn
+    function sendMessage(id, isGroup = false) {
+        const messageInput = document.querySelector('input[name="message"]');
+        const message = messageInput.value;
+
+        if (!message.trim()) return;
+
+        const url = isGroup ? `/users/group/${id}/chat` : `/chat/private/${id}/store`;
+
+        sendApiRequest(url, 'POST', {
+                message
+            })
+            .then(data => {
+                updateMessages(data, isGroup);
+                messageInput.value = ''; // Xóa nội dung ô input sau khi gửi
+            });
+    }
+
+    // Hàm cập nhật giao diện với tin nhắn mới
+    function updateMessages(data, isGroup = false) {
+        const messageContainer = document.getElementById(isGroup ? 'group-chat-messages' : 'private-chat-messages');
+        const messageClass = data.sender.id === currentUserId ? 'sent' : 'received';
+
+        // Cập nhật nội dung tin nhắn
+        const newMessageHTML = `
+            <div class="chat-message ${data.sender.id === currentUserId ? 'sent' : 'received'}">
+                <strong>${data.sender.username}:</strong>
+                <p>${data.content}</p>
+                <span class="timestamp">${new Date(data.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+            </div>
+        `;
+
+        messageContainer.insertAdjacentHTML('beforeend', newMessageHTML);
+        scrollToBottom(messageContainer);
+    }
+
+    // Hàm tải lại danh sách tin nhắn
+    function reloadMessages(id, isGroup) {
+        const url = isGroup ? `/users/group/${id}/chat` : `/chat/private/${id}`;
+
+        sendApiRequest(url)
+            .then(data => {
+                const messageContainer = document.getElementById(isGroup ? 'group-chat-messages' : 'private-chat-messages');
+                messageContainer.innerHTML = ''; // Xóa nội dung cũ
+
+                const messagesHTML = data.messages.map(message => {
+                    const messageClass = message.sender_id === currentUserId ? 'sent' : 'received';
+                    return `
+                    <div class="chat-message ${messageClass}">
+                        <strong>${message.sender.username}:</strong>
+                        <p>${message.content}</p>
+                        <span class="timestamp">${message.created_at}</span>
+                    </div>
+                `;
+                }).join('');
+
+                messageContainer.innerHTML = messagesHTML;
+                scrollToBottom(messageContainer);
+            });
+    }
+
+    // Hàm cuộn xuống cuối chat
+    function scrollToBottom(container) {
+        container.scrollTop = container.scrollHeight;
+    }
+
+
     // Định nghĩa hàm redirectToLogin
     function redirectToLogin() {
         window.location.href = '/login'; // Chuyển hướng đến trang đăng nhập

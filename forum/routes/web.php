@@ -178,7 +178,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/friend-request/cancel/{id}', [FriendshipController::class, 'cancelRequest'])->name('friend.cancelRequest');
 
     // Route để hiển thị chat cá nhân giữa người dùng đăng nhập và bạn bè
-    Route::get('/chat/private/{receiverId}', [ChatController::class, 'showPrivateChat'])->name('chat.private.show');
+    Route::get('/chat/private/{receiverId}/{group?}', [ChatController::class, 'showPrivateChat'])->name('chat.private.show');
     Route::post('/chat/private/{receiverId}/store', [ChatController::class, 'storePrivateMessage'])->name('private.chat.store');
 
     // Route quản lý Group
