@@ -144,8 +144,7 @@
             @endif
             @endif
 
-            <a href="#">Forums</a>
-            <a href="#">More</a>
+            <a href="{{ route('forums.index') }}">Forums</a>
 
         </div>
 

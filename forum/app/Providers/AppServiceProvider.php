@@ -44,10 +44,10 @@ class AppServiceProvider extends ServiceProvider
             $view->with('posts', $posts);
         });
 
-        // Chia sẻ biến categories tới tất cả các view
-        View::composer('*', function ($view) {
-            $categories = Category::all(); // Lấy tất cả các danh mục
-            $view->with('categories', $categories); // Chia sẻ biến $categories
+        // Chỉ chia sẻ danh mục mạng xã hội với các view cụ thể
+        View::composer(['users.posts.index', 'layouts.users'], function ($view) {
+            $categories = Category::all();
+            $view->with('categories', $categories);
         });
 
         // Kiểm tra nếu bảng groups có dữ liệu, chỉ lấy các nhóm có dữ liệu

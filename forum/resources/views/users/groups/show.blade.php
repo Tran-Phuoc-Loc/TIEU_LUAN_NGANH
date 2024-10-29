@@ -93,10 +93,10 @@
         @endif
 
         <!-- Hiển thị bài viết trong nhóm (nếu có) -->
-        @if($posts->isNotEmpty())
+        @if($group->posts->isNotEmpty())
             <h3>Bài viết trong nhóm:</h3>
             <ul>
-                @foreach ($posts as $post)
+                @foreach ($group->posts as $post)
                     <li>{{ $post->title }}</li>
                 @endforeach
             </ul>

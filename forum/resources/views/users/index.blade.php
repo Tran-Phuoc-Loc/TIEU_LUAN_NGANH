@@ -6,48 +6,69 @@
 <div class="container-fluid">
     <div class="row">
         <!-- Menu điều hướng cho màn hình lớn -->
-        <div class="col-lg-2 sidebar d-none d-lg-block" style="background-color: #fff; position: fixed; height: 100vh; overflow-y: auto;">
+        <div class="col-lg-2 col-md-1 sidebar d-none d-md-block" style="background-color: #fff; position: fixed; height: 100vh; overflow-y: auto;">
             <div class="vertical-navbar">
-
                 <!-- Thông tin người dùng -->
                 <div class="user-info text-center mb-4">
                     @if(auth()->check())
                     <img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : asset('storage/images/avataricon.png') }}"
                         alt="Profile picture of {{ auth()->user()->username }}"
-                        class="rounded-circle"
-                        style="width: 80px; height: 80px;">
-                    <h5>{{ auth()->user()->username }}</h5>
+                        class="rounded-circle" style="width: 45px; height: 50px;">
+                    <h5 class="d-none d-lg-block">{{ auth()->user()->username }}</h5>
                     @endif
                 </div>
 
                 <nav class="navbar navbar-dark flex-column">
                     <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url('/') }}">Trang Chủ</a>
+                            <a class="nav-link" href="{{ url('/') }}">
+                                <i class="fas fa-house"></i>
+                                <span class="d-none d-lg-inline">Trang chủ</span>
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('users.index') }}">Bài Viết</a>
+                            <a class="nav-link" href="{{ route('users.index') }}">
+                                <i class="bi bi-pencil"></i>
+                                <span class="d-none d-lg-inline">Bài viết của bạn</span>
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('categories.index') }}">Danh mục</a>
+                            <a class="nav-link" href="{{ route('categories.index') }}">
+                                <i class="bi bi-folder"></i>
+                                <span class="d-none d-lg-inline">Danh mục</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('forums.index') }}">
+                                <i class="bi bi-chat-dots"></i>
+                                <span class="d-none d-lg-inline">Diễn đàn</span>
+                            </a>
                         </li>
                     </ul>
                 </nav>
+
                 <hr class="my-4">
 
                 <nav class="navbar navbar-dark flex-column">
                     <ul class="navbar-nav">
                         <li class="nav-item" style="padding-bottom: 10px;">
-                            <a href="{{ route('users.posts.create') }}" class="btn btn-success">Tạo Bài viết</a>
+                            <a href="{{ route('users.posts.create') }}" class="btn btn-success">
+                                <i class="fas fa-file-pen"></i>
+                                <span class="d-none d-lg-inline">Viết bài</span>
+                            </a>
                         </li>
                         <li class="nav-item" style="padding-bottom: 10px;">
-                            <a href="{{ route('users.groups.create') }}" class="btn btn-success">Tạo Group</a>
+                            <a href="{{ route('users.groups.create') }}" class="btn btn-success">
+                                <i class="bi bi-people"></i>
+                                <span class="d-none d-lg-inline">Tạo nhóm</span>
+                            </a>
                         </li>
                         <li class="nav-item" style="text-align: center;">
                             @if ($groups->isNotEmpty())
                             @php $firstGroup = $groups->first(); @endphp
                             <a href="{{ route('groups.chat', $firstGroup->id) }}">
                                 <i class="fas fa-comment-sms" style="font-size: 40px"></i>
+                                <span class="d-none d-lg-inline">Tin nhắn</span>
                             </a>
                             @endif
                         </li>
@@ -57,7 +78,7 @@
         </div>
 
         <!-- Phần nội dung bài viết -->
-        <div class="col-lg-7 offset-lg-2" style="border: 2px solid #007bff; background-color:#fff;">
+        <div class="col-lg-7 col-md-7 offset-lg-2 content-col" style="border: 2px solid #007bff; background-color:#fff; margin-left: 17%;">
             <div class="post-container">
                 @if($posts->isEmpty())
                 <p>Không có bài viết nào.</p>
@@ -169,8 +190,8 @@
         </div>
 
         <!-- Sidebar phải: Gợi ý người theo dõi -->
-        <div class="col-lg-3 d-none d-lg-block" style="background-color: #fff; position: fixed; right: 0; height: 100vh; overflow-y: auto;">
-            <div class="right-sidebar p-3">
+        <div class="col-lg-3 col-md-3 mt-lg-0 right-sidebar" style="background-color: #fff; position: fixed; right: 0; height: 100vh; overflow-y: auto; margin-left: auto;">
+            <div class="right-sidebars p-3">
                 <h3 class="sidebar-title">Gợi ý theo dõi</h3>
                 <ul class="suggested-users-list list-unstyled">
                     @forelse ($usersToFollow as $user)

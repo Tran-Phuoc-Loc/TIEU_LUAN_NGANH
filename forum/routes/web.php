@@ -19,6 +19,8 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\FolderController;
 use App\Http\Controllers\FriendshipController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ForumController;
+use App\Http\Controllers\ForumCommentController;
 use App\Models\SavedPost;
 use App\Models\Post;
 use App\Models\Folder;
@@ -90,6 +92,15 @@ Route::middleware(['auth'])->group(function () {
         return view('users.index', compact('posts')); // Hiển thị trang người dùng với danh sách bài viết
     })->name('dashboard');
 
+    Route::get('forums', [ForumController::class, 'index'])->name('forums.index');
+    Route::get('forums/category/{id}', [ForumController::class, 'showCategory'])->name('forums.category');
+    // Route để hiển thị form tạo bài viết mới
+    Route::get('users/forums/create', [ForumController::class, 'create'])->name('forums.create');
+    Route::get('/forums/{post}', [ForumController::class, 'show'])->name('forums.show');
+    Route::post('forums/{forumPost}/comments', [ForumCommentController::class, 'store'])->name('forums.comments.store');
+
+
+
     // Route để tạo thư mục
     Route::post('/folders', [FolderController::class, 'store'])->name('folders.store');
     // Route cho trang hiển thị danh sách thư mục
@@ -159,7 +170,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('{comment}/like', [CommentController::class, 'like']); // Lượt thích cho bình luận bài viết
     });
     Route::delete('users/posts/{post}/comments/{id}', [CommentController::class, 'destroy']);
-
 
     // Quản lý kết bạn
     Route::post('/friend-request/send/{id}', [FriendshipController::class, 'sendRequest'])->name('friend.sendRequest');

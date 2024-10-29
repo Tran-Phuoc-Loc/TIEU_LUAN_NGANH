@@ -12,6 +12,7 @@
     <!-- Bootstrap & Font Awesome CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <!-- App CSS & JS (via Vite) -->
     @vite('resources/css/app.css')
@@ -166,7 +167,6 @@
         /* Thanh điều hướng dọc */
         .vertical-navbar {
             position: fixed;
-            margin-left: 15px;
             height: calc(100vh - 56px);
             /* Điều chỉnh để chiều cao của thanh điều hướng không vượt quá chiều cao của viewport */
             z-index: 1000;
