@@ -50,9 +50,6 @@ class AppServiceProvider extends ServiceProvider
             $view->with('categories', $categories);
         });
 
-        // Kiểm tra nếu bảng groups có dữ liệu, chỉ lấy các nhóm có dữ liệu
-        View::composer('*', function ($view) {
-            $view->with('groups', Group::all());
-        });
+
     }
 }

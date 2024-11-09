@@ -59,7 +59,6 @@
     }
 
     .chat-area {
-        flex: 1;
         display: flex;
         flex-direction: column;
         padding: 20px;
@@ -94,6 +93,15 @@
         position: relative;
         word-wrap: break-word;
         font-size: 1rem;
+    }
+
+    #private-chat-messages {
+        max-height: 500px;
+        /* Chiều cao tối đa cho khu vực chat */
+        overflow-y: auto;
+        /* Cho phép cuộn dọc khi nội dung vượt quá chiều cao */
+        padding-right: 15px;
+        /* Giữ không gian cho thanh cuộn */
     }
 
     /* Tin nhắn "sent" sẽ được căn bên phải */
@@ -173,139 +181,99 @@
 </style>
 
 @section('content')
-<div class="chat-container">
-    <div class="row">
-        <!-- Danh sách nhóm bên trái -->
-        <div class="col-md-3 group-list">
-            <h3>Danh sách nhóm</h3>
-            @if($userGroups->isEmpty())
-            <p>Bạn cần tham gia nhóm để nhắn tin.</p>
-            @else
-            <ul class="list-group">
-                @foreach($userGroups as $userGroup)
-                <li class="list-group-item">
-                    <a href="{{ route('groups.chat', ['group' => $userGroup->id]) }}">{{ $userGroup->name }}</a>
-                </li>
-                @endforeach
-            </ul>
-            @endif
+@include('layouts.partials.sidebar')
+<div class="col-lg-10 col-md-10 offset-lg-2 content-col" style="border: 2px solid #c8ccd0; background-color:#fff;">
+    <div class="chat-container">
+        <div class="row">
+            <!-- Danh sách nhóm bên trái -->
+            <div class="col-md-3 group-list">
+                <h3>Danh sách nhóm</h3>
+                @if($userGroups->isEmpty())
+                <p>Bạn cần tham gia nhóm để nhắn tin.</p>
+                @else
+                <ul class="list-group">
+                    @foreach($userGroups as $userGroup)
+                    <li class="list-group-item">
+                        <a href="{{ route('groups.chat', ['group' => $userGroup->id]) }}">{{ $userGroup->name }}</a>
+                    </li>
+                    @endforeach
+                </ul>
+                @endif
 
-            <!-- Danh sách bạn bè -->
-            <h3>Danh sách bạn bè</h3>
-            <ul class="list-group">
-                @foreach($friends as $friend)
-                <li class="list-group-item">
-                    <a href="{{ route('chat.private.show', ['receiverId' => $friend->id, 'group' => $group->id ?? null]) }}">{{ $friend->username }}</a>
-                </li>
-                @endforeach
-            </ul>
+                <!-- Danh sách bạn bè -->
+                <h3>Danh sách bạn bè</h3>
+                <ul class="list-group">
+                    @foreach($friends as $friend)
+                    <li class="list-group-item">
+                        <a href="{{ route('chat.private.show', ['receiverId' => $friend->id, 'group' => $group->id ?? null]) }}">{{ $friend->username }}</a>
+                    </li>
+                    @endforeach
+                </ul>
 
-        </div>
-
-        <!-- Khu vực chat bên phải -->
-        <div class="col-md-8 chat-area">
-            @if(isset($group))
-            <h3 class="chat-title">Chat trong nhóm: {{ $group->name }}</h3>
-            <div class="chat-messages" id="group-chat-messages">
-                @foreach ($group->chats as $chat)
-                <div class="chat-message @if($chat->user_id === Auth::id()) sent @else received @endif">
-                    <strong>{{ $chat->user->username }}:</strong>
-                    <p>{{ $chat->message }}</p>
-                    <span class="timestamp">{{ $chat->created_at->diffForHumans() }}</span>
-                </div>
-                @endforeach
             </div>
-            <!-- Form chat nhóm -->
-            <form id="group-chat-form" class="chat-input" onsubmit="event.preventDefault(); sendMessage('{{ $group->id }}', true);">
-                @csrf
-                <div class="input-group">
-                    <input type="text" name="message" class="form-control" placeholder="Nhập tin nhắn..." required>
-                    <button type="button" class="btn btn-primary" onclick="sendMessage('{{ $group->id }}', true);">Gửi</button>
-                </div>
-            </form>
 
-            @elseif(isset($receiver))
-            <h3 class="chat-title">Chat với: {{ $receiver->username }}</h3>
-            <div class="chat-messages" id="private-chat-messages">
-                @foreach ($messages as $message)
-                <div class="chat-message @if($message->sender_id === Auth::id()) sent @else received @endif">
-                    <strong>{{ $message->sender->username }}:</strong>
-                    <p>{{ $message->content }}</p>
-                    <span class="timestamp">{{ $message->created_at->diffForHumans() }}</span>
+            <!-- Khu vực chat bên phải -->
+            <div class="col-md-8 chat-area">
+                @if(isset($group))
+                <h3 class="chat-title">Chat trong nhóm: {{ $group->name }}</h3>
+                <div class="chat-messages" id="group-chat-messages">
+                    @foreach ($group->chats as $chat)
+                    <div class="chat-message @if($chat->user_id === Auth::id()) sent @else received @endif">
+                        <strong>{{ $chat->user->username }}:</strong>
+                        <p>{{ $chat->message }}</p>
+                        <span class="timestamp">{{ $chat->created_at->diffForHumans() }}</span>
+                    </div>
+                    @endforeach
                 </div>
-                @endforeach
+                <!-- Form chat nhóm -->
+                <form id="group-chat-form" class="chat-input" onsubmit="event.preventDefault(); sendMessage('{{ $group->id }}', true);">
+                    @csrf
+                    <div class="input-group">
+                        <input type="text" name="message" class="form-control" placeholder="Nhập tin nhắn..." required>
+                        <button type="button" class="btn btn-primary" onclick="sendMessage('{{ $group->id }}', true);">Gửi</button>
+                    </div>
+                </form>
+
+                @elseif(isset($receiver))
+                <h3 class="chat-title">Chat với: {{ $receiver->username }}</h3>
+                <div class="chat-messages" id="private-chat-messages">
+                    @foreach ($messages as $message)
+                    <div class="chat-message @if($message->sender_id === Auth::id()) sent @else received @endif">
+                        <strong>{{ $message->sender->username }}:</strong>
+                        <p>{{ $message->content }}</p>
+                        <span class="timestamp">{{ $message->created_at->diffForHumans() }}</span>
+                    </div>
+                    @endforeach
+                </div>
+                <!-- Form chat cá nhân -->
+                <form id="private-chat-form" class="chat-input" onsubmit="event.preventDefault(); sendMessage('{{ $receiver->id }}');">
+                    @csrf
+                    <div class="input-group">
+                        <input type="text" name="message" class="form-control" placeholder="Nhập tin nhắn..." required>
+                        <button type="button" class="btn btn-primary" onclick="sendMessage('{{ $receiver->id }}');">Gửi</button>
+                    </div>
+                </form>
+                @else
+                <p>Chọn một nhóm hoặc một người bạn để bắt đầu nhắn tin.</p>
+                @endif
             </div>
-            <!-- Form chat cá nhân -->
-            <form id="private-chat-form" class="chat-input" onsubmit="event.preventDefault(); sendMessage('{{ $receiver->id }}');">
-                @csrf
-                <div class="input-group">
-                    <input type="text" name="message" class="form-control" placeholder="Nhập tin nhắn..." required>
-                    <button type="button" class="btn btn-primary" onclick="sendMessage('{{ $receiver->id }}');">Gửi</button>
-                </div>
-            </form>
-            @else
-            <p>Chọn một nhóm hoặc một người bạn để bắt đầu nhắn tin.</p>
-            @endif
         </div>
     </div>
-</div>
 
+    <!-- JavaScript -->
+    <script>
+        // Tự động cuộn xuống cuối khi có tin nhắn mới
+        document.addEventListener("DOMContentLoaded", function() {
+            const groupChatMessages = document.getElementById('group-chat-messages');
+            const privateChatMessages = document.getElementById('private-chat-messages');
 
-<!-- CSS -->
-<style>
-    .chat-container {
-        margin-top: 20px;
-    }
+            if (groupChatMessages) {
+                groupChatMessages.scrollTop = groupChatMessages.scrollHeight;
+            }
+            if (privateChatMessages) {
+                privateChatMessages.scrollTop = privateChatMessages.scrollHeight;
+            }
+        });
+    </script>
 
-    .group-list {
-        background-color: #f8f9fa;
-        padding: 15px;
-        border-radius: 5px;
-    }
-
-    .chat-area {
-        background-color: #ffffff;
-        padding: 15px;
-        border-radius: 5px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .chat-messages {
-        max-height: 400px;
-        overflow-y: auto;
-        border: 1px solid #ddd;
-        padding: 10px;
-        margin-bottom: 10px;
-    }
-
-    .chat-message.sent {
-        text-align: right;
-    }
-
-    .chat-message.received {
-        text-align: left;
-    }
-
-    .timestamp {
-        font-size: 0.8em;
-        color: #999;
-    }
-</style>
-
-<!-- JavaScript -->
-<script>
-    // Tự động cuộn xuống cuối khi có tin nhắn mới
-    document.addEventListener("DOMContentLoaded", function() {
-        const groupChatMessages = document.getElementById('group-chat-messages');
-        const privateChatMessages = document.getElementById('private-chat-messages');
-
-        if (groupChatMessages) {
-            groupChatMessages.scrollTop = groupChatMessages.scrollHeight;
-        }
-        if (privateChatMessages) {
-            privateChatMessages.scrollTop = privateChatMessages.scrollHeight;
-        }
-    });
-</script>
-
-@endsection
+    @endsection

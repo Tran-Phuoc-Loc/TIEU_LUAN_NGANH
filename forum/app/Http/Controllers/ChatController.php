@@ -35,6 +35,8 @@ class ChatController extends Controller
         $user = Auth::user();
         // Lấy danh sách bạn bè đã kết bạn
         $friends = Auth::user()->friends;
+        // Lấy tất cả nhóm 
+        $groups = Group::all();
 
         $receiver = $receiverId ? User::findOrFail($receiverId) : null; // Kiểm tra nếu có receiverId
         $messages = []; // Khởi tạo mảng tin nhắn
@@ -55,6 +57,7 @@ class ChatController extends Controller
             'receiver' => $receiver,
             'messages' => $messages,
             'group' => $group,
+            'groups' => $groups,
         ]);
     }
 

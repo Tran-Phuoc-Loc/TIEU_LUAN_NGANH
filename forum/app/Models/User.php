@@ -117,12 +117,14 @@ class User extends Authenticatable
     }
 
     // Lấy tất cả yêu cầu kết bạn đã gửi
-    public function sentFriendRequests() {
+    public function sentFriendRequests()
+    {
         return $this->hasMany(Friendship::class, 'sender_id');
     }
 
     // Lấy tất cả yêu cầu kết bạn đã nhận
-    public function receivedFriendRequests() {
+    public function receivedFriendRequests()
+    {
         return $this->hasMany(Friendship::class, 'receiver_id');
     }
 
@@ -130,36 +132,48 @@ class User extends Authenticatable
     public function friends()
     {
         return $this->belongsToMany(User::class, 'friendships', 'sender_id', 'receiver_id')
+            ->wherePivot('status', 'accepted')
+            ->withPivot('status')
+            ->withTimestamps()
+            ->union(
+                $this->belongsToMany(User::class, 'friendships', 'receiver_id', 'sender_id')
                     ->wherePivot('status', 'accepted')
                     ->withPivot('status')
                     ->withTimestamps()
-                    ->union(
-                        $this->belongsToMany(User::class, 'friendships', 'receiver_id', 'sender_id')
-                             ->wherePivot('status', 'accepted')
-                             ->withPivot('status')
-                             ->withTimestamps()
-                    );
+            );
     }
 
     // Quan hệ khi người dùng là người gửi yêu cầu
-    public function friendsOfMine() {
+    public function friendsOfMine()
+    {
         return $this->belongsToMany(User::class, 'friendships', 'sender_id', 'receiver_id')
-                    ->wherePivot('status', 'accepted')
-                    ->withPivot('status')
-                    ->withTimestamps();
+            ->wherePivot('status', 'accepted')
+            ->withPivot('status')
+            ->withTimestamps();
     }
 
     // Quan hệ khi người dùng là người nhận yêu cầu
-    public function friendOf() {
+    public function friendOf()
+    {
         return $this->belongsToMany(User::class, 'friendships', 'receiver_id', 'sender_id')
-                    ->wherePivot('status', 'accepted')
-                    ->withPivot('status')
-                    ->withTimestamps();
+            ->wherePivot('status', 'accepted')
+            ->withPivot('status')
+            ->withTimestamps();
     }
 
     // Accessor để kết hợp cả hai quan hệ
-    public function getFriendsAttribute() {
+    public function getFriendsAttribute()
+    {
         return $this->friendsOfMine->merge($this->friendOf);
     }
 
+    public function productMessages()
+    {
+        return $this->hasMany(ProductMessage::class, 'sender_id');
+    }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
 }

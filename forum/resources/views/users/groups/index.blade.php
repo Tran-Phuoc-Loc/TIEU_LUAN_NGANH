@@ -48,57 +48,59 @@
     }
 </style>
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="group-container">
-            <h1 class="text-center">Các Nhóm Tôi Tham Gia</h1>
+@include('layouts.partials.sidebar')
+<div class="col-lg-10 col-md-10 offset-lg-2 content-col" style="border: 2px solid #c8ccd0; background-color:#fff;">
+    <div class="post-container mb-4">
+        <div class="row">
+            <div class="group-container">
+                <h1 class="text-center">Các Nhóm Tôi Tham Gia</h1>
 
-            @if($groups->isNotEmpty())
+                @if($groups->isNotEmpty())
                 <ul class="list-group">
                     @foreach ($groups as $group)
-                        <li class="group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <a href="{{ route('users.groups.show', $group->id) }}" class="group-link">
-                                    <strong>{{ $group->name }}</strong>
-                                </a>
-                                <br>
-                                <small class="text-muted">Tạo bởi: {{ $group->creator->username }}</small>
-                            </div>
-                            
-                            <div>
-                                <!-- Nếu là người tạo nhóm, hiển thị nút Xóa -->
-                                @if(Auth::id() === $group->creator_id)
-                                    <form action="{{ route('groups.destroy', $group->id) }}" method="POST" style="display:inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="delete-button" onclick="return confirm('Bạn có chắc chắn muốn xóa nhóm này?')">Xóa</button>
-                                    </form>
-                                
-                                <!-- Nếu người dùng là thành viên, hiển thị thông báo -->
-                                @elseif($group->isMember(Auth::user()))
-                                    <a href="{{ route('groups.chat', $group->id) }}" class="btn btn-primary btn-sm">Vào nhóm</a>
-                                
-                                <!-- Nếu người dùng đã gửi yêu cầu tham gia, hiển thị thông báo -->
-                                @elseif($group->hasJoinRequest(Auth::user()))
-                                    <span class="text-warning">Bạn đã yêu cầu tham gia</span>
-                                
-                                <!-- Nếu người dùng không phải thành viên và chưa yêu cầu tham gia, hiển thị nút Tham Gia -->
-                                @else
-                                    <form action="{{ route('groups.join', $group->id) }}" method="POST" style="display:inline;">
-                                        @csrf
-                                        <button type="submit" class="btn btn-primary btn-sm">Tham Gia</button>
-                                    </form>
-                                @endif
-                            </div>
-                        </li>
+                    <li class="group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <a href="{{ route('users.groups.show', $group->id) }}" class="group-link">
+                                <strong>{{ $group->name }}</strong>
+                            </a>
+                            <br>
+                            <small class="text-muted">Tạo bởi: {{ $group->creator->username }}</small>
+                        </div>
+
+                        <div>
+                            <!-- Nếu là người tạo nhóm, hiển thị nút Xóa -->
+                            @if(Auth::id() === $group->creator_id)
+                            <form action="{{ route('groups.destroy', $group->id) }}" method="POST" style="display:inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="delete-button" onclick="return confirm('Bạn có chắc chắn muốn xóa nhóm này?')">Xóa</button>
+                            </form>
+
+                            <!-- Nếu người dùng là thành viên, hiển thị thông báo -->
+                            @elseif($group->isMember(Auth::user()))
+                            <a href="{{ route('groups.chat', $group->id) }}" class="btn btn-primary btn-sm">Vào nhóm</a>
+
+                            <!-- Nếu người dùng đã gửi yêu cầu tham gia, hiển thị thông báo -->
+                            @elseif($group->hasJoinRequest(Auth::user()))
+                            <span class="text-warning">Bạn đã yêu cầu tham gia</span>
+
+                            <!-- Nếu người dùng không phải thành viên và chưa yêu cầu tham gia, hiển thị nút Tham Gia -->
+                            @else
+                            <form action="{{ route('groups.join', $group->id) }}" method="POST" style="display:inline;">
+                                @csrf
+                                <button type="submit" class="btn btn-primary btn-sm">Tham Gia</button>
+                            </form>
+                            @endif
+                        </div>
+                    </li>
                     @endforeach
                 </ul>
-            @else
+                @else
                 <div class="empty-group-message">
                     Bạn chưa tham gia nhóm nào.
                 </div>
-            @endif
+                @endif
+            </div>
         </div>
     </div>
-</div>
-@endsection
+    @endsection

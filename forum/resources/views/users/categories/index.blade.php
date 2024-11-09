@@ -1,9 +1,12 @@
 @extends('layouts.users')
 
+@section('title', 'Danh Sách Danh Mục')
+
 @section('content')
-<div class="row">
-    <div class="col-md-12">
-        <div class="category-container">
+@include('layouts.partials.sidebar')
+<div class="col-lg-10 col-md-10 offset-lg-2 content-col" style="border: 2px solid #c8ccd0; background-color:#fff;">
+    <div class="post-container mb-4">
+        <div class="row">
             <h1 class="text-center">Danh Sách Danh Mục</h1>
 
             @if ($categories->isEmpty())

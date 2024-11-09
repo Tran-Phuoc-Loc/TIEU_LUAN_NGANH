@@ -69,7 +69,6 @@
                             @php $firstGroup = $groups->first(); @endphp
                             <a href="{{ route('groups.chat', $firstGroup->id) }}">
                                 <i class="fas fa-comment-sms" style="font-size: 40px"></i>
-                                <span class="d-none d-lg-inline">Tin nhắn</span>
                             </a>
                             @endif
                         </li>
@@ -191,12 +190,12 @@
         </div>
 
         <!-- Sidebar phải: Gợi ý người theo dõi -->
-        <div class="col-lg-3 col-md-3 mt-lg-0 right-sidebar" style="background-color: #fff; position: fixed; right: 0; height: 100vh; overflow-y: auto; margin-left: auto;">
+        <div class="col-lg-3 col-md-3 mt-lg-0 right-sidebar" style="background-color: #fff; position: fixed; right: 0; height: 100vh; overflow-y: auto;">
             <div class="right-sidebars p-3">
                 <h3 class="sidebar-title">Gợi ý theo dõi</h3>
                 <ul class="suggested-users-list list-unstyled">
                     @forelse ($usersToFollow as $user)
-                    <li class="d-flex align-items-center mb-2 follow-item">
+                    <li class="d-flex align-items-center mb-3 follow-item">
                         <img
                             src="{{ $user->profile_picture ? asset('storage/' . $user->profile_picture) : asset('storage/images/avataricon.png') }}"
                             alt="Profile picture of {{ $user->username }}"
@@ -208,8 +207,58 @@
                             <p class="mb-0 text-muted">{{ $user->role }}</p>
                         </div>
                         <div class="ms-auto">
-                            <button class="btn btn-primary btn-sm follow-btn" data-user-id="{{ $user->id }}">Theo dõi</button>
-                            <button class="btn btn-success btn-sm ms-1 friend-btn" data-user-id="{{ $user->id }}">Thêm bạn</button>
+                            @php
+                            $currentUserId = Auth::id();
+                            $friendship = \App\Models\Friendship::where(function ($query) use ($currentUserId, $user) {
+                            $query->where('sender_id', $currentUserId)
+                            ->where('receiver_id', $user->id);
+                            })
+                            ->orWhere(function ($query) use ($currentUserId, $user) {
+                            $query->where('sender_id', $user->id)
+                            ->where('receiver_id', $currentUserId);
+                            })
+                            ->first();
+                            @endphp
+                            
+                            @if (!$friendship)
+                            <!-- Nút gửi yêu cầu kết bạn -->
+                            <form action="{{ route('friend.sendRequest', $user->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-success btn-sm">Thêm bạn</button>
+                            </form>
+                            @elseif ($friendship->status === 'pending' && $friendship->sender_id === Auth::id())
+                            <!-- Đã gửi yêu cầu kết bạn -->
+                            <p class="text-muted">Đã gửi yêu cầu</p>
+                            <form action="{{ route('friend.cancelRequest', $user->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-danger btn-sm">Hủy yêu cầu</button>
+                            </form>
+
+                            @elseif ($friendship->status === 'pending' && $friendship->receiver_id === $currentUserId)
+                            <!-- Nút chấp nhận yêu cầu kết bạn -->
+                            <form action="{{ route('friend.acceptRequest', $user->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-warning btn-sm">Chấp nhận</button>
+                            </form>
+                            <form action="{{ route('friend.declineRequest', $user->id) }}" method="POST" style="display:inline;">
+                                @csrf
+                                <button type="submit" class="btn btn-secondary btn-sm">Từ chối</button>
+                            </form>
+                            @elseif ($friendship->status === 'accepted')
+                            <!-- Đã là bạn bè -->
+                            <p class="text-muted">Bạn bè</p>
+                            @elseif ($friendship->status === 'declined')
+                            <!-- Đã từ chối yêu cầu -->
+                            <p class="text-muted">Yêu cầu đã bị từ chối</p>
+                            <form action="{{ route('friend.sendRequest', $user->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-success btn-sm">Gửi lại yêu cầu</button>
+                            </form>
+                            @elseif ($friendship->status === 'blocked')
+                            <!-- Đã bị chặn -->
+                            <p class="text-muted">Bạn đã bị chặn</p>
+                            @endif
+
                         </div>
                     </li>
                     @empty
@@ -218,7 +267,6 @@
                 </ul>
             </div>
         </div>
-
     </div>
 </div>
 

@@ -166,7 +166,6 @@
 
         /* Thanh điều hướng dọc */
         .vertical-navbar {
-            position: fixed;
             height: calc(100vh - 56px);
             /* Điều chỉnh để chiều cao của thanh điều hướng không vượt quá chiều cao của viewport */
             z-index: 1000;
@@ -385,19 +384,19 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav" style="margin-top:20px; margin-left:auto">
 
-                    <li class="nav-item dropdown" style="padding-top:7px; margin-right: -15px;">
-                        <a href="#" class="dropdown-item">
-                            <i class="fas fa-cart-shopping"></i>
-
+                    <li class="nav-item dropdown" style="padding-top:7px;">
+                        <a href="{{ route('products.index') }}" class="dropdown-item">
+                            <i class="bi bi-bag"></i>
                         </a>
                     </li>
+
                     @auth
                     <li class="nav-item dropdown" style="padding-top:7px; margin-right: -30px;">
                         <a href="{{ route('notifications.index') }}"
                             class="dropdown-item {{ auth()->check() && auth()->user()->unreadNotifications->count() > 0 ? 'new-notification' : '' }}">
                             <i class="fas fa-bell"></i>
                             @if(auth()->check() && auth()->user()->unreadNotifications->count() > 0)
-                            <span class="badge">{{ auth()->user()->unreadNotifications->count() }}</span>
+                            <span class="badge" style="color: #d9534f;">{{ auth()->user()->unreadNotifications->count() }}</span>
                             @endif
                         </a>
                     </li>

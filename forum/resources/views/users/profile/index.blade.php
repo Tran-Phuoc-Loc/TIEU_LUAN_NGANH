@@ -110,7 +110,7 @@
     <!-- Profile Main Section -->
     <div class="col-lg-12" style=" background-color: #fff">
         <div class="cover-image">
-            <img src="{{ $user->cover_image ? asset('storage/' . $user->cover_image) : asset('storage/images/1200x300.png') }}" alt="Avatar" style="max-width:100%">
+            <img src="{{ $user->cover_image ? asset('storage/' . $user->cover_image) : asset('storage/images/covers/1200x300.png') }}" alt="Avatar" style="max-width:100%">
         </div>
 
         <!-- Ảnh đại diện -->

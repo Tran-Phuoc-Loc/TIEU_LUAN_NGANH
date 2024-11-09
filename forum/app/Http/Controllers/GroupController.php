@@ -31,7 +31,8 @@ class GroupController extends Controller
 
     public function create()
     {
-        return view('users.groups.create');
+        $groups = Group::all();
+        return view('users.groups.create', compact('groups'));
     }
 
     public function store(Request $request)
@@ -48,15 +49,6 @@ class GroupController extends Controller
         // Nếu checkbox không được chọn, giá trị sẽ là null
         $requiresApproval = $request->has('requires_approval');
 
-        // dd($requiresApproval); // Kiểm tra giá trị của requiresApproval
-
-        // Kiểm tra giá trị trước khi lưu
-        // dd([
-        //     'name' => $request->input('name'),
-        //     'description' => $request->input('description'),
-        //     'creator_id' => Auth::id(),
-        //     'requires_approval' => $requiresApproval,
-        // ]);
         // Tạo nhóm mới
         $group = Group::create([
             'name' => $request->input('name'),

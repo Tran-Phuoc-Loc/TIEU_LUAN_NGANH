@@ -6,7 +6,7 @@
 
     <!-- Form tìm kiếm -->
     <form action="{{ route('admin.groups.index') }}" method="GET" class="mb-4">
-        <div class="input-group" >
+        <div class="input-group">
             <input type="text" name="search" class="form-control" placeholder="Tìm kiếm nhóm..." value="{{ request()->query('search') }}" aria-label="Tìm kiếm nhóm" aria-describedby="search-button">
             <button class="btn btn-primary" type="submit" id="search-button">
                 <i class="fas fa-search"></i>
@@ -15,9 +15,12 @@
     </form>
 
     @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
+    <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
+    @if($groups->isEmpty())
+    <p>Không có nhóm nào.</p>
+    @else
     <table class="table">
         <thead>
             <tr>
@@ -29,33 +32,33 @@
             </tr>
         </thead>
         <tbody>
-            @if($groups->isEmpty())
-                <tr>
-                    <td colspan="5" class="text-center">Không tìm thấy kết quả nào.</td>
-                </tr>
-            @else
-                @foreach($groups as $group)
-                    <tr>
-                        <td>{{ $group->id }}</td>
-                        <td>{{ $group->name }}</td>
-                        <td>{{ Str::limit($group->description, 50) }}</td>
-                        <td>{{ $group->creator->username ?? 'Không rõ' }}</td>
-                        <td>
-                            <a href="{{ route('admin.groups.show', $group->id) }}" class="btn btn-info">Chi tiết</a>
-                            <form action="{{ route('admin.groups.destroy', $group->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Bạn có chắc chắn muốn xóa nhóm này? Hành động này không thể hoàn tác.');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger">Xóa</button>
-                            </form>
-                        </td>
-                    </tr>
-                @endforeach
-            @endif
+            @foreach($groups as $group)
+            <tr>
+                <td>{{ $group->id }}</td>
+                <td>{{ $group->name }}</td>
+                <td>{{ Str::limit($group->description, 50) }}</td>
+                <td>{{ $group->creator->username ?? 'Không rõ' }}</td>
+                <td>
+                    <a href="{{ route('admin.groups.show', $group->id) }}" class="btn btn-info">Chi tiết</a>
+                    <form action="{{ route('admin.groups.destroy', $group->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Bạn có chắc chắn muốn xóa nhóm này? Hành động này không thể hoàn tác.');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+            @endforeach
         </tbody>
     </table>
 
-    <!-- Phân trang nếu có -->
-    {{ $groups->links() }}
+    <div class="d-flex justify-content-between">
+        <!-- Hiển thị phân trang -->
+        <div>{{ $groups->appends(['search' => request()->query('search')])->links() }}</div>
 
+        <!-- Hiển thị thông tin số nhóm trên tổng số nhóm -->
+        <div>Hiển thị {{ $groups->count() }} nhóm trên tổng {{ $groups->total() }}</div>
+    </div>
+
+    @endif
 </div>
 @endsection

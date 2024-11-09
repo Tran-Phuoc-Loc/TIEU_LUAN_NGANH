@@ -3,9 +3,10 @@
 @section('title', 'Danh sách tìm kiếm')
 
 @section('content')
-<div class="row">
-    <div class="post-container">
-        <div class="container">
+@include('layouts.partials.sidebar')
+<div class="col-lg-10 col-md-10 offset-lg-2 content-col" style="border: 2px solid #c8ccd0; background-color:#fff;">
+    <div class="post-container mb-4">
+        <div class="row">
             <h2>Tìm kiếm bài viết</h2>
 
             <h2>Kết quả tìm kiếm cho: "{{ request('query') }}"</h2>

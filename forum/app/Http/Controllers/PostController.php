@@ -24,13 +24,22 @@ class PostController extends Controller
 {
     use AuthorizesRequests;
 
+    protected $groups;
+
+    public function __construct()
+    {
+        // Lấy tất cả nhóm từ database và gán vào biến groups
+        $this->groups = Group::all();
+    }
+
     public function create()
     {
         if (!Auth::check()) {
             return redirect()->route('login')->with('error', 'Bạn phải đăng nhập để tạo bài viết.');
         }
+        $groups = Group::all();
         $categories = Category::all(); // Lấy tất cả danh mục
-        return view('users.posts.create', compact('categories')); // Hiển thị trang tạo bài viết
+        return view('users.posts.create', compact('categories', 'groups')); // Hiển thị trang tạo bài viết
     }
 
     public function store(StorePostRequest $request)
@@ -80,8 +89,11 @@ class PostController extends Controller
 
         $categories = Category::all(); // Lấy tất cả danh mục
 
+        // Lấy tất cả nhóm 
+        $groups = Group::all();
+
         // Nếu người dùng có quyền, hiển thị trang chỉnh sửa bài viết
-        return view('users.posts.edit', compact('post', 'categories'));
+        return view('users.posts.edit', compact('post', 'categories', 'groups'));
     }
 
 
@@ -137,6 +149,8 @@ class PostController extends Controller
         // Lấy ID của người dùng đã đăng nhập bằng Auth facade
         $userId = Auth::id();
 
+        $groups = Group::all();
+
         // Tìm bản nháp cho người dùng hiện tại và lấy dữ liệu
         $drafts = Post::with('user')
             ->where('status', 'draft')
@@ -144,7 +158,7 @@ class PostController extends Controller
             ->get(); // Lấy dữ liệu từ cơ sở dữ liệu
 
         // Hiển thị drafts
-        return view('users.posts.drafts', compact('drafts'));
+        return view('users.posts.drafts', compact('drafts', 'groups'));
     }
 
     public function published($userId = null)
@@ -170,7 +184,12 @@ class PostController extends Controller
         // Xác định xem người dùng đang xem bài viết của mình hay của người khác
         $isCurrentUser = $currentUserId === (int) $userId;
 
-        return view('users.posts.published', compact('published', 'isCurrentUser'));
+        // Truyền vào view dưới dạng mảng
+        return view('users.posts.published', [
+            'published' => $published,
+            'isCurrentUser' => $isCurrentUser,
+            'groups' => $this->groups
+        ]);
     }
 
     public function publish(Request $request, $id)
@@ -340,13 +359,13 @@ class PostController extends Controller
     public function show($id)
     {
         $post = Post::with(['user', 'category'])->findOrFail($id);
-
+        $groups = Group::all();
         // Kiểm tra xem người dùng có quyền truy cập bài viết
         if (Auth::id() !== $post->user_id) {
             return redirect()->route('users.index')->with('error', 'Bạn không có quyền truy cập hoặc chủ bài viết này đã xóa.');
         }
 
-        return view('users.posts.show', compact('post')); // Trả về view để hiển thị bài viết
+        return view('users.posts.show', compact('post', 'groups')); // Trả về view để hiển thị bài viết
     }
 
     public function savePost(Request $request)
@@ -379,6 +398,7 @@ class PostController extends Controller
             ->where('user_id', Auth::id())
             ->get();
 
-        return view('users.posts.savePost', compact('folders'));
+        $groups = Group::all();
+        return view('users.posts.savePost', compact('folders', 'groups'));
     }
 }

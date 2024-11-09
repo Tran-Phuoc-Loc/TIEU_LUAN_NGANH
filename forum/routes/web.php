@@ -25,6 +25,11 @@ use App\Models\SavedPost;
 use App\Models\Post;
 use App\Models\Folder;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Shop\ProductController;
+use App\Http\Controllers\Admin\ProductCategoryController;
+use App\Http\Controllers\Admin\AdminProductController;
+use App\Http\Controllers\Admin\AdminMessageController;
+use App\Http\Controllers\Shop\ProductChatController;
 
 // Route cho đăng nhập
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -44,6 +49,8 @@ Route::get('/', [UserController::class, 'index'])->name('users.index');
 Route::get('/users/posts', [PostController::class, 'index'])->name('users.posts.index');
 Route::post('/admin/reports/store', [ReportController::class, 'store'])->name('admin.reports.store');
 
+
+Route::resource('products', ProductController::class);
 // Route cho admin
 Route::middleware(['auth', RoleMiddleware::class . ':admin'])->group(function () {
     // Dashboard của admin
@@ -52,6 +59,8 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin'])->group(function ()
 
     // Quản lý groups
     Route::prefix('admin')->name('admin.')->group(function () {
+        Route::resource('product_categories', ProductCategoryController::class);
+        Route::resource('products', AdminProductController::class);
         Route::resource('groups', AdminGroupController::class);
         Route::get('admin/groups/{group}', [AdminGroupController::class, 'show'])->name('admin.groups.show');
     });
@@ -91,6 +100,17 @@ Route::middleware(['auth'])->group(function () {
         $posts = Post::all(); // Lấy tất cả bài viết
         return view('users.index', compact('posts')); // Hiển thị trang người dùng với danh sách bài viết
     })->name('dashboard');
+
+    // Trang quản lý danh sách tin nhắn
+    Route::get('messages', [AdminMessageController::class, 'index'])->name('admin.messages.index');
+
+    // Trang xem chi tiết tin nhắn
+    Route::get('messages/{productMessage}', [AdminMessageController::class, 'show'])->name('admin.messages.show');
+
+    // Route cho người bán xem danh sách người mua đã nhắn tin
+    Route::get('/chat/seller', [ProductChatController::class, 'sellerChatList'])->name('chat.seller');
+    Route::get('/chat/product/{productId}/{receiverId}', [ProductChatController::class, 'show'])->name('chat.product'); // Route hiển thị tin nhắn
+    Route::post('/chat/product/send/{productId}/{receiverId}', [ProductChatController::class, 'send'])->name('chat.product.send');  // Route gửi tin nhắn
 
     Route::get('forums', [ForumController::class, 'index'])->name('forums.index');
     Route::get('forums/category/{id}', [ForumController::class, 'showCategory'])->name('forums.category');
@@ -207,6 +227,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+    Route::PATCH('/notifications/{id}/mark-read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
 });
 
 Route::get('/check-login', function () {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ForumCategory;
 use App\Models\ForumPost;
+use App\Models\Group;
 use Illuminate\Http\Request;
 
 class ForumController extends Controller
@@ -13,8 +14,10 @@ class ForumController extends Controller
         // Lấy tất cả danh mục và bài viết
         $categories = ForumCategory::with('posts')->get();
         $posts = ForumPost::with('category', 'user')->get();
+        // Lấy tất cả nhóm 
+        $groups = Group::all();
 
-        return view('users.forums.index', compact('categories', 'posts'));
+        return view('users.forums.index', compact('categories', 'posts', 'groups'));
     }
 
     public function show($id)
@@ -22,7 +25,7 @@ class ForumController extends Controller
         $categories = ForumCategory::with('posts')->get();
         $forumPost = ForumPost::with('user', 'comments.user')->findOrFail($id); // Tải bài viết cùng với thông tin người dùng và các bình luận
         return view('users.forums.show', compact('categories', 'forumPost')); // Trả về view bài viết chi tiết
-    }    
+    }
 
     public function create()
     {
@@ -36,5 +39,4 @@ class ForumController extends Controller
         $category = ForumCategory::with('posts')->findOrFail($id);
         return view('users.forums.category', compact('category'));
     }
-
 }

@@ -7,20 +7,42 @@
     <title>@yield('title') Admin Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@latest"></script>
     @vite('resources/js/app.js')
     @vite('resources/css/app.css')
     @yield('styles')
 </head>
+<style>
+    /* Khi sidebar mở */
+    .sidebar-open {
+        left: 0;
+    }
+</style>
 
-<body style="background-color:rgb(228 230 235);">
+<body style="background-color:#f1f5f9;">
     <div class="container-fluid">
         <div class="row">
+            <!-- Nút để mở/đóng Sidebar -->
+            <button id="toggleSidebar" class="btn btn-dark d-md-none" style="position: fixed; top: 10px; left: 10px; z-index: 1100;">
+                ☰
+            </button>
             <!-- Sidebar -->
-            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar">
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar" style="position: fixed; height:100%; overflow-y: auto; background-color:#0f172a;">
                 <div class="position-sticky">
-                    <h4 class="text-center text-light py-3">Admin Dashboard</h4>
+                    <h4 class="text-center mt-2 text-light py-3">Admin Dashboard</h4>
+                    <!-- Thông tin người dùng -->
+                    <div class="user-info text-center mb-4">
+                        @if(auth()->check())
+                        <img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : asset('storage/images/avataricon.png') }}"
+                            alt="Profile picture of {{ auth()->user()->username }}"
+                            class="rounded-circle" style="width: 70px; height: 75px;">
+                        <h5 class="d-none d-md-block" style="color: #fff;">{{ auth()->user()->username }}</h5>
+                        <h6 style="color:#fff;">{{ auth()->user()->email}}</h6>
+                        <hr style="border-top: 1px solid black; margin: 10px 0;">
+                        @endif
+                    </div>
                     <ul class="nav flex-column">
                         <li class="nav-item">
                             <a class="nav-link active text-light" href="{{ route('admin.dashboard') }}">
@@ -41,6 +63,16 @@
                         <li class="nav-item">
                             <a class="nav-link text-light" href="{{ route('admin.groups.index') }}">
                                 <i class="fas fa-user-group"></i> Group
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" href="{{ route('admin.product_categories.index') }}">
+                                <i class="bi bi-box-seam"></i> Products
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" href="{{ route('admin.messages.index') }}">
+                                <i class="bi bi-chat-left-text"></i> Message
                             </a>
                         </li>
                         <hr class="bg-secondary">
@@ -71,6 +103,9 @@
                             </a>
                         </li>
                     </ul>
+                    <div class="mb-3" style="color:#8192ba; filter: invert(36%) sepia(100%) saturate(500%) hue-rotate(200deg) brightness(90%) contrast(90%); text-align:center;">
+                        <img src="{{ asset('storage/images/bookicon.png') }}" alt="Description" loading="lazy"> TechTalks
+                    </div>
                     <!-- Form đăng xuất -->
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                         @csrf
@@ -79,7 +114,7 @@
             </nav>
 
             <!-- Main Content -->
-            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4" style="margin-left: auto;">
                 @yield('content')
             </main>
         </div>
@@ -90,15 +125,15 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 
     @if(isset($statusLabels) && isset($statusCounts))
-        @php
-            $statusLabelsJson = json_encode($statusLabels);
-            $statusCountsJson = json_encode($statusCounts);
-        @endphp
+    @php
+    $statusLabelsJson = json_encode($statusLabels);
+    $statusCountsJson = json_encode($statusCounts);
+    @endphp
     @else
-        @php
-            $statusLabelsJson = json_encode([]); // Mảng rỗng
-            $statusCountsJson = json_encode([]); // Mảng rỗng
-        @endphp
+    @php
+    $statusLabelsJson = json_encode([]); // Mảng rỗng
+    $statusCountsJson = json_encode([]); // Mảng rỗng
+    @endphp
     @endif
 
     <script>
@@ -261,6 +296,14 @@
 
             // Cập nhật mỗi giây
             setInterval(updateDateTime, 1000);
+        });
+        // Lấy nút và sidebar
+        const toggleSidebar = document.getElementById('toggleSidebar');
+        const sidebar = document.getElementById('sidebar');
+
+        // Sự kiện khi nhấn nút
+        toggleSidebar.addEventListener('click', function() {
+            sidebar.classList.toggle('sidebar-open'); // Thêm hoặc bỏ class 'sidebar-open'
         });
     </script>
 

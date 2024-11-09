@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use App\Notifications\FriendshipRequestNotification;
 
 class FriendshipController extends Controller
 {
@@ -15,8 +16,8 @@ class FriendshipController extends Controller
     {
         $currentUserId = Auth::id();
 
-        // Kiểm tra yêu cầu tồn tại bằng cách sử dụng rõ ràng các cột `sender_id` và `receiver_id`
-        $exists = Friendship::where(function ($query) use ($currentUserId, $receiverId) {
+        // Kiểm tra yêu cầu kết bạn có tồn tại và trạng thái của nó
+        $friendship = Friendship::where(function ($query) use ($currentUserId, $receiverId) {
             $query->where('sender_id', $currentUserId)
                 ->where('receiver_id', $receiverId);
         })
@@ -29,19 +30,35 @@ class FriendshipController extends Controller
         Log::info('Kiểm tra tồn tại yêu cầu kết bạn:', [
             'current_user_id' => $currentUserId,
             'receiver_id' => $receiverId,
-            'exists' => $exists,
+            'friendship' => $friendship,
         ]);
 
-        if (!$exists) {
+        // Nếu yêu cầu không tồn tại, bị từ chối hoặc đã hủy, cho phép tạo mới
+        if (!$friendship || $friendship->status === 'declined') {
+            // Nếu yêu cầu đã bị từ chối, cho phép gửi lại yêu cầu mới
+            if ($friendship && $friendship->status === 'declined') {
+                // Xóa yêu cầu đã từ chối
+                $friendship->delete();
+            }
+
+            // Tạo yêu cầu kết bạn mới
             Friendship::create([
                 'sender_id' => $currentUserId,
                 'receiver_id' => $receiverId,
-                'status' => 'pending'
+                'status' => 'pending', // Đánh dấu yêu cầu đang chờ xử lý
             ]);
+
+            // Tìm người nhận và người gửi
+            $receiver = User::find($receiverId); // Tìm người nhận
+            $sender = User::find($currentUserId); // Tìm người gửi
+
+            // Gửi thông báo yêu cầu kết bạn
+            $receiver->notify(new FriendshipRequestNotification($sender));
 
             return back()->with('success', 'Yêu cầu kết bạn đã được gửi.');
         }
 
+        // Nếu đã có yêu cầu kết bạn trước đó, trả về lỗi
         return back()->with('error', 'Bạn đã gửi yêu cầu trước đó hoặc đã có yêu cầu từ người dùng này.');
     }
 
@@ -84,37 +101,41 @@ class FriendshipController extends Controller
         return back()->with('error', 'Yêu cầu kết bạn không tồn tại.');
     }
 
-    // Phương thức từ chối yêu cầu kết bạn
+    // Phương thức từ chối yêu cầu kết bạn (người nhận từ chối yêu cầu)
     public function declineRequest($senderId)
     {
+        $currentUserId = Auth::id();
+
+        // Tìm yêu cầu kết bạn mà bạn nhận được
         $friendship = Friendship::where('sender_id', $senderId)
-            ->where('receiver_id', Auth::id())
+            ->where('receiver_id', $currentUserId)
             ->where('status', 'pending')
             ->first();
 
         if ($friendship) {
-            $friendship->delete();
-
+            // Cập nhật trạng thái thành "declined" thay vì xóa
+            $friendship->update(['status' => 'declined']);
             return back()->with('success', 'Yêu cầu kết bạn đã bị từ chối.');
         }
 
         return back()->with('error', 'Yêu cầu kết bạn không tồn tại.');
     }
 
-    // Phương thức hủy yêu cầu kết bạn
-    public function cancelRequest($receiverId)
+    // Phương thức hủy yêu cầu kết bạn (người gửi hủy yêu cầu)
+    public function cancelRequest($userId)
     {
-        $friendship = Friendship::where('sender_id', Auth::id())
-            ->where('receiver_id', $receiverId)
-            ->where('status', 'pending')
+        $friendship = Friendship::where(function ($query) use ($userId) {
+            $query->where('sender_id', Auth::id())->where('receiver_id', $userId);
+        })
+            ->orWhere(function ($query) use ($userId) {
+                $query->where('sender_id', $userId)->where('receiver_id', Auth::id());
+            })
             ->first();
 
         if ($friendship) {
-            $friendship->delete();
-
-            return back()->with('success', 'Yêu cầu kết bạn đã bị hủy.');
+            $friendship->delete(); // Xóa yêu cầu kết bạn
         }
 
-        return back()->with('error', 'Không thể hủy yêu cầu này.');
+        return back()->with('status', 'Yêu cầu kết bạn đã bị hủy.');
     }
 }

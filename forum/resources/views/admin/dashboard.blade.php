@@ -30,7 +30,7 @@
     }
 </style>
 <div class="container mt-4">
-    <h2 class="mb-4">Tổng quan Dashboard</h2>
+    <h1 class="mb-4">Welcome back, {{ Auth::user()->username }}!</h1>
     <p id="currentDateTime" style="color: blue;"></p> <!-- Phần này sẽ hiển thị ngày giờ -->
 
     <!-- Hàng cho số liệu thống kê tóm tắt -->

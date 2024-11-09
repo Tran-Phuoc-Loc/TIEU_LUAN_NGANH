@@ -32,7 +32,11 @@ class UserController extends Controller
         $group = Group::find($request->group_id);
 
         // Lấy danh sách người dùng gợi ý theo dõi, lấy 5 người ngẫu nhiên
-        $usersToFollow = User::where('role', 'user')->inRandomOrder()->take(5)->get();
+        $usersToFollow = User::where('role', 'user')
+            ->where('id', '!=', Auth::id()) // Loại bỏ người dùng hiện tại
+            ->inRandomOrder()
+            ->take(5)
+            ->get();
 
         // Khởi tạo các biến thông báo và bài viết
         $unreadNotifications = [];
@@ -87,6 +91,8 @@ class UserController extends Controller
         // Lấy ID từ đối tượng user đã được truyền vào
         $id = $user->id;
 
+        $groups = Group::all();
+
         // Đếm số lượng bài viết đã xuất bản
         $publishedCount = Post::where('user_id', $id)->where('status', 'published')->count();
 
@@ -117,11 +123,11 @@ class UserController extends Controller
 
         if ($section === 'friends') {
             // Truyền biến cần thiết
-            return view('users.profile.friends', compact('friends', 'user', 'isOwnProfile', 'receivedFriendRequests'));
+            return view('users.profile.friends', compact('friends', 'user', 'isOwnProfile', 'receivedFriendRequests', 'groups'));
         }
 
         // Trả về view và truyền dữ liệu người dùng cùng các bài viết của họ
-        return view('users.profile.index', compact('user', 'publishedCount', 'draftCount', 'favoritePosts', 'friendship', 'isOwnProfile', 'ownedGroups', 'receivedFriendRequests', 'friends'));
+        return view('users.profile.index', compact('user', 'publishedCount', 'draftCount', 'favoritePosts', 'friendship', 'isOwnProfile', 'ownedGroups', 'receivedFriendRequests', 'friends', 'groups'));
     }
 
     public function update(UserUpdateRequest $request, $id)
