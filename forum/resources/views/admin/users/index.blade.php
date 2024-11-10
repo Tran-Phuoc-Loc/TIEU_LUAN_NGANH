@@ -40,6 +40,7 @@
                 <td>{{ ucfirst($user->status) }}</td>
                 <td>{{ $user->created_at->format('d/m/Y') }}</td>
                 <td>
+                    <a href="{{ route('admin.users.show', $user->id) }}" class="btn btn-sm btn-info">Xem</a>
                     <a href="#" class="btn btn-sm btn-warning">Chỉnh sửa</a>
 
                     <!-- Ẩn nút xóa nếu là admin -->

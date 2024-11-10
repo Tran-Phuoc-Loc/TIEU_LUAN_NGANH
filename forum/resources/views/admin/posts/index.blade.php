@@ -88,7 +88,7 @@
     </form>
 
     <!-- Phân trang -->
-    <div class="mt-4">
+    <div class="d-flex justify-content-center mt-4">
         {{ $posts->links() }}
     </div>
 

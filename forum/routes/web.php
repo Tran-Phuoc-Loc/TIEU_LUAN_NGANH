@@ -67,6 +67,7 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin'])->group(function ()
 
     // Route cho quản lý User
     Route::get('/admin/users', [AdminUserController::class, 'index'])->name('admin.users.index');
+    Route::get('/admin/users/{id}', [AdminUserController::class, 'show'])->name('admin.users.show');
     Route::delete('admin/users/{id}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
 
     // Route cho quản lý danh mục

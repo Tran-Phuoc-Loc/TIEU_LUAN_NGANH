@@ -4,6 +4,8 @@
 <div class="container">
     <h1>Quản lý Tin nhắn</h1>
 
+    @include('layouts.partials.search', ['action' => route('admin.messages.index'), 'placeholder' => 'Tìm kiếm sản phẩm...'])
+
     <table class="table table-striped">
         <thead>
             <tr>

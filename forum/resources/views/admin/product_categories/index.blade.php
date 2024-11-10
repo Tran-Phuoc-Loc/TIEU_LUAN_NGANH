@@ -3,7 +3,7 @@
 @section('content')
     <h1 class="text-center">Quản Lý Danh Mục</h1>
     {{-- Bao gồm phần tìm kiếm --}}
-    @include('layouts.partials.search', ['action' => route('admin.products.index'), 'placeholder' => 'Tìm kiếm sản phẩm...'])
+    @include('layouts.partials.search', ['action' => route('admin.product_categories.index'), 'placeholder' => 'Tìm kiếm sản phẩm...'])
     <!-- Phần quản lý danh mục -->
     <div class="mb-5">
         <h2>Danh sách danh mục</h2>

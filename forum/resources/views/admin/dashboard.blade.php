@@ -116,7 +116,8 @@
     <h3 class="mt-5">Người dùng hoạt động nhiều nhất</h3>
     <div class="list-group mb-4 shadow-sm">
         @foreach ($mostActiveUsers as $user)
-        <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+        <a href="{{ route('admin.users.index', $user->id) }}"
+            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
             <span><strong>{{ $user->username }}</strong> - Bài viết: {{ $user->posts_count }} | Bình luận: {{ $user->comments_count }}</span>
             <span class="badge bg-primary rounded-pill">{{ $user->posts_count }}</span>
         </a>
@@ -125,14 +126,18 @@
 
     <!-- Phần dành cho nhóm -->
     <h3 class="mt-5">Tổng số nhóm</h3>
-    <p class="lead"><strong>{{ $totalGroups }}</strong> nhóm được tạo ra</p>
-
+    <p class="lead">
+        <a href="{{ route('admin.groups.index') }}" class="text-decoration-none text-primary">
+            <strong>{{ $totalGroups }}</strong> nhóm được tạo ra
+        </a>
+    </p>
 
     <!-- Phần dành cho các danh mục hàng đầu -->
     <h3 class="mt-5">Danh mục có nhiều bài viết nhất</h3>
     <div class="list-group mb-4 shadow-sm">
         @foreach ($topCategories as $category)
-        <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+        <a href="{{ route('admin.categories.index', $category->id) }}"
+            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
             <strong>{{ $category->name }}</strong>
             <span class="badge bg-info rounded-pill">{{ $category->posts_count }} bài viết</span>
         </a>

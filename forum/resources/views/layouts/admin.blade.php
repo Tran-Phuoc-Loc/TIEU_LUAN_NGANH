@@ -31,81 +31,111 @@
             <!-- Sidebar -->
             <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar" style="position: fixed; height:100%; overflow-y: auto; background-color:#0f172a;">
                 <div class="position-sticky">
-                    <h4 class="text-center mt-2 text-light py-3">Admin Dashboard</h4>
+                    <!-- Header -->
+                    <h4 class="text-center text-light py-3">Admin Dashboard</h4>
+
                     <!-- Thông tin người dùng -->
                     <div class="user-info text-center mb-4">
                         @if(auth()->check())
                         <img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : asset('storage/images/avataricon.png') }}"
                             alt="Profile picture of {{ auth()->user()->username }}"
                             class="rounded-circle" style="width: 70px; height: 75px;">
-                        <h5 class="d-none d-md-block" style="color: #fff;">{{ auth()->user()->username }}</h5>
-                        <h6 style="color:#fff;">{{ auth()->user()->email}}</h6>
+                        <h5 class="mt-2" style="color:#fff;">{{ auth()->user()->username }}</h5>
+                        <h6 style="color:#8192ba;">{{ auth()->user()->email }}</h6>
                         <hr style="border-top: 1px solid black; margin: 10px 0;">
                         @endif
                     </div>
-                    <ul class="nav flex-column">
+
+                    <!-- Nhóm: Tổng quan -->
+                    <h6 class="text-light px-3 mt-3">Tổng Quan</h6>
+                    <ul class="nav flex-column mb-4">
                         <li class="nav-item">
                             <a class="nav-link active text-light" href="{{ route('admin.dashboard') }}">
-                                <i class="fas fa-home"></i> Home
+                                <i class="fas fa-home me-2"></i> Home
                             </a>
                         </li>
-                        <hr class="bg-secondary">
+                    </ul>
+
+                    <!-- Nhóm: Quản lý người dùng -->
+                    <h6 class="text-light px-3">Quản Lý Người Dùng</h6>
+                    <ul class="nav flex-column mb-4">
                         <li class="nav-item">
                             <a class="nav-link text-light" href="{{ route('admin.users.index') }}">
-                                <i class="fas fa-users"></i> User
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light" href="{{ route('admin.posts.index') }}">
-                                <i class="fas fa-file-alt"></i> Posts
+                                <i class="fas fa-users me-2"></i> Users
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-light" href="{{ route('admin.groups.index') }}">
-                                <i class="fas fa-user-group"></i> Group
+                                <i class="fas fa-user-group me-2"></i> Groups
                             </a>
                         </li>
+                    </ul>
+                    <hr class="bg-secondary">
+
+                    <!-- Nhóm: Quản lý nội dung -->
+                    <h6 class="text-light px-3">Quản Lý Nội Dung</h6>
+                    <ul class="nav flex-column mb-4">
                         <li class="nav-item">
-                            <a class="nav-link text-light" href="{{ route('admin.product_categories.index') }}">
-                                <i class="bi bi-box-seam"></i> Products
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light" href="{{ route('admin.messages.index') }}">
-                                <i class="bi bi-chat-left-text"></i> Message
-                            </a>
-                        </li>
-                        <hr class="bg-secondary">
-                        <li class="nav-item">
-                            <a class="nav-link text-light" href="#">
-                                <i class="fas fa-comments"></i> Comments
+                            <a class="nav-link text-light" href="{{ route('admin.posts.index') }}">
+                                <i class="fas fa-file-alt me-2"></i> Posts
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-light" href="{{ route('admin.categories.index') }}">
-                                <i class="fas fa-book"></i> Categories
+                                <i class="fas fa-book me-2"></i> Categories
+                            </a>
+                        </li>
+                    </ul>
+                    <hr class="bg-secondary">
+
+                    <!-- Nhóm: Sản phẩm -->
+                    <h6 class="text-light px-3">Quản Lý Sản Phẩm</h6>
+                    <ul class="nav flex-column mb-4">
+                        <li class="nav-item">
+                            <a class="nav-link text-light" href="{{ route('admin.product_categories.index') }}">
+                                <i class="bi bi-box-seam me-2"></i> Products
+                            </a>
+                        </li>
+                    </ul>
+                    <hr class="bg-secondary">
+
+                    <!-- Nhóm: Tin nhắn và báo cáo -->
+                    <h6 class="text-light px-3">Tin Nhắn & Báo Cáo</h6>
+                    <ul class="nav flex-column mb-4">
+                        <li class="nav-item">
+                            <a class="nav-link text-light" href="{{ route('admin.messages.index') }}">
+                                <i class="bi bi-chat-left-text me-2"></i> Messages
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-light" href="{{ route('admin.reports.index') }}">
-                                <i class="fas fa-file-alt"></i> Reports
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light" href="#">
-                                <i class="fas fa-cogs"></i> Settings
-                            </a>
-                        </li>
-                        <hr class="bg-secondary">
-                        <li class="nav-item">
-                            <a class="nav-link text-danger" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                <i class="fas fa-sign-out-alt"></i> Logout
+                                <i class="fas fa-file-alt me-2"></i> Reports
                             </a>
                         </li>
                     </ul>
-                    <div class="mb-3" style="color:#8192ba; filter: invert(36%) sepia(100%) saturate(500%) hue-rotate(200deg) brightness(90%) contrast(90%); text-align:center;">
-                        <img src="{{ asset('storage/images/bookicon.png') }}" alt="Description" loading="lazy"> TechTalks
+                    <hr class="bg-secondary">
+
+                    <!-- Nhóm: Cài đặt & Đăng xuất -->
+                    <h6 class="text-light px-3">Cài Đặt & Hệ Thống</h6>
+                    <ul class="nav flex-column mb-4">
+                        <li class="nav-item">
+                            <a class="nav-link text-light" href="#">
+                                <i class="fas fa-cogs me-2"></i> Settings
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-danger" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                <i class="fas fa-sign-out-alt me-2"></i> Logout
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- Footer -->
+                    <div class="text-center mt-4 mb-3" style="color:#8192ba; filter: invert(36%) sepia(100%) saturate(500%) hue-rotate(200deg) brightness(90%) contrast(90%);">
+                        <img src="{{ asset('storage/images/bookicon.png') }}" alt="TechTalks" loading="lazy">
+                        <p>TechTalks</p>
                     </div>
+
                     <!-- Form đăng xuất -->
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                         @csrf

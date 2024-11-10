@@ -416,6 +416,9 @@ footer {
     .content-col {
         margin-left: 9% !important; /* Không cần margin-left khi màn hình nhỏ */
     }
+    .content-cols {
+        margin-left: 9% !important; /* Không cần margin-left khi màn hình nhỏ */
+    }
     .right-sidebar {
         width: 32% !important;
     }

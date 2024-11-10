@@ -8,10 +8,19 @@ use Illuminate\Http\Request;
 
 class AdminCategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::all();
-        return view('admin.categories.index', compact('categories'));
+        // Lấy từ khóa tìm kiếm từ form
+        $search = $request->input('search');
+
+        // Lọc danh mục theo từ khóa nếu có
+        $categories = Category::when($search, function ($query, $search) {
+            $query->where('name', 'like', '%' . $search . '%');
+        })
+            ->latest() // Sắp xếp theo thứ tự mới nhất
+            ->paginate(10); // Phân trang, mỗi trang 10 kết quả
+
+        return view('admin.categories.index', compact('categories', 'search'));
     }
 
     public function create()

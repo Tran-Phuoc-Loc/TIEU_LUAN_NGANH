@@ -4,6 +4,8 @@
 
 @section('content')
     <h1>Danh sách Danh mục</h1>
+    {{-- Bao gồm phần tìm kiếm --}}
+    @include('layouts.partials.search', ['action' => route('admin.categories.index'), 'placeholder' => 'Tìm kiếm sản phẩm...'])
     <a href="{{ route('admin.categories.create') }}" class="btn btn-primary">Thêm Danh mục</a>
     
     <table class="table">

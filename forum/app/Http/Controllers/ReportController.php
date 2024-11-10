@@ -10,10 +10,26 @@ use Illuminate\Support\Facades\Auth;
 class ReportController extends Controller
 {
     // Hiển thị tất cả các báo cáo
-    public function index()
+    public function index(Request $request)
     {
-        $reports = Report::with('post', 'user')->paginate(10);
-        return view('admin.reports.index', compact('reports'));
+        // Lấy từ khóa tìm kiếm từ form
+        $search = $request->input('search');
+
+        // Lọc báo cáo dựa trên từ khóa tìm kiếm nếu có
+        $reports = Report::with(['post', 'user'])
+            ->when($search, function ($query, $search) {
+                $query->whereHas('user', function ($q) use ($search) {
+                    $q->where('username', 'like', '%' . $search . '%');
+                })
+                    ->orWhereHas('post', function ($q) use ($search) {
+                        $q->where('title', 'like', '%' . $search . '%');
+                    })
+                    ->orWhere('description', 'like', '%' . $search . '%');
+            })
+            ->latest() // Sắp xếp báo cáo mới nhất
+            ->paginate(10); // Phân trang, mỗi trang 10 kết quả
+
+        return view('admin.reports.index', compact('reports', 'search'));
     }
 
     // Hiển thị chi tiết một báo cáo

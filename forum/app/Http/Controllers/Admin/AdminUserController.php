@@ -27,6 +27,19 @@ class AdminUserController extends Controller
         return view('admin.users.index', compact('users', 'search'));
     }
 
+    // Hiển thị thông tin chi tiết người dùng
+    public function show($id)
+    {
+        $user = User::with(['posts', 'groups', 'products'])->findOrFail($id);
+
+        // Lấy số lượng bài viết, nhóm, sản phẩm, và ảnh đã đăng
+        $postCount = $user->posts->count();
+        $groupCount = $user->groups->count();
+        $productCount = $user->products->count();
+
+        return view('admin.users.show', compact('user', 'postCount', 'groupCount', 'productCount'));
+    }
+
     public function destroy($id)
     {
         $user = User::find($id);

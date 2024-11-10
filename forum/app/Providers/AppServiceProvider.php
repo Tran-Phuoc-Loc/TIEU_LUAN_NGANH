@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\View;
 use App\Models\Group;
 use App\Models\Post;
 use App\Models\Category;
+use Illuminate\Pagination\Paginator;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -50,6 +51,6 @@ class AppServiceProvider extends ServiceProvider
             $view->with('categories', $categories);
         });
 
-
+        Paginator::useBootstrapFive(); // Sử dụng Bootstrap 5 cho phân trang
     }
 }
