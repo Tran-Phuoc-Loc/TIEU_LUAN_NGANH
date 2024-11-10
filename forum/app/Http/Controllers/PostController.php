@@ -9,6 +9,7 @@ use App\Models\Post;
 use App\Models\User;
 use App\Models\Group;
 use App\Models\Folder;
+use App\Models\ForumPost;
 use App\Models\Category;
 use App\Notifications\PostUpdated;
 use App\Models\SavedPost;
@@ -307,53 +308,56 @@ class PostController extends Controller
             return redirect()->route('users.index')->with('error', 'Vui lòng nhập ký tự để tìm kiếm.');
         }
 
-        // Khởi tạo truy vấn cho bài viết
+        // Tìm kiếm bài viết diễn đàn
+        $forumPostsQuery = ForumPost::with('user');
+
+        // Nếu có truy vấn tìm kiếm cho diễn đàn
+        if ($query) {
+            $forumPostsQuery->where(function ($q) use ($query) {
+                $q->where('title', 'LIKE', "%{$query}%")
+                    ->orWhere('content', 'LIKE', "%{$query}%");
+            });
+        }
+
+        // Lấy danh sách bài viết diễn đàn sau khi thêm điều kiện tìm kiếm
+        $forumPosts = $forumPostsQuery->get();
+
+        // Khởi tạo truy vấn cho bài viết mạng xã hội
         $postsQuery = Post::where('status', 'published')->with(['user', 'category']);
 
-        // Nếu có truy vấn tìm kiếm
         if ($query) {
             $postsQuery->where(function ($q) use ($query) {
                 $q->where('title', 'LIKE', "%{$query}%")
                     ->orWhere('content', 'LIKE', "%{$query}%");
             });
         }
-
-        // Lấy danh sách bài viết sau khi thêm điều kiện tìm kiếm
         $posts = $postsQuery->get();
 
         // Khởi tạo truy vấn tìm kiếm cho người dùng
         $usersQuery = User::query();
-
-        // Nếu có truy vấn tìm kiếm cho người dùng
         if ($query) {
             $usersQuery->where(function ($q) use ($query) {
                 $q->where('username', 'LIKE', "%{$query}%")
                     ->orWhere('email', 'LIKE', "%{$query}%");
             });
         }
-
-        // Loại bỏ tài khoản với role là admin
         $users = $usersQuery->where('role', '!=', 'admin')
             ->orderByRaw("CASE 
-                    WHEN username LIKE '{$query}%' THEN 1 
-                    ELSE 2 
-               END")
+                WHEN username LIKE '{$query}%' THEN 1 
+                ELSE 2 
+           END")
             ->limit(10)
             ->get();
 
         // Khởi tạo truy vấn tìm kiếm cho nhóm
         $groupsQuery = Group::query();
-
-        // Nếu có truy vấn tìm kiếm cho nhóm
         if ($query) {
             $groupsQuery->where('name', 'LIKE', "%{$query}%");
         }
-
-        // Lấy danh sách nhóm phù hợp với truy vấn
         $groups = $groupsQuery->get();
 
-        // Trả về view với cả bài viết, người dùng và nhóm
-        return view('users.posts.index', compact('posts', 'users', 'groups', 'query'));
+        // Trả về view với cả bài viết, bài viết diễn đàn, người dùng và nhóm
+        return view('users.posts.index', compact('forumPosts', 'posts', 'users', 'groups', 'query'));
     }
 
     public function show($id)

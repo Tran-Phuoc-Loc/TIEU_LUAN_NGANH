@@ -1,6 +1,6 @@
 @extends('layouts.users')
 
-@section('title', 'Diễn dàn')
+@section('title', 'Tạo bài viết diễn dàn')
 
 @section('content')
 <div class="container-fluid">
@@ -9,12 +9,13 @@
         <div class="col-lg-2 col-md-1 sidebar d-none d-md-block" style="background-color: #fff; position: fixed; height: 100vh; overflow-y: auto;">
             <div class="vertical-navbar">
                 <!-- Thông tin người dùng -->
-                <div class="user-info text-center mb-4">
+                <div class="user-info text-center mb-4" style="background-color: black;background-image: linear-gradient(135deg, #52545f 0%, #383a45 50%);">
                     @if(auth()->check())
                     <img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : asset('storage/images/avataricon.png') }}"
                         alt="Profile picture of {{ auth()->user()->username }}"
                         class="rounded-circle" style="width: 45px; height: 50px;">
-                    <h5 class="d-none d-lg-block">{{ auth()->user()->username }}</h5>
+                    <h5 class="d-none d-md-block" style="color: #fff;">{{ auth()->user()->username }}</h5>
+                    <hr style="border-top: 1px solid black; margin: 10px 0;">
                     @endif
                 </div>
 
@@ -76,71 +77,48 @@
                 </nav>
             </div>
         </div>
+
         <!-- Nội dung bài viết chính -->
         <div class="col-lg-6 col-md-7 offset-lg-2 content-col" style="border: 2px solid #007bff; background-color:#fff; margin-left: 17%;">
-            <h2>{{ $forumPost->title }}</h2>
-            <p>{!! $forumPost->content !!}</p>
-
-            <p><small>Viết bởi: {{ $forumPost->user->username ?? 'Không có tên' }} - {{ $forumPost->created_at->format('d-m-Y H:i') }}</small></p>
-
-            <hr>
-
-            <h3>Bình luận</h3>
+            <h1>Thêm Bài Viết Mới</h1>
 
             @if(session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
             @endif
 
-            @if($forumPost->comments->isNotEmpty())
-            <div class="comments">
-                @foreach ($forumPost->comments as $comment)
-                <div class="comment mb-3">
-                    <strong>{{ $comment->user->username }}</strong>
-                    <p>{{ $comment->content }}</p>
-                    <small>{{ $comment->created_at->diffForHumans() }}</small>
-                </div>
-                @endforeach
-            </div>
-            @else
-            <p>Chưa có bình luận nào.</p>
-            @endif
-
-            <hr>
-
-            <h4>Đặt câu hỏi</h4>
-            <form action="{{ route('forums.comments.store', $forumPost->id) }}" method="POST">
+            <form action="{{ route('forums.store') }}" method="POST">
                 @csrf
-                <div class="form-group">
-                    <textarea name="content" class="form-control" placeholder="Đặt câu hỏi..." required></textarea>
+                <div class="mb-3">
+                    <label for="title" class="form-label">Tiêu đề bài viết</label>
+                    <input type="text" class="form-control" id="title" name="title" placeholder="Nhập tiêu đề" value="{{ old('title') }}" required>
+                    @error('title')
+                    <div class="text-danger">{{ $message }}</div>
+                    @enderror
                 </div>
-                <button type="submit" class="btn btn-primary mt-2">Gửi</button>
-            </form>
-        </div>
-        <!-- Sidebar danh mục diễn đàn bên phải -->
-        <div class="col-lg-3 col-md-3 mt-lg-0 right-sidebar" style="background-color: #fff; width: 32%; margin-left: auto;">
-            <h1>Diễn Đàn</h1>
-            @if(session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-            @endif
 
-            <h2>Danh Mục</h2>
-            <ul>
-                @foreach($categories as $category)
-                <li>
-                    <strong>{{ $category->name }}</strong>
-                    <ul>
-                        @foreach($category->posts as $post)
-                        <li>
-                            <a href="{{ route('forums.show', $post->id) }}">{{ $post->title }}</a> -
-                            <em>{{ $post->user->username ?? 'Không có tên' }}</em>
-                            ({{ $post->created_at->diffForHumans() }})
-                        </li>
+                <div class="mb-3">
+                    <label for="forum_category_id" class="form-label">Danh mục</label>
+                    <select class="form-select" id="forum_category_id" name="forum_category_id" required>
+                        <option value="">Chọn danh mục</option>
+                        @foreach($categories as $category)
+                        <option value="{{ $category->id }}" {{ old('forum_category_id') == $category->id ? 'selected' : '' }}>
+                            {{ $category->name }}
+                        </option>
                         @endforeach
-                    </ul>
-                </li>
-                @endforeach
-            </ul>
-            <a href="{{ route('forums.create') }}" class="btn btn-primary">Thêm Bài Viết Mới</a>
+                    </select>
+                    @error('forum_category_id')
+                    <div class="text-danger">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="content">Nội dung</label>
+                    <textarea class="form-control" id="content" name="content" rows="5"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Đăng Bài Viết</button>
+                <a href="{{ route('forums.index') }}" class="btn btn-secondary">Hủy</a>
+            </form>
         </div>
     </div>
 </div>

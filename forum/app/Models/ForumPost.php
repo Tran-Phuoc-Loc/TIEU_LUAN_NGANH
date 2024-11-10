@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
+use Mews\Purifier\Facades\Purifier;
 
 class ForumPost extends Model
 {
@@ -13,6 +14,11 @@ class ForumPost extends Model
     protected $table = 'forum_posts';
 
     protected $fillable = ['user_id', 'forum_category_id', 'title', 'content'];
+
+    public function setContentAttribute($value)
+    {
+        $this->attributes['content'] = Purifier::clean($value); // Gọi Purifier trực tiếp
+    }
 
     // Khai báo mối quan hệ với ForumCategory
     public function category()

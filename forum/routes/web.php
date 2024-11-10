@@ -116,10 +116,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('forums', [ForumController::class, 'index'])->name('forums.index');
     Route::get('forums/category/{id}', [ForumController::class, 'showCategory'])->name('forums.category');
     // Route để hiển thị form tạo bài viết mới
-    Route::get('users/forums/create', [ForumController::class, 'create'])->name('forums.create');
-    Route::get('/forums/{post}', [ForumController::class, 'show'])->name('forums.show');
+    Route::resource('forums', ForumController::class);
+    Route::post('/forums/upload', [ForumController::class, 'upload'])->name('forums.upload'); // Route để xử lý upload ảnh cho CKEditor
     Route::post('forums/{forumPost}/comments', [ForumCommentController::class, 'store'])->name('forums.comments.store');
-
 
 
     // Route để tạo thư mục

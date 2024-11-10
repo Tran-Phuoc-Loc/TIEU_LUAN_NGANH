@@ -7,12 +7,18 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Mews\Purifier\Facades\Purifier;
 
 class Post extends Model
 {
     use HasFactory;
 
     protected $fillable = ['user_id', 'title', 'content', 'likes_count', 'image_url', 'is_featured', 'status', 'slug', 'category_id',];
+
+    public function setContentAttribute($value)
+    {
+        $this->attributes['content'] = Purifier::clean($value); // Gọi Purifier trực tiếp
+    }
 
     protected $casts = [
         'published_at' => 'datetime',

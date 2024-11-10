@@ -1,5 +1,7 @@
 @extends('layouts.users')
 
+@section('title', 'Danh Mục Diễn dàn')
+
 @section('content')
 <div class="container">
     <h1 class="my-4">{{ $category->name }}</h1>

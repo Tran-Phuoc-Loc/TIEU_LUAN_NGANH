@@ -1,5 +1,7 @@
 @extends('layouts.users')
 
+@section('title', 'Diễn dàn')
+
 @section('content')
 <div class="container-fluid">
     <div class="row">
@@ -83,11 +85,25 @@
             <ul>
                 @foreach ($posts as $post)
                 <li>
-                    <h4><a href="{{ route('forums.show', $post->id) }}" style="text-decoration: none; color: #007bff;">
+                    <h4>
+                        <a href="{{ route('forums.show', $post->id) }}" style="text-decoration: none; color: #007bff;">
                             {{ $post->title }}
-                        </a></h4>
-                    <p>{{ $post->content }}</p>
+                        </a>
+                    </h4>
+                    <p>{!! Str::limit($post->content, 200) !!}</p>
                     <p><small>Viết bởi: {{ $post->user->username ?? 'Không có tên' }} - {{ $post->created_at->format('d-m-Y H:i') }}</small></p>
+                    <!-- Hiển thị nút xóa nếu người dùng hiện tại là tác giả hoặc admin -->
+                    @if(auth()->user()->id === $post->user_id || auth()->user()->role === 'admin')
+                    <!-- Form xóa bài viết -->
+                    <form action="{{ route('forums.destroy', $post->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa bài viết này?');" style="display: inline;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">Xóa</button>
+                    </form>
+
+                    <!-- Nút chỉnh sửa bài viết -->
+                    <a href="{{ route('forums.edit', $post->id) }}" class="btn btn-warning">Chỉnh Sửa</a>
+                    @endif
                 </li>
                 @endforeach
             </ul>
@@ -99,26 +115,44 @@
         <!-- Sidebar danh mục diễn đàn bên phải -->
         <div class="col-lg-3 col-md-3 mt-lg-0 right-sidebar" style="background-color: #fff; width: 32%; margin-left: auto;">
             <h1>Diễn Đàn</h1>
+
             @if(session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
             @endif
+
+            <!-- Danh mục -->
             <h2>Danh Mục</h2>
             <ul>
                 @foreach($categories as $category)
                 <li>
                     <strong>{{ $category->name }}</strong>
+                    @if($category->posts->isNotEmpty())
                     <ul>
                         @foreach($category->posts as $post)
                         <li>
-                            <a href="">{{ $post->title }}</a> -
+                            <a href="{{ route('forums.show', $post->id) }}">{{ $post->title }}</a> -
                             <em>{{ $post->user->username ?? 'Không có tên' }}</em>
                             ({{ $post->created_at->diffForHumans() }})
                         </li>
                         @endforeach
                     </ul>
+                    @endif
                 </li>
                 @endforeach
             </ul>
+
+            <!-- Bài viết mới nhất -->
+            <h2>Bài Viết Mới Nhất</h2>
+            <ul>
+                @foreach($latestPosts as $post)
+                <li>
+                    <a href="{{ route('forums.show', $post->id) }}">{{ $post->title }}</a> -
+                    <em>{{ $post->user->username ?? 'Không có tên' }}</em>
+                    ({{ $post->created_at->diffForHumans() }})
+                </li>
+                @endforeach
+            </ul>
+
             <a href="{{ route('forums.create') }}" class="btn btn-primary">Thêm Bài Viết Mới</a>
         </div>
     </div>

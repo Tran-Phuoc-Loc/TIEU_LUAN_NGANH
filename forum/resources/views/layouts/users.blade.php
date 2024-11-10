@@ -20,6 +20,8 @@
 
     <!-- Moment.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/38.1.1/classic/ckeditor.js"></script>
+
 
     <style>
         /* Container chính */
@@ -1078,6 +1080,15 @@
         $('#renameFolderForm').attr('action', formAction);
         $('#renameModal').modal('show');
     });
+    ClassicEditor
+        .create(document.querySelector('#content'), {
+            ckfinder: {
+                uploadUrl: "{{ route('forums.upload') }}?_token={{ csrf_token() }}"
+            }
+        })
+        .catch(error => {
+            console.error(error);
+        });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </body>
