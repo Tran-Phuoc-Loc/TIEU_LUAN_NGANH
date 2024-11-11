@@ -133,6 +133,7 @@
                             <a href="{{ route('forums.show', $post->id) }}">{{ $post->title }}</a> -
                             <em>{{ $post->user->username ?? 'Không có tên' }}</em>
                             ({{ $post->created_at->diffForHumans() }})
+                            <p>Thời gian cập nhật: {{ $post->updated_at->format('d/m/Y H:i') }}</p>
                         </li>
                         @endforeach
                     </ul>

@@ -38,22 +38,30 @@ class ForumController extends Controller
             ->with('posts.user')
             ->get();
 
+        // Lấy 5 bài viết mới nhất từ tất cả các bài viết
+        $latestPosts = ForumPost::with('user')->latest()->take(5)->get();
+
         // Tải bài viết chi tiết cùng với thông tin người dùng và các bình luận
         $forumPost = ForumPost::with('user', 'comments.user')->findOrFail($id);
 
         // Lấy tất cả nhóm
         $groups = Group::all();
 
-        return view('users.forums.show', compact('categories', 'forumPost', 'groups'));
+        return view('users.forums.show', compact('categories', 'forumPost', 'groups', 'latestPosts'));
     }
 
     // Hiển thị form tạo bài viết
     public function create()
     {
         $categories = ForumCategory::all();
+
         // Lấy tất cả nhóm 
         $groups = Group::all();
-        return view('users.forums.create', compact('categories', 'groups'));
+
+        // Lấy 5 bài viết mới nhất từ tất cả các bài viết
+        $latestPosts = ForumPost::with('user')->latest()->take(5)->get();
+        
+        return view('users.forums.create', compact('categories', 'groups', 'latestPosts'));
     }
 
     // Lưu bài viết mới vào cơ sở dữ liệu
@@ -83,14 +91,20 @@ class ForumController extends Controller
 
         // Kiểm tra nếu người dùng hiện tại là chủ sở hữu bài viết hoặc có quyền admin
         if (auth::user()->id !== $post->user_id && auth::user()->role !== 'admin') {
-            return redirect()->route('forums.index')->with('error', 'Bạn không có quyền chỉnh sửa bài viết này.');
+            return redirect()->route('users.forums.index')->with('error', 'Bạn không có quyền chỉnh sửa bài viết này.');
         }
+
+        // Lấy tất cả nhóm 
+        $groups = Group::all();
+
+        // Lấy 5 bài viết mới nhất từ tất cả các bài viết
+        $latestPosts = ForumPost::with('user')->latest()->take(5)->get();
 
         // Lấy danh sách các danh mục
         $categories = ForumCategory::all();
 
         // Trả về view chỉnh sửa với dữ liệu bài viết
-        return view('forums.edit', compact('post', 'categories'));
+        return view('users.forums.edit', compact('post', 'categories', 'groups', 'latestPosts'));
     }
 
     public function update(Request $request, $id)
@@ -117,7 +131,7 @@ class ForumController extends Controller
             'forum_category_id' => $validatedData['forum_category_id'], // Đảm bảo cập nhật danh mục
         ]);
 
-        return redirect()->route('forums.show', $post->id)->with('success', 'Bài viết đã được cập nhật thành công.');
+        return redirect()->route('users.forums.show', $post->id)->with('success', 'Bài viết đã được cập nhật thành công.');
     }
 
     public function showCategory($id)

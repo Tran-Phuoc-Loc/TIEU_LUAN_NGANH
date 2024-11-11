@@ -120,6 +120,48 @@
                 <a href="{{ route('forums.index') }}" class="btn btn-secondary">Hủy</a>
             </form>
         </div>
+        <!-- Sidebar danh mục diễn đàn bên phải -->
+        <div class="col-lg-3 col-md-3 mt-lg-0 right-sidebar" style="background-color: #fff; width: 32%; margin-left: auto;">
+            <h1>Diễn Đàn</h1>
+
+            @if(session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
+
+            <!-- Danh mục -->
+            <h2>Danh Mục</h2>
+            <ul>
+                @foreach($categories as $category)
+                <li>
+                    <strong>{{ $category->name }}</strong>
+                    @if($category->posts->isNotEmpty())
+                    <ul>
+                        @foreach($category->posts as $post)
+                        <li>
+                            <a href="{{ route('forums.show', $post->id) }}">{{ $post->title }}</a> -
+                            <em>{{ $post->user->username ?? 'Không có tên' }}</em>
+                            ({{ $post->created_at->diffForHumans() }})
+                            <p>Thời gian cập nhật: {{ $post->updated_at->format('d/m/Y H:i') }}</p>
+                        </li>
+                        @endforeach
+                    </ul>
+                    @endif
+                </li>
+                @endforeach
+            </ul>
+
+            <!-- Bài viết mới nhất -->
+            <h2>Bài Viết Mới Nhất</h2>
+            <ul>
+                @foreach($latestPosts as $post)
+                <li>
+                    <a href="{{ route('forums.show', $post->id) }}">{{ $post->title }}</a> -
+                    <em>{{ $post->user->username ?? 'Không có tên' }}</em>
+                    ({{ $post->created_at->diffForHumans() }})
+                </li>
+                @endforeach
+            </ul>
+        </div>
     </div>
 </div>
 @endsection
