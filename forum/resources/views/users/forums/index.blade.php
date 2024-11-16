@@ -104,6 +104,7 @@
                     <!-- Nút chỉnh sửa bài viết -->
                     <a href="{{ route('forums.edit', $post->id) }}" class="btn btn-warning">Chỉnh Sửa</a>
                     @endif
+                    <hr>
                 </li>
                 @endforeach
             </ul>

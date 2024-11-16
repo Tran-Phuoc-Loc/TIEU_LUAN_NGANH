@@ -166,14 +166,46 @@
             <div class="right-sidebars p-3">
                 <h5>Mẹo Vặt Mua Sắm</h5>
                 <ul class="list-group list-unstyled mt-3">
+                    <!-- Mẹo 1: Cách chọn laptop phù hợp cho sinh viên -->
                     <li class="mb-3">
-                        <a href="#" class="text-dark">💡 Cách chọn laptop phù hợp cho sinh viên</a>
+                        <a href="#collapseExample1" class="text-dark" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="collapseExample1">
+                            💡 Cách chọn laptop phù hợp cho sinh viên
+                        </a>
+                        <div class="collapse" id="collapseExample1">
+                            <ul class="list-group list-unstyled mt-2">
+                                <li><a class="text-dark" href="#">Nội dung mẹo 1.1</a></li>
+                                <li><a class="text-dark" href="#">Nội dung mẹo 1.2</a></li>
+                                <li><a class="text-dark" href="#">Nội dung mẹo 1.3</a></li>
+                            </ul>
+                        </div>
                     </li>
+
+                    <!-- Mẹo 2: Mẹo tiết kiệm khi mua sách online -->
                     <li class="mb-3">
-                        <a href="#" class="text-dark">🔍 Mẹo tiết kiệm khi mua sách online</a>
+                        <a href="#collapseExample2" class="text-dark" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="collapseExample2">
+                            🔍 Mẹo tiết kiệm khi mua sách online
+                        </a>
+                        <div class="collapse" id="collapseExample2">
+                            <ul class="list-group list-unstyled mt-2">
+                                <li><a class="text-dark" href="#">Nội dung mẹo 2.1</a></li>
+                                <li><a class="text-dark" href="#">Nội dung mẹo 2.2</a></li>
+                                <li><a class="text-dark" href="#">Nội dung mẹo 2.3</a></li>
+                            </ul>
+                        </div>
                     </li>
+
+                    <!-- Mẹo 3: Cách tránh lừa đảo khi mua hàng qua mạng -->
                     <li class="mb-3">
-                        <a href="#" class="text-dark">🛒 Cách tránh lừa đảo khi mua hàng qua mạng</a>
+                        <a href="#collapseExample3" class="text-dark" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="collapseExample3">
+                            🛒 Cách tránh lừa đảo khi mua hàng qua mạng
+                        </a>
+                        <div class="collapse" id="collapseExample3">
+                            <ul class="list-group list-unstyled mt-2">
+                                <li><a class="text-dark" href="#">Nội dung mẹo 3.1</a></li>
+                                <li><a class="text-dark" href="#">Nội dung mẹo 3.2</a></li>
+                                <li><a class="text-dark" href="#">Nội dung mẹo 3.3</a></li>
+                            </ul>
+                        </div>
                     </li>
                 </ul>
             </div>

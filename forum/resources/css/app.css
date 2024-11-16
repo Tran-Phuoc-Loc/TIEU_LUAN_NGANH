@@ -384,6 +384,35 @@ textarea {
     color: #0056b3; /* Đổi màu khi hover */
 }
 
+/* Định dạng chung cho container video */
+.post-video {
+    position: relative;
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+    background-color: black; /* Đặt màu nền đen cho viền */
+    display: flex;
+    justify-content: center; /* Canh giữa video */
+    align-items: center; /* Canh giữa video theo chiều dọc */
+}
+
+/* Kiểm soát video trong container */
+.post-video video {
+    width: auto; /* Chiếm toàn bộ chiều rộng container */
+    height: 480px; /* Chiều cao tự động để giữ tỷ lệ khung hình */
+    object-fit: contain; /* Đảm bảo video không bị cắt hoặc bóp méo */
+    max-width: 100%;
+}
+
+/* Khi video quay đứng (portrait) */
+@media screen and (max-width: 768px) {
+    .post-video video {
+        width: auto;  /* Không cần chiếm hết chiều rộng */
+        height: 100%; /* Chiều cao tự động điều chỉnh */
+        object-fit: contain; /* Giữ nguyên tỷ lệ video */
+    }
+}
+
 /* Footer */
 footer {
     background-color: #2c3e50; /* Màu nền cho footer */

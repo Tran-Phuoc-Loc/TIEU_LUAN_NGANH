@@ -109,7 +109,7 @@
                 </div>
 
                 <button type="submit" class="btn btn-primary mt-3">Cập nhật</button>
-                <a href="{{ route('forums.show', $post->id) }}" class="btn btn-secondary mt-3">Hủy</a>
+                <a href="{{ route('forums.show', $post->id) }}" class="btn btn-secondary mt-3" style="padding: 15px; font-size:16px;">Hủy</a>
             </form>
         </div>
 

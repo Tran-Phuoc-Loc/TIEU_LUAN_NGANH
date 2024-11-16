@@ -25,6 +25,7 @@ class UserController extends Controller
         $posts = Post::with('user')
             ->withCount('likes', 'comments')
             ->where('status', 'published')
+            ->orderByRaw('COALESCE(published_at, created_at) DESC')
             ->get();
 
         // Kiểm tra xem người dùng đã đăng nhập chưa
@@ -49,7 +50,7 @@ class UserController extends Controller
         if ($user) {
             // Lấy thông báo chưa đọc và đã đọc
             $unreadNotifications = $user->unreadNotifications;
-            $readNotifications = $user->notifications()->whereNotNull('read_at')->paginate(10);
+            $readNotifications = $user->notifications()->whereNotNull('read_at')->orderBy('created_at', 'desc')->paginate(10);
 
             // Lấy thông tin bài viết từ thông báo đầu tiên chưa đọc (nếu có)
             if ($unreadNotifications->isNotEmpty()) {

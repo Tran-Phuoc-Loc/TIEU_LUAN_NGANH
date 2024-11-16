@@ -1,7 +1,57 @@
 @extends('layouts.users')
 
 @section('title', 'Danh sách bài viết')
+<style>
+    /* Ẩn các ảnh sau ảnh thứ 2 */
+    .image-grid .image-item:nth-child(n+3) {
+        display: none;
+    }
 
+    .post-images-gallery {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .image-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .image-item {
+        position: relative;
+        overflow: hidden;
+        border-radius: 8px;
+        width: 100%;
+        aspect-ratio: 1;
+        /* Khung hình vuông */
+    }
+
+    .image-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        border-radius: 8px;
+    }
+
+    /* Hiển thị số lượng ảnh còn lại */
+    .more-images-overlay {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, 0.6);
+        color: #fff;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+    }
+
+</style>
 @section('content')
 <div class="container-fluid">
     <div class="row">
@@ -94,9 +144,9 @@
                             <span class="post-author">Đăng bởi: <strong>{{ $post->user->username }}</strong></span> |
                             <span class="post-time">
                                 @if($post->published_at)
-                                {{ $post->published_at->isoFormat('MMM Do YYYY, h:mm a') }}
+                                {{ $post->published_at->isoFormat('MMM Do YYYY, h:mm ') }}
                                 @else
-                                {{ $post->created_at->isoFormat('MMM Do YYYY, h:mm a') }}
+                                {{ $post->created_at->isoFormat('MMM Do YYYY, h:mm ') }}
                                 @endif
                             </span>
                         </div>
@@ -139,18 +189,58 @@
                     <div class="post-content">
                         <div class="post-title">{{ $post->title }}</div>
                         <div class="post-description">
-                            <span class="content-preview">{{ Str::limit($post->content, 100) }}</span>
-                            <span class="content-full" style="display: none;">{{ $post->content }}</span>
+                            <span class="content-preview">{!! Str::limit($post->content, 100) !!}</span>
+                            <span class="content-full" style="display: none;">{!! $post->content !!}</span>
                         </div>
                         @if (strlen($post->content) > 100)
                         <button class="btn btn-link toggle-content">Xem thêm</button>
                         @endif
 
-                        @if($post->image_url)
-                        <div class="post-image">
-                            <img src="{{ asset('storage/' . $post->image_url) }}" alt="{{ $post->title }}" loading="lazy">
+                        <div class="post-media">
+                            <!-- Kiểm tra và hiển thị ảnh hoặc video chính -->
+                            @if($post->image_url)
+                            @if($post->isImage())
+                            <div class="post-image">
+                                <img src="{{ asset('storage/' . $post->image_url) }}" alt="Post Image"
+                                    class="img-fluid"
+                                    data-post-id="{{ $post->id }}"
+                                    data-image-url="{{ asset('storage/' . $post->image_url) }}"
+                                    onclick="openModal(this)">
+                            </div>
+                            @elseif($post->isVideo())
+                            <div class="post-video">
+                                <video class="video-player" controls>
+                                    <source src="{{ asset('storage/public/' . $post->image_url) }}" type="video/mp4">
+                                    Trình duyệt của bạn không hỗ trợ video.
+                                </video>
+                            </div>
+                            @endif
+                            @endif
+
+                            <!-- Hiển thị nhiều ảnh phụ từ bảng post_images -->
+                            @if($post->postImages && $post->postImages->isNotEmpty())
+                            <div class="post-images-gallery">
+                                <div class="image-grid">
+                                    @foreach ($post->postImages as $index => $image)
+                                    <div class="image-item">
+                                        <img src="{{ asset('storage/' . $image->file_path) }}"
+                                            alt="Post Image"
+                                            data-post-id="{{ $post->id }}"
+                                            data-image-url="{{ asset('storage/' . $image->file_path) }}"
+                                            class="post-thumbnail"
+                                            onclick="openModal(this)">
+
+                                        <!-- Nút "Xem thêm" cho ảnh số 2 -->
+                                        @if($index === 1 && $post->postImages->count() > 2)
+                                        <div class="more-images-overlay">+{{ $post->postImages->count() - 2 }} Xem thêm</div>
+                                        @endif
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                            @endif
+
                         </div>
-                        @endif
 
                         <div class="post-footer">
                             <div class="post-actions">
@@ -219,7 +309,7 @@
                             })
                             ->first();
                             @endphp
-                            
+
                             @if (!$friendship)
                             <!-- Nút gửi yêu cầu kết bạn -->
                             <form action="{{ route('friend.sendRequest', $user->id) }}" method="POST">
@@ -331,18 +421,6 @@
     <p>Vui lòng <a href="{{ route('login') }}">đăng nhập</a> để bình luận.</p>
     @endif
 </div>
-</div>
-
-<!-- Modal Đăng Nhập -->
-<div class="modal" id="loginModal" style="display:none;">
-    <div class="modal-content">
-        <span class="close" style="cursor:pointer;">&times;</span>
-        <div class="modal-body">
-            <h5 id="modalTitle">Đăng Nhập</h5>
-            <p id="modalMessage">Vui lòng đăng nhập để thực hiện hành động này.</p>
-            <p>Vui lòng <a href="{{ route('login') }}">đăng nhập</a> để bình luận.</p>
-        </div>
-    </div>
 </div>
 
 <!-- Form ẩn để gửi báo cáo -->

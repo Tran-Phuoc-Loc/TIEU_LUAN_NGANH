@@ -24,7 +24,7 @@ class Post extends Model
         'published_at' => 'datetime',
         'created_at' => 'datetime',
     ];
-    
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -54,5 +54,47 @@ class Post extends Model
     public function author()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    // Kiểm tra xem ảnh/video chính là ảnh
+    public function isImage()
+    {
+        return in_array(pathinfo($this->image_url, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png', 'gif']);
+    }
+
+    // Kiểm tra xem ảnh/video chính là video
+    public function isVideo()
+    {
+        return in_array(pathinfo($this->image_url, PATHINFO_EXTENSION), ['mp4', 'avi', 'mov']);
+    }
+
+    public function postImages()
+    {
+        return $this->hasMany(PostImage::class); // Quan hệ 1-n với bảng post_images
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($post) {
+            // Xóa tệp ảnh hoặc video của bài viết (nếu có)
+            if ($post->image_url && file_exists(public_path('storage/' . $post->image_url))) {
+                unlink(public_path('storage/' . $post->image_url));
+            }
+
+            // Xóa tất cả các ảnh liên quan từ bảng post_images và thư mục lưu trữ
+            foreach ($post->images as $image) {
+                if (file_exists(public_path('storage/' . $image->file_path))) {
+                    unlink(public_path('storage/' . $image->file_path));
+                }
+                $image->delete(); // Xóa bản ghi trong bảng post_images
+            }
+
+            // Xóa tất cả bình luận liên quan nếu có mối quan hệ
+            if (method_exists($post, 'comments')) {
+                $post->comments()->delete();
+            }
+        });
     }
 }

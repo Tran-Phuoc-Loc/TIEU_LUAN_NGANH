@@ -177,26 +177,56 @@
                                 @php
                                 $images = [];
 
+                                // Lấy ảnh đại diện nếu có
                                 if ($user->profile_picture) {
                                     $images[] = asset('storage/' . $user->profile_picture);
                                 }
+
+                                // Lấy ảnh bìa nếu có
                                 if ($user->cover_image) {
                                     $images[] = asset('storage/' . $user->cover_image);
                                 }
+
+                                // Lấy ảnh từ các bài đăng (bao gồm ảnh từ bảng post_images)
                                 foreach ($user->posts as $post) {
+                                    // Lấy ảnh chính của bài đăng nếu có
                                     if ($post->image_url && ($post->status === 'published' || Auth::id() === $user->id)) {
-                                        $images[] = asset('storage/' . $post->image_url);
+                                        $fileExtension = strtolower(pathinfo($post->image_url, PATHINFO_EXTENSION));
+                                        
+                                        // Kiểm tra định dạng và phân loại vào mảng ảnh hoặc video
+                                        if (in_array($fileExtension, ['jpg', 'jpeg', 'png', 'gif'])) {
+                                            $images[] = asset('storage/' . $post->image_url);
+                                        } elseif (in_array($fileExtension, ['mp4', 'webm', 'ogg'])) {
+                                            $videos[] = asset('storage/public/' . $post->image_url);
+                                        }
+                                    }
+
+                                    // Lấy ảnh phụ từ bảng post_images nếu có
+                                    if ($post->postImages) {
+                                        foreach ($post->postImages as $image) {
+                                            $images[] = asset('storage/' . $image->file_path);
+                                        }
                                     }
                                 }
                                 @endphp
 
-                                @foreach ($images as $image)
-                                <div class="d-flex justify-content-center align-items-center" style="flex: 1 0 45%; max-width: 100px;">
-                                    <div class="thumbnail-wrapper" style="width: 100%; height: 100px; position: relative;">
+                                <!-- Hiển thị tất cả ảnh -->
+                                <div class="d-flex flex-wrap gap-2 justify-content-center" style="overflow-y: auto; max-height: 400px;">
+                                    @foreach ($images as $image)
+                                    <div class="thumbnail-wrapper" style="width: 100px; height: 100px; position: relative;">
                                         <img src="{{ $image }}" alt="Ảnh" class="rounded thumbnail" style="width: 100%; height: 100%; object-fit: cover;">
                                     </div>
+                                    @endforeach
+                                    @foreach ($videos as $video)
+                                    <div class="video-wrapper" style="width: 200px; height: 150px; position: relative;">
+                                        <video controls style="width: 100%; height: 100%;">
+                                            <source src="{{ $video }}" type="video/{{ pathinfo($video, PATHINFO_EXTENSION) }}">
+                                            Trình duyệt của bạn không hỗ trợ video.
+                                        </video>
+                                    </div>
+                                    @endforeach
                                 </div>
-                                @endforeach
+
                             </div>
                             @endif
                         </div>

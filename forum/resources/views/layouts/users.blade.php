@@ -154,14 +154,19 @@
             margin: 10px 0;
             text-align: center;
             width: 100%;
-            height: auto;
+            height: 300px;
             overflow: hidden;
             /* Đảm bảo kích thước không vượt quá phần tử chứa */
+            position: relative;
         }
 
         .post-image img {
             width: 100%;
-            height: auto;
+            height: 100%;
+            object-fit: cover;
+            /* Đảm bảo ảnh nằm gọn trong khung mà không bị biến dạng */
+            object-position: center;
+            /* Căn giữa ảnh */
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
@@ -360,93 +365,95 @@
 </head>
 
 <body>
-<header>
-    <!-- Navbar chính -->
-    <nav class="navbar navbar-expand-lg navbar-dark" style="border-bottom: 1px solid #ddd; background-color:#fff">
-        <a class="navbar-brand" href="{{ url('/') }}">
-            <img src="{{ asset('storage/images/bookicon.png') }}" alt="Description" loading="lazy">TechTalks
-        </a>
+    <header>
+        <!-- Navbar chính -->
+        <nav class="navbar navbar-expand-lg navbar-dark" style="border-bottom: 1px solid #ddd; background-color:#fff">
+            <a class="navbar-brand" href="{{ url('/') }}">
+                <img src="{{ asset('storage/images/bookicon.png') }}" alt="Description" loading="lazy">TechTalks
+            </a>
 
-        <!-- Thanh tìm kiếm -->
-        <div class="search-bar mt-3">
-            <form class="input-group" action="{{ url('users/posts') }}" method="GET">
-                <input class="form-control" type="search" name="query" placeholder="Tìm kiếm bài viết" aria-label="Search" value="{{ request('query') }}">
-                <button class="btn btn-outline-success" type="submit">
-                    <i class="fas fa-search"></i> Search
-                </button>
-            </form>
-        </div>
+            <!-- Thanh tìm kiếm -->
+            <div class="search-bar mt-3">
+                <form class="input-group" action="{{ url('users/posts') }}" method="GET">
+                    <input class="form-control" type="search" name="query" placeholder="Tìm kiếm bài viết" aria-label="Search" value="{{ request('query') }}">
+                    <button class="btn btn-outline-success" type="submit">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </form>
+            </div>
 
-        @if(session('error'))
-        <div class="alert alert-danger">
-            {{ session('error') }}
-        </div>
-        @endif
+            @if(session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+            @endif
 
-        <!-- Nút toggle cho màn hình nhỏ -->
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+            <!-- Nút toggle cho màn hình nhỏ -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-        <!-- Các mục menu -->
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto" style="margin-top: 20px;">
+            <!-- Các mục menu -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto" style="margin-top: 20px;">
 
-                <!-- Mục Shop -->
-                <li class="nav-item" style="padding-top: 7px;">
-                    <a href="{{ route('products.index') }}" class="dropdown-item">
-                        <i class="bi bi-bag"></i> Shop
-                    </a>
-                </li>
+                    <!-- Mục Shop -->
+                    <li class="nav-item" style="padding-top: 7px;">
+                        <a href="{{ route('products.index') }}" class="dropdown-item">
+                            <i class="bi bi-bag"></i> Shop
+                        </a>
+                    </li>
 
-                <!-- Thông báo -->
-                @auth
-                <li class="nav-item dropdown" style="padding-top: 7px;">
-                    <a href="{{ route('notifications.index') }}"
-                        class="dropdown-item {{ auth()->check() && auth()->user()->unreadNotifications->count() > 0 ? 'new-notification' : '' }}">
-                        <i class="fas fa-bell"></i>
-                        @if(auth()->check() && auth()->user()->unreadNotifications->count() > 0)
-                        <span class="badge" style="color: #d9534f;">{{ auth()->user()->unreadNotifications->count() }}</span>
-                        @endif
-                    </a>
-                </li>
-
-                <!-- Mục Profile -->
-                <li class="nav-item dropdown ms-3">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <div class="user-circle">
-                            @if(Auth::user()->profile_picture)
-                            @php($imagePath = asset('storage/' . Auth::user()->profile_picture))
-                            <img src="{{ $imagePath }}" alt="Ảnh đại diện" class="img-fluid" style="border-radius: 50%;" loading="lazy">
-                            @else
-                            <img src="{{ asset('storage/images/avataricon.png') }}" alt="Ảnh đại diện mặc định" class="img-fluid" style="border-radius: 50%;" loading="lazy">
-                            {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                    <!-- Thông báo -->
+                    @auth
+                    <li class="nav-item dropdown" style="padding-top: 7px;">
+                        <a href="{{ route('notifications.index') }}"
+                            class="dropdown-item {{ auth()->check() && auth()->user()->unreadNotifications->count() > 0 ? 'new-notification' : '' }}">
+                            <i class="fas fa-bell"></i>
+                            @if(auth()->check() && auth()->user()->unreadNotifications->count() > 0)
+                            <span class="badge" style="color: #d9534f;">{{ auth()->user()->unreadNotifications->count() }}</span>
                             @endif
-                        </div>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="#">{{ Auth::user()->name }}</a></li>
-                        <li><a class="dropdown-item" href="{{ route('users.profile.index', Auth::user()->id) }}">Thông tin cá nhân</a></li>
-                        <li><a class="dropdown-item" href="{{ route('users.posts.published') }}">Bài Viết Đã Xuất Bản</a></li>
-                        <li><a class="dropdown-item" href="{{ route('users.posts.savePost') }}">Bài Viết Đã Lưu</a></li>
-                        <li><a class="dropdown-item" href="{{ route('users.groups.index') }}">Danh sách các nhóm tham gia</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Đăng Xuất</a>
-                            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                                @csrf
-                            </form>
-                        </li>
-                    </ul>
-                </li>
-                @else
-                <li class="nav-item ms-3" style="text-align: right;">
-                    <a class="nav-link" href="{{ route('login') }}">Đăng Nhập</a>
-                </li>
-                @endauth
-            </ul>
-        </div>
-    </nav>
-</header>
+                        </a>
+                    </li>
+
+                    <!-- Mục Profile -->
+                    <li class="nav-item dropdown ms-3">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="user-circle">
+                                @if(Auth::user()->profile_picture)
+                                @php($imagePath = asset('storage/' . Auth::user()->profile_picture))
+                                <img src="{{ $imagePath }}" alt="Ảnh đại diện" class="img-fluid" style="border-radius: 50%;" loading="lazy">
+                                @else
+                                <img src="{{ asset('storage/images/avataricon.png') }}" alt="Ảnh đại diện mặc định" class="img-fluid" style="border-radius: 50%;" loading="lazy">
+                                {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                                @endif
+                            </div>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="#">{{ Auth::user()->name }}</a></li>
+                            <li><a class="dropdown-item" href="{{ route('users.profile.index', Auth::user()->id) }}">Thông tin cá nhân</a></li>
+                            <li><a class="dropdown-item" href="{{ route('users.posts.published') }}">Bài Viết Đã Xuất Bản</a></li>
+                            <li><a class="dropdown-item" href="{{ route('users.posts.savePost') }}">Bài Viết Đã Lưu</a></li>
+                            <li><a class="dropdown-item" href="{{ route('users.groups.index') }}">Danh sách các nhóm tham gia</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Đăng Xuất</a>
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                    @csrf
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                    @else
+                    <li class="nav-item ms-3" style="text-align: right;">
+                        <a class="nav-link" href="{{ route('login') }}">Đăng Nhập</a>
+                    </li>
+                    @endauth
+                </ul>
+            </div>
+        </nav>
+    </header>
 
 
     <main class="main">
@@ -1079,25 +1086,6 @@
 
         $('#renameFolderForm').attr('action', formAction);
         $('#renameModal').modal('show');
-    });
-    document.addEventListener('DOMContentLoaded', function () {
-        ClassicEditor
-            .create(document.querySelector('#content'), {
-                ckfinder: {
-                    uploadUrl: "{{ route('forums.upload') }}?_token={{ csrf_token() }}"
-                },
-                toolbar: [
-                    'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', '|',
-                    'undo', 'redo', 'imageUpload'
-                ],
-                removePlugins: ['sourceEditing']
-            })
-            .then(editor => {
-                window.editor = editor;
-            })
-            .catch(error => {
-                console.error('Lỗi khi khởi tạo CKEditor:', error);
-            });
     });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>

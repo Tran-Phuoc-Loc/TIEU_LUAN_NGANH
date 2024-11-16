@@ -46,10 +46,51 @@
                     @enderror
                 </div>
 
+                <!-- Trường tải lên 1 ảnh hoặc video -->
                 <div class="mb-3">
-                    <label for="image" class="form-label">Hình ảnh (tuỳ chọn)</label>
-                    <input type="file" name="image" class="form-control" id="image">
-                    @error('image')
+                    <label for="media_single" class="form-label">Tải lên 1 ảnh hoặc video</label>
+                    @if ($post->image_url)
+                    @if ($post->isImage())
+                    <!-- Hiển thị ảnh hiện có -->
+                    <div class="mb-2">
+                        <img src="{{ asset('storage/' . $post->image_url) }}" alt="Current Image" class="img-fluid" style="max-width: 200px;">
+                    </div>
+                    @elseif ($post->isVideo())
+                    <!-- Hiển thị video hiện có -->
+                    <div class="mb-2">
+                        <video controls class="video-player" style="max-width: 400px;">
+                            <source src="{{ asset('storage/' . $post->image_url) }}" type="video/mp4">
+                            Trình duyệt của bạn không hỗ trợ video.
+                        </video>
+                    </div>
+                    @endif
+                    @endif
+
+                    <input type="file" name="media_single" class="form-control" accept="image/*,video/*" id="media_single">
+                    @error('media_single')
+                    <div class="alert alert-danger">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <!-- Trường tải lên nhiều ảnh -->
+                <div class="mb-3">
+                    <label for="media_multiple" class="form-label">Tải lên nhiều ảnh</label>
+
+                    @if ($post->postImages && $post->postImages->isNotEmpty())
+                    <div class="mb-3">
+                        <label>Ảnh hiện có:</label>
+                        <div class="d-flex flex-wrap">
+                            @foreach ($post->postImages as $image)
+                            <div class="me-2 mb-2" style="position: relative;">
+                                <img src="{{ asset('storage/' . $image->file_path) }}" alt="Post Image" class="img-fluid" style="max-width: 150px; max-height: 150px;">
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+
+                    <input type="file" name="media_multiple[]" class="form-control" accept="image/*" multiple id="media_multiple">
+                    @error('media_multiple')
                     <div class="alert alert-danger">{{ $message }}</div>
                     @enderror
                 </div>

@@ -45,6 +45,7 @@
                         @enderror
                     </div>
 
+                    <!-- Trường nội dung bài viết -->
                     <div class="mb-3">
                         <label for="content" class="form-label">Nội dung bài viết</label>
                         <textarea name="content" class="form-control" id="content" rows="5" placeholder="Chia sẻ suy nghĩ của bạn...">{{ old('content') }}</textarea>
@@ -53,10 +54,20 @@
                         @enderror
                     </div>
 
+                    <!-- Trường tải lên 1 ảnh hoặc video -->
                     <div class="mb-3">
-                        <label for="image" class="form-label">Hình ảnh (tuỳ chọn)</label>
-                        <input type="file" name="image" class="form-control" id="image">
-                        @error('image')
+                        <label for="media_single" class="form-label">Tải lên 1 ảnh hoặc video</label>
+                        <input type="file" name="media_single" class="form-control" accept="image/*,video/*" id="media_single">
+                        @error('media_single')
+                        <div class="alert alert-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <!-- Trường tải lên nhiều ảnh -->
+                    <div class="mb-3">
+                        <label for="media_multiple" class="form-label">Tải lên nhiều ảnh</label>
+                        <input type="file" name="media_multiple[]" class="form-control" accept="image/*" multiple id="media_multiple">
+                        @error('media_multiple')
                         <div class="alert alert-danger">{{ $message }}</div>
                         @enderror
                     </div>

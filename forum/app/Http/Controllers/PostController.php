@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use App\Models\Post;
+use App\Models\PostImage;
 use App\Models\User;
 use App\Models\Group;
 use App\Models\Folder;
@@ -46,9 +47,10 @@ class PostController extends Controller
     public function store(StorePostRequest $request)
     {
         try {
+            // Lấy ID người dùng đã đăng nhập
             $userId = Auth::id();
 
-            // Tạo bài viết
+            // Tạo bài viết mới
             $post = Post::create([
                 'title' => $request->input('title'),
                 'content' => $request->input('content'),
@@ -58,14 +60,49 @@ class PostController extends Controller
                 'slug' => Str::slug($request->input('title')),
             ]);
 
-            // Xử lý file upload nếu có
-            if ($request->hasFile('image')) {
-                $filename = time() . '_' . $request->file('image')->getClientOriginalName();
-                $request->file('image')->storeAs('public/images/', $filename);
-                $post->update(['image_url' => 'images/' . $filename]);
+            // **Xử lý tệp đơn (ảnh hoặc video)**
+            if ($request->hasFile('media_single')) {
+                $mediaSingle = $request->file('media_single');
+
+                // Kiểm tra xem tệp tải lên có phải là video không
+                if (str_contains($mediaSingle->getMimeType(), 'video')) {
+                    // Lưu video vào thư mục uploads/
+                    $filename = time() . '_' . $mediaSingle->getClientOriginalName();
+                    $filePath = $mediaSingle->storeAs('public/uploads', $filename, 'public');
+                    $post->image_url = 'uploads/' . $filename;
+                } else {
+                    // Nếu là ảnh, lưu vào thư mục image/
+                    $filename = time() . '_' . $mediaSingle->getClientOriginalName();
+                    $filePath = $mediaSingle->storeAs('public/image', $filename, 'public');
+                    $post->image_url = 'image/' . $filename;
+                }
+
+                // Lưu thông tin bài viết
+                $post->save();
             }
 
-            return redirect()->route('users.posts.create')->with('success', 'Bài viết đã lưu.');
+            // **Xử lý tệp tải lên (nhiều ảnh)**
+            if ($request->hasFile('media_multiple')) {
+                // Xóa các ảnh cũ trước khi cập nhật ảnh mới (nếu có)
+                PostImage::where('post_id', $post->id)->delete();
+
+                foreach ($request->file('media_multiple') as $file) {
+                    // Chỉ xử lý nếu tệp là ảnh
+                    if (str_contains($file->getMimeType(), 'image')) {
+                        $filename = time() . '_' . $file->getClientOriginalName();
+                        $filePath = $file->storeAs('public/uploads', $filename, 'public');
+
+                        // Lưu từng ảnh vào trong bảng post_images
+                        PostImage::create([
+                            'post_id' => $post->id,
+                            'file_path' => 'uploads/' . $filename,
+                        ]);
+                    }
+                }
+            }
+
+            // Chuyển hướng sau khi lưu bài viết thành công
+            return redirect()->route('users.posts.create')->with('success', 'Bài viết đã được lưu thành công.');
         } catch (\Exception $e) {
             Log::error('Lỗi khi tạo bài viết: ' . $e->getMessage());
             return redirect()->route('users.posts.create')->with('error', 'Có lỗi xảy ra khi lưu bài viết.');
@@ -98,47 +135,80 @@ class PostController extends Controller
     }
 
 
-    public function update(Request $request, Post $post)
+    public function update(StorePostRequest $request, Post $post)
     {
-        // dd($request->all());
-        $validatedData = $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'status' => 'required|string|in:draft,published',
-            'category_id' => 'required|exists:categories,id', // Kiểm tra danh mục có tồn tại
-        ]);
+        try {
+            // Cập nhật bài viết
+            $validatedData = $request->validated();
+            // Cập nhật bài viết
+            $post->update([
+                'title' => $validatedData['title'],
+                'content' => $validatedData['content'],
+                'category_id' => $validatedData['category_id'],
+                'status' => $validatedData['status'],
+                'slug' => Str::slug($validatedData['title']),
+            ]);
 
-        // Tìm bài viết và cập nhật
-        $post->title = $validatedData['title'];
-        $post->content = $validatedData['content'];
-        $post->status = $validatedData['status'];
-        $post->category_id = $validatedData['category_id'];
-
-        // Tạo slug từ tiêu đề
-        $post->slug = Str::slug($validatedData['title']); // Cập nhật slug từ tiêu đề
-
-        // Nếu trạng thái là published, cập nhật thời gian published_at
-        if ($post->status === 'published') {
-            $post->published_at = now(); // Reset thời gian khi được công bố
-        } else {
-            $post->published_at = null; // Reset nếu quay về draft
-        }
-
-        // Xử lý upload ảnh nếu có
-        if ($request->hasFile('image')) {
-            // Xóa ảnh cũ nếu cần
-            if ($post->image_path) {
-                Storage::disk('public')->delete($post->image_path);
+            // Nếu trạng thái là "published", cập nhật thời gian published_at
+            if ($validatedData['status'] === 'published') {
+                $post->published_at = now();
+            } else {
+                $post->published_at = null;
             }
-            // Lưu ảnh mới
-            $path = $request->file('image')->store('images', 'public');
-            $post->image_url = $path;
+
+            // **Xử lý upload tệp đơn (ảnh hoặc video)**
+            if ($request->hasFile('media_single')) {
+                $file = $request->file('media_single');
+                $isVideo = str_contains($file->getMimeType(), 'video');
+
+                // Xóa file cũ nếu tồn tại
+                if ($post->image_url) {
+                    Storage::disk('public')->delete($post->image_url);
+                }
+
+                // Lưu file mới
+                $filename = time() . '_' . $file->getClientOriginalName();
+
+                if ($isVideo) {
+                    // Nếu là video, lưu vào thư mục uploads
+                    $filePath = $file->storeAs('uploads', $filename, 'public');
+                    $post->image_url = 'uploads/' . $filename;
+
+                    // Xóa tất cả các ảnh phụ nếu có
+                    PostImage::where('post_id', $post->id)->delete();
+                } else {
+                    // Nếu là ảnh, lưu vào thư mục image
+                    $filePath = $file->storeAs('image', $filename, 'public');
+                    $post->image_url = 'image/' . $filename;
+                }
+            }
+
+            // **Xử lý upload nhiều ảnh (chỉ khi media_single không phải video)**
+            if ($request->hasFile('media_multiple') && (!$request->hasFile('media_single') || !str_contains($request->file('media_single')->getMimeType(), 'video'))) {
+                // Xóa các ảnh phụ cũ trước khi cập nhật ảnh mới
+                PostImage::where('post_id', $post->id)->delete();
+
+                foreach ($request->file('media_multiple') as $file) {
+                    if (str_contains($file->getMimeType(), 'image')) {
+                        $filename = time() . '_' . $file->getClientOriginalName();
+                        $filePath = $file->storeAs('uploads', $filename, 'public');
+
+                        PostImage::create([
+                            'post_id' => $post->id,
+                            'file_path' => 'uploads/' . $filename,
+                        ]);
+                    }
+                }
+            }
+
+            // Lưu thay đổi bài viết
+            $post->save();
+
+            return redirect()->route('users.index')->with('success', 'Bài viết đã được cập nhật thành công.');
+        } catch (\Exception $e) {
+            Log::error('Lỗi khi cập nhật bài viết: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Có lỗi xảy ra khi cập nhật bài viết.');
         }
-
-        $post->save();
-
-        return redirect()->route('users.index')->with('success', 'Bài viết đã được cập nhật.');
     }
 
     public function drafts()
