@@ -34,6 +34,12 @@ class Product extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    // Thiết lập quan hệ với ProductImage
+    public function images()
+    {
+        return $this->hasMany(ProductImage::class);
+    }
+
     // Khi xóa bản ghi trong CSDL, xóa luôn tệp ảnh
     protected static function booted()
     {

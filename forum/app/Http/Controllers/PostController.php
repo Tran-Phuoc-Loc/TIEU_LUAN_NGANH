@@ -9,6 +9,7 @@ use App\Models\Post;
 use App\Models\PostImage;
 use App\Models\User;
 use App\Models\Group;
+use App\Models\Product;
 use App\Models\Folder;
 use App\Models\ForumPost;
 use App\Models\Category;
@@ -32,6 +33,79 @@ class PostController extends Controller
     {
         // Lấy tất cả nhóm từ database và gán vào biến groups
         $this->groups = Group::all();
+    }
+
+    // Tìm kiếm bài viết
+    public function index(Request $request)
+    {
+        $query = $request->input('query');
+
+        // Kiểm tra nếu người dùng không nhập gì
+        if (empty($query)) {
+            return redirect()->route('users.index')->with('error', 'Vui lòng nhập ký tự để tìm kiếm.');
+        }
+
+        // Tìm kiếm bài viết diễn đàn
+        $forumPostsQuery = ForumPost::with('user');
+
+        // Nếu có truy vấn tìm kiếm cho diễn đàn
+        if ($query) {
+            $forumPostsQuery->where(function ($q) use ($query) {
+                $q->where('title', 'LIKE', "%{$query}%")
+                    ->orWhere('content', 'LIKE', "%{$query}%");
+            });
+        }
+
+        // Lấy danh sách bài viết diễn đàn sau khi thêm điều kiện tìm kiếm
+        $forumPosts = $forumPostsQuery->get();
+
+        // Khởi tạo truy vấn cho bài viết mạng xã hội
+        $postsQuery = Post::where('status', 'published')->with(['user', 'category']);
+
+        if ($query) {
+            $postsQuery->where(function ($q) use ($query) {
+                $q->where('title', 'LIKE', "%{$query}%")
+                    ->orWhere('content', 'LIKE', "%{$query}%");
+            });
+        }
+        $posts = $postsQuery->get();
+
+        // Khởi tạo truy vấn tìm kiếm cho người dùng
+        $usersQuery = User::query();
+        if ($query) {
+            $usersQuery->where(function ($q) use ($query) {
+                $q->where('username', 'LIKE', "%{$query}%")
+                    ->orWhere('email', 'LIKE', "%{$query}%");
+            });
+        }
+        $users = $usersQuery->where('role', '!=', 'admin')
+            ->orderByRaw("CASE 
+                WHEN username LIKE '{$query}%' THEN 1 
+                ELSE 2 
+           END")
+            ->limit(10)
+            ->get();
+
+        // Khởi tạo truy vấn tìm kiếm cho nhóm
+        $groupsQuery = Group::query();
+        if ($query) {
+            $groupsQuery->where('name', 'LIKE', "%{$query}%");
+        }
+        $groups = $groupsQuery->get();
+
+        // Khởi tạo truy vấn tìm kiếm cho sản phẩm
+        $productsQuery = Product::query();
+        if ($query) {
+            $productsQuery->where(function ($q) use ($query) {
+                $q->where('name', 'LIKE', "%{$query}%")
+                    ->orWhere('description', 'LIKE', "%{$query}%");
+            });
+        }
+        $products = $productsQuery->get();
+
+
+        // Trả về view với cả bài viết, bài viết diễn đàn, người dùng và nhóm
+        return view('users.posts.index', compact('forumPosts', 'posts', 'users', 'groups', 'query', 'products'));
     }
 
     public function create()
@@ -367,67 +441,6 @@ class PostController extends Controller
             // Trả về phản hồi lỗi nếu có vấn đề
             return response()->json(['success' => false, 'message' => 'Đã có lỗi xảy ra. Vui lòng thử lại.'], 500);
         }
-    }
-
-    public function index(Request $request)
-    {
-        $query = $request->input('query');
-
-        // Kiểm tra nếu người dùng không nhập gì
-        if (empty($query)) {
-            return redirect()->route('users.index')->with('error', 'Vui lòng nhập ký tự để tìm kiếm.');
-        }
-
-        // Tìm kiếm bài viết diễn đàn
-        $forumPostsQuery = ForumPost::with('user');
-
-        // Nếu có truy vấn tìm kiếm cho diễn đàn
-        if ($query) {
-            $forumPostsQuery->where(function ($q) use ($query) {
-                $q->where('title', 'LIKE', "%{$query}%")
-                    ->orWhere('content', 'LIKE', "%{$query}%");
-            });
-        }
-
-        // Lấy danh sách bài viết diễn đàn sau khi thêm điều kiện tìm kiếm
-        $forumPosts = $forumPostsQuery->get();
-
-        // Khởi tạo truy vấn cho bài viết mạng xã hội
-        $postsQuery = Post::where('status', 'published')->with(['user', 'category']);
-
-        if ($query) {
-            $postsQuery->where(function ($q) use ($query) {
-                $q->where('title', 'LIKE', "%{$query}%")
-                    ->orWhere('content', 'LIKE', "%{$query}%");
-            });
-        }
-        $posts = $postsQuery->get();
-
-        // Khởi tạo truy vấn tìm kiếm cho người dùng
-        $usersQuery = User::query();
-        if ($query) {
-            $usersQuery->where(function ($q) use ($query) {
-                $q->where('username', 'LIKE', "%{$query}%")
-                    ->orWhere('email', 'LIKE', "%{$query}%");
-            });
-        }
-        $users = $usersQuery->where('role', '!=', 'admin')
-            ->orderByRaw("CASE 
-                WHEN username LIKE '{$query}%' THEN 1 
-                ELSE 2 
-           END")
-            ->limit(10)
-            ->get();
-
-        // Khởi tạo truy vấn tìm kiếm cho nhóm
-        $groupsQuery = Group::query();
-        if ($query) {
-            $groupsQuery->where('name', 'LIKE', "%{$query}%");
-        }
-        $groups = $groupsQuery->get();
-
-        // Trả về view với cả bài viết, bài viết diễn đàn, người dùng và nhóm
-        return view('users.posts.index', compact('forumPosts', 'posts', 'users', 'groups', 'query'));
     }
 
     public function show($id)

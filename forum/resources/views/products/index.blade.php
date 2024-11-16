@@ -92,7 +92,7 @@
                 <div class="row">
                     @foreach($products as $product)
                     <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="post-container" style="border: 1px solid #c8ccd0; background-color:#fff; padding: 20px;">
+                        <div class="post-container" style="border: 1px solid #c8ccd0; background-color:#fff; padding: 20px; height:500px;">
 
                             <!-- Hiển thị nhãn "New" nếu sản phẩm được đăng trong vòng 7 ngày -->
                             @if(\Carbon\Carbon::parse($product->created_at)->setTimezone('Asia/Ho_Chi_Minh')->greaterThanOrEqualTo(\Carbon\Carbon::now('Asia/Ho_Chi_Minh')->subDays(7)))
@@ -119,35 +119,30 @@
                                     @endif
                                 </h7>
                                 <!-- Hiển thị tên sản phẩm -->
-                                <h5 class="product-name">{{ $product->name }}</h5>
+                                <a href="{{ route('products.show', ['product' => $product->id]) }}">
+                                    <h5 class="product-name" style="height: 70px;">{{ Str::limit($product->name, 30) }}</h5>
+                                </a>
 
                                 <!-- Hiển thị giá sản phẩm -->
                                 <p class="product-price" style="color: #ff6a00; font-weight: bold;">
                                     Giá: {{ number_format($product->price, 0, ',', '.') }} VND
                                 </p>
 
-                                <!-- Mô tả sản phẩm -->
-                                <p class="product-description">{{ $product->description }}</p>
-
-                                <!-- Chỉ hiển thị tên người bán nếu người xem không phải là người bán -->
-                                @if(auth()->check() && auth()->id() !== $product->user_id)
-                                <p class="text-muted">Người bán: {{ $product->user->username ?? 'Không rõ' }}</p>
-                                @endif
-
-                                <!-- Nút liên hệ người bán (sử dụng tính năng nhắn tin) -->
-                                @auth
-                                @if(auth()->id() !== $product->user_id)
-                                <!-- Nếu người xem không phải là người bán, hiển thị nút nhắn tin -->
-                                <a href="{{ route('chat.product', ['productId' => $product->id, 'receiverId' => $product->user->id]) }}" class="btn btn-primary mt-3">Nhắn tin với người bán</a>
-
-                                @else
-                                <!-- Nút chỉnh sửa sản phẩm, chỉ hiển thị cho người bán -->
-                                <a href="{{ route('products.edit', $product->id) }}" class="btn btn-success mt-3">Sửa Sản Phẩm</a>
-                                @endif
-                                @else
-                                <!-- Nếu chưa đăng nhập, yêu cầu đăng nhập để liên hệ -->
-                                <a href="{{ route('login') }}" class="btn btn-warning mt-3">Đăng nhập để liên hệ</a>
-                                @endauth
+                                <!-- Phần thông tin người bán và nút liên hệ -->
+                                <div class="mt-auto">
+                                    @auth
+                                    @if(auth()->id() !== $product->user_id)
+                                    <!-- Nút nhắn tin với người bán -->
+                                    <a href="{{ route('chat.product', ['productId' => $product->id, 'receiverId' => $product->user->id]) }}" class="btn btn-primary w-100 mt-3">Nhắn tin với người bán</a>
+                                    @else
+                                    <!-- Nút chỉnh sửa sản phẩm cho người bán -->
+                                    <a href="{{ route('products.edit', $product->id) }}" class="btn btn-success w-100 mt-3">Sửa Sản Phẩm</a>
+                                    @endif
+                                    @else
+                                    <!-- Nút đăng nhập -->
+                                    <a href="{{ route('login') }}" class="btn btn-warning w-100 mt-3">Đăng nhập để liên hệ</a>
+                                    @endauth
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -156,9 +151,11 @@
             </div>
 
             <!-- Phân trang -->
+            @if($products instanceof \Illuminate\Pagination\LengthAwarePaginator)
             <div class="d-flex justify-content-center mt-4">
                 {{ $products->links() }}
             </div>
+            @endif
         </div>
 
         <!-- Sidebar phải: Mẹo Vặt -->

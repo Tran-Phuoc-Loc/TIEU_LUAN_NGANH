@@ -86,7 +86,7 @@
             <div class="alert alert-success">{{ session('success') }}</div>
             @endif
 
-            <form action="{{ route('forums.store') }}" method="POST">
+            <form action="{{ route('forums.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="mb-3">
                     <label for="title" class="form-label">Tiêu đề bài viết</label>
@@ -114,6 +114,11 @@
                 <div class="mb-3">
                     <label for="content">Nội dung</label>
                     <textarea class="form-control" id="content" name="content" rows="5"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="file" class="form-label">Tải lên tài liệu/ảnh</label>
+                    <input type="file" class="form-control" id="file" name="file" accept=".pdf,.docx,.pptx,image/*">
                 </div>
 
                 <button type="submit" class="btn btn-primary">Đăng Bài Viết</button>

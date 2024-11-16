@@ -92,17 +92,35 @@
                     </h4>
                     <p>{!! Str::limit($post->content, 200) !!}</p>
                     <p><small>Viết bởi: {{ $post->user->username ?? 'Không có tên' }} - {{ $post->created_at->format('d-m-Y H:i') }}</small></p>
-                    <!-- Hiển thị nút xóa nếu người dùng hiện tại là tác giả hoặc admin -->
-                    @if(auth()->user()->id === $post->user_id || auth()->user()->role === 'admin')
-                    <!-- Form xóa bài viết -->
-                    <form action="{{ route('forums.destroy', $post->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa bài viết này?');" style="display: inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger">Xóa</button>
-                    </form>
 
-                    <!-- Nút chỉnh sửa bài viết -->
-                    <a href="{{ route('forums.edit', $post->id) }}" class="btn btn-warning">Chỉnh Sửa</a>
+                    @if($post->file_path)
+                    <div class="mb-3">
+                        <a href="{{ asset('storage/' . $post->file_path) }}" class="btn btn-info" download>Tải xuống tài liệu</a>
+                    </div>
+                    @endif
+
+                    <!-- Hiển thị menu dropdown cho tác giả hoặc admin -->
+                    @if(auth()->user()->id === $post->user_id || auth()->user()->role === 'admin')
+                    <div class="dropdown" style="display: inline;">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                            Tùy chọn
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <!-- Chỉnh sửa bài viết (nếu cần) -->
+                            <li>
+                                <a class="dropdown-item" href="{{ route('forums.edit', $post->id) }}">Chỉnh sửa</a>
+                            </li>
+
+                            <!-- Form xóa bài viết -->
+                            <li>
+                                <form action="{{ route('forums.destroy', $post->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa bài viết này?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="dropdown-item text-danger">Xóa</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
                     @endif
                     <hr>
                 </li>

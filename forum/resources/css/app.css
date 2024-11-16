@@ -188,7 +188,7 @@ img.img-thumbnail:hover {
 
 /* Button Styles */
 .btn-primary {
-    padding: 15px; /* Padding cho nút chính */
+    padding: 10px 15px; /* Padding cho nút chính */
     font-size: 16px; /* Kích thước font cho nút chính */
     background: linear-gradient(135deg, #ff57b9, #a704fd); /* Gradient cho nút chính */
     border: none; /* Không có viền */

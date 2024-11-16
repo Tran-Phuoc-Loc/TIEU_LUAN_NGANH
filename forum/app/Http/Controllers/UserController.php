@@ -16,17 +16,36 @@ use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
+    // Trang chủ cho bài viết
     public function index(Request $request)
     {
         // Lấy tất cả người dùng
         $users = User::all();
+        $posts = collect();  // Đảm bảo biến $posts luôn tồn tại
 
-        // Lấy tất cả bài viết đã xuất bản và đếm số lượng like và comment
-        $posts = Post::with('user')
-            ->withCount('likes', 'comments')
-            ->where('status', 'published')
-            ->orderByRaw('COALESCE(published_at, created_at) DESC')
-            ->get();
+        // Kiểm tra nếu có tham số 'id' trong URL (tìm kiếm bài viết theo id)
+        if ($request->has('id')) {
+            // Lấy bài viết có id tương ứng
+            $post = Post::with('user')
+                ->withCount('likes', 'comments')
+                ->where('status', 'published')
+                ->where('id', $request->id)  // Lọc bài viết theo id
+                ->first();  // Dùng first() thay vì get() để chỉ lấy 1 bài viết
+
+            // Kiểm tra nếu có bài viết
+            if ($post) {
+                $posts = collect([$post]); // Chuyển bài viết duy nhất thành collection
+            } else {
+                $posts = collect(); // Nếu bài viết không tồn tại, trả về collection rỗng
+            }
+        } else {
+            // Nếu không có id, lấy tất cả bài viết đã xuất bản
+            $posts = Post::with('user')
+                ->withCount('likes', 'comments')
+                ->where('status', 'published')
+                ->orderByRaw('COALESCE(published_at, created_at) DESC')
+                ->get();
+        }
 
         // Kiểm tra xem người dùng đã đăng nhập chưa
         $user = Auth::user();
@@ -76,7 +95,8 @@ class UserController extends Controller
         return view('users.index', compact(
             'unreadNotifications',
             'users',
-            'posts',
+            'post',  // Chỉ truyền 'post' nếu có id tìm thấy
+            'posts', // Truyền tất cả bài viết nếu không có id
             'folders',
             'savedPosts',
             'post',
@@ -87,6 +107,7 @@ class UserController extends Controller
         ));
     }
 
+    // Trang xử lý Profile người dùng
     public function show(User $user, $section = 'profile')
     {
         // Lấy ID từ đối tượng user đã được truyền vào

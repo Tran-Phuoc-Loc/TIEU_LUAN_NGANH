@@ -122,11 +122,12 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="image" class="form-label">Hình ảnh (tùy chọn)</label>
-                        <input type="file" name="image" class="form-control" id="image">
-                        @error('image')
-                        <div class="alert alert-danger">{{ $message }}</div>
-                        @enderror
+                        <label for="image">Ảnh đại diện</label>
+                        <input type="file" class="form-control" name="image">
+                    </div>
+                    <div class="mb-3">
+                        <label for="images">Hình ảnh khác</label>
+                        <input type="file" class="form-control" name="images[]" multiple>
                     </div>
 
                     <div class="mb-3">

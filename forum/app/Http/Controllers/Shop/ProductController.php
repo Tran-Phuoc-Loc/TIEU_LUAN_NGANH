@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Group;
 use App\Models\Product;
+use App\Models\ProductImage;
 use App\Models\ProductCategory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -23,16 +24,30 @@ class ProductController extends Controller
      * Display a listing of the resource.
      */
     // Hiển thị danh sách sản phẩm
-    public function index()
+    public function index(Request $request)
     {
-        // Sử dụng paginate với quan hệ 'category'
-        $products = Product::with('user')->latest()->paginate(9);
+        // Kiểm tra nếu có tham số 'id' trong URL
+        if ($request->has('id')) {
+            // Lọc sản phẩm theo id nếu có tham số 'id'
+            $products = Product::with('user')
+                ->where('id', $request->id) // Lọc sản phẩm theo id
+                ->latest()
+                ->get(); // Sử dụng get() khi không cần phân trang
+        } else {
+            // Nếu không có id, sử dụng paginate để phân trang sản phẩm
+            $products = Product::with('user')->latest()->paginate(9); // Sử dụng paginate khi cần phân trang
+        }
+
+        // Lấy người nhận thông tin (người dùng hiện tại)
         $receiver = Auth::user();
+
+        // Lấy tất cả nhóm
         $groups = Group::all();
 
-        // Lấy các sản phẩm khác để hiển thị trong sidebar
+        // Lấy các sản phẩm liên quan để hiển thị trong sidebar
         $relatedProducts = Product::inRandomOrder()->limit(5)->get();
 
+        // Trả về view với các biến cần thiết
         return view('products.index', compact('products', 'receiver', 'relatedProducts', 'groups'));
     }
 
@@ -58,39 +73,42 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'price' => 'required|numeric',
             'product_category_id' => 'nullable|exists:product_categories,id',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Kiểm tra ảnh
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4048', // Ảnh đại diện
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4048' // Nhiều ảnh khác
         ]);
 
         // Lấy tất cả dữ liệu từ request
         $data = $request->all();
 
-        // Chỉ cho phép người dùng đã đăng nhập tạo sản phẩm
-        if (Auth::check()) {
-            // Gán user_id của người dùng đang đăng nhập
-            $data['user_id'] = Auth::id(); // Lấy id của người dùng đã đăng nhập
-        } else {
-            return redirect()->route('login')->with('error', 'Bạn cần đăng nhập để tạo sản phẩm.');
-        }
+        // Gán user_id của người dùng đăng nhập
+        $data['user_id'] = Auth::id();
+        $data['status'] = 'in_stock'; // Mặc định là còn hàng
 
-        // Gán trạng thái mặc định là 'in_stock' khi tạo sản phẩm mới
-        $data['status'] = 'in_stock';  // Mặc định là còn hàng
-
-        // Kiểm tra và lưu ảnh nếu có
+        // Lưu ảnh đại diện (nếu có)
         if ($request->hasFile('image')) {
-            // Tạo tên ảnh duy nhất bằng UUID
             $imageName = \Ramsey\Uuid\Guid\Guid::uuid4()->toString() . '.' . $request->file('image')->extension();
-
-            // Lưu ảnh vào thư mục 'products' trong storage public
             $imagePath = $request->file('image')->storeAs('products', $imageName, 'public');
-
-            // Lưu đường dẫn ảnh vào dữ liệu sản phẩm
-            $data['image'] = $imagePath;
+            $data['image'] = $imagePath; // Lưu vào bảng products
         }
 
         // Tạo sản phẩm mới
-        Product::create($data);
+        $product = Product::create($data);
 
-        // Chuyển hướng về trang danh sách sản phẩm với thông báo thành công
+        // Lưu các hình ảnh khác vào bảng `product_images` (nếu có)
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $filename = \Ramsey\Uuid\Guid\Guid::uuid4()->toString() . '.' . $image->extension();
+                $path = $image->storeAs('products', $filename, 'public');
+
+                // Tạo bản ghi cho từng ảnh
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'image' => $path,
+                ]);
+            }
+        }
+
+        // Chuyển hướng về trang danh sách sản phẩm
         return redirect()->route('products.index')->with('success', 'Sản phẩm được tạo thành công.');
     }
 
@@ -98,9 +116,12 @@ class ProductController extends Controller
      * Display the specified resource.
      */
     // Hiển thị chi tiết một sản phẩm
-    public function show(Product $product)
+    public function show($id)
     {
-        return view('products.show', compact('product'));
+        // Tìm sản phẩm theo ID, bao gồm thông tin người bán và các ảnh liên quan
+        $product = Product::with('user', 'images')->findOrFail($id);
+        $groups = Group::all();
+        return view('products.show', compact('product', 'groups'));
     }
 
     /**
@@ -110,7 +131,8 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $categories = ProductCategory::all();
-        return view('products.edit', compact('product', 'categories'));
+        $groups = Group::all();
+        return view('products.edit', compact('product', 'categories', 'groups'));
     }
 
     /**

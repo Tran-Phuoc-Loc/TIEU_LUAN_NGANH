@@ -13,7 +13,7 @@ class ForumPost extends Model
 
     protected $table = 'forum_posts';
 
-    protected $fillable = ['user_id', 'forum_category_id', 'title', 'content'];
+    protected $fillable = ['user_id', 'forum_category_id', 'title', 'content', 'file_path'];
 
     public function setContentAttribute($value)
     {

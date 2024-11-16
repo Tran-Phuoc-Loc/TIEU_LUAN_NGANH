@@ -20,8 +20,6 @@
 
     <!-- Moment.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-    <script src="https://cdn.ckeditor.com/ckeditor5/38.1.1/classic/ckeditor.js"></script>
-
 
     <style>
         /* Container chính */

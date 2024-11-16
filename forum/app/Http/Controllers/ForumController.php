@@ -10,8 +10,20 @@ use Illuminate\Support\Facades\Auth;
 
 class ForumController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        // Kiểm tra nếu có tham số 'id' trong URL
+        if ($request->has('id')) {
+            // Lọc bài viết theo id nếu có tham số 'id'
+            $posts = ForumPost::with('user')
+                ->where('id', $request->id) // Lọc bài viết theo id
+                ->latest()
+                ->get();
+        } else {
+            // Nếu không có id, lấy tất cả bài viết
+            $posts = ForumPost::with('user')->latest()->get();
+        }
+
         // Lấy 5 danh mục và 5 bài viết mới nhất trong mỗi danh mục
         $categories = ForumCategory::with(['posts' => function ($query) {
             $query->latest()->take(5);
@@ -20,12 +32,10 @@ class ForumController extends Controller
         // Lấy 5 bài viết mới nhất từ tất cả các bài viết
         $latestPosts = ForumPost::with('user')->latest()->take(5)->get();
 
-        // Lấy tất cả bài viết để hiển thị trong nội dung chính
-        $posts = ForumPost::with('user')->latest()->get();
-
         // Lấy tất cả nhóm
         $groups = Group::all();
 
+        // Trả về view với các biến cần thiết
         return view('users.forums.index', compact('categories', 'posts', 'latestPosts', 'groups'));
     }
 
@@ -60,28 +70,50 @@ class ForumController extends Controller
 
         // Lấy 5 bài viết mới nhất từ tất cả các bài viết
         $latestPosts = ForumPost::with('user')->latest()->take(5)->get();
-        
+
         return view('users.forums.create', compact('categories', 'groups', 'latestPosts'));
     }
 
     // Lưu bài viết mới vào cơ sở dữ liệu
     public function store(Request $request)
-    {
-        $validatedData = $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
-            'forum_category_id' => 'required|exists:forum_categories,id', // Thêm dòng này
-        ]);
+{
+    $validatedData = $request->validate([
+        'title' => 'required|string|max:255',
+        'content' => 'required|string',
+        'forum_category_id' => 'required|exists:forum_categories,id',
+        'file' => 'nullable|file|mimes:pdf,docx,pptx,jpeg,png,jpg|max:2048',  // Kiểm tra tệp tải lên
+    ]);
 
-        ForumPost::create([
-            'title' => $validatedData['title'],
-            'content' => $validatedData['content'],
-            'forum_category_id' => $validatedData['forum_category_id'], // Đảm bảo có giá trị này
-            'user_id' => Auth::id(),
-        ]);
+    // Xử lý tải tệp (nếu có)
+    $filePath = null;
+    if ($request->hasFile('file')) {
+        $file = $request->file('file');
+        
+        // Kiểm tra lại phần mở rộng tệp
+        $extension = $file->getClientOriginalExtension();  // Lấy phần mở rộng tệp
+        $mimeType = $file->getMimeType();  // Lấy MIME type của tệp
 
-        return redirect()->route('forums.index')->with('success', 'Bài viết đã được tạo!');
+        // Kiểm tra loại tệp tải lên
+        if (!in_array($extension, ['pdf', 'docx', 'pptx', 'jpeg', 'png', 'jpg'])) {
+            return back()->withErrors(['file' => 'Chỉ hỗ trợ tệp có định dạng pdf, docx, pptx, jpeg, png, jpg.']);
+        }
+
+        // Lưu tệp
+        $filePath = $file->store('forum_uploads', 'public');
     }
+
+    // Lưu bài viết vào cơ sở dữ liệu
+    ForumPost::create([
+        'title' => $validatedData['title'],
+        'content' => $validatedData['content'],
+        'forum_category_id' => $validatedData['forum_category_id'],
+        'user_id' => Auth::id(),
+        'file_path' => $filePath,  // Lưu đường dẫn tệp
+    ]);
+
+    return redirect()->route('forums.index')->with('success', 'Bài viết đã được tạo!');
+}
+
 
     // Phương thức chỉnh sửa bài viết
     public function edit($id)

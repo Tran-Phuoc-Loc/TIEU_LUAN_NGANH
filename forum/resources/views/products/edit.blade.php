@@ -135,18 +135,13 @@
                         @enderror
                     </div>
 
-                    <!-- Hình ảnh -->
                     <div class="mb-3">
-                        <label for="image" class="form-label">Hình ảnh (tùy chọn)</label>
-                        <input type="file" name="image" class="form-control" id="image">
-                        @if ($product->image)
-                        <div class="mt-2">
-                            <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" style="max-height: 150px;">
-                        </div>
-                        @endif
-                        @error('image')
-                        <div class="alert alert-danger">{{ $message }}</div>
-                        @enderror
+                        <label for="image">Ảnh đại diện</label>
+                        <input type="file" class="form-control" name="image">
+                    </div>
+                    <div class="mb-3">
+                        <label for="images">Hình ảnh khác</label>
+                        <input type="file" class="form-control" name="images[]" multiple>
                     </div>
 
                     <!-- Trường Status -->

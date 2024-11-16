@@ -13,61 +13,77 @@
             <!-- Kết quả tìm kiếm bài viết diễn đàn -->
             <h3>Bài Viết Diễn Đàn</h3>
             @if($forumPosts->isEmpty())
-                <p>Không tìm thấy bài viết diễn đàn nào.</p>
+            <p>Không tìm thấy bài viết diễn đàn nào.</p>
             @else
-                <ul class="list-group mb-4">
-                    @foreach($forumPosts as $post)
-                    <li class="list-group-item">
-                        <a href="{{ route('forums.show', $post->id) }}">{{ $post->title }}</a>
-                        <p>{{ Str::limit($post->content, 100) }}</p>
-                        <small>Viết bởi: {{ $post->user->username ?? 'Không có tên' }} - {{ $post->created_at->format('d-m-Y') }}</small>
-                    </li>
-                    @endforeach
-                </ul>
+            <ul class="list-group mb-4">
+                @foreach($forumPosts as $post)
+                <li class="list-group-item">
+                    <a href="{{ route('forums.index', ['id' => $post->id]) }}">{{ $post->title }}</a>
+                    <p>{{ Str::limit($post->content, 100) }}</p>
+                    <small>Viết bởi: {{ $post->user->username ?? 'Không có tên' }} - {{ $post->created_at->format('d-m-Y') }}</small>
+                </li>
+                @endforeach
+            </ul>
             @endif
 
             <!-- Kết quả tìm kiếm bài viết mạng xã hội -->
             <h3>Bài Viết Mạng Xã Hội</h3>
             @if($posts->isEmpty())
-                <p>Không tìm thấy bài viết nào.</p>
+            <p>Không tìm thấy bài viết nào.</p>
             @else
-                <ul class="list-group mb-4">
-                    @foreach($posts as $post)
-                    <li class="list-group-item">
-                        <a href="{{ route('users.index', $post->id) }}">{{ $post->title }}</a>
-                        <p>{{ Str::limit($post->content, 100) }}</p>
-                        <small>Viết bởi: {{ $post->user->username ?? 'Không có tên' }} - {{ $post->created_at->format('d-m-Y') }}</small>
-                    </li>
-                    @endforeach
-                </ul>
+            <ul class="list-group mb-4">
+                @foreach($posts as $post)
+                <li class="list-group-item">
+                    <a href="{{ route('users.index', ['id' => $post->id]) }}">{{ $post->title }}</a>
+                    <p>{{ Str::limit($post->content, 100) }}</p>
+                    <small>Viết bởi: {{ $post->user->username ?? 'Không có tên' }} - {{ $post->created_at->format('d-m-Y') }}</small>
+                </li>
+                @endforeach
+            </ul>
+            @endif
+
+            <!-- Kết quả tìm kiếm bài viết mạng xã hội -->
+            <h3>Sản phẩm</h3>
+            @if($products->isEmpty())
+            <p>Không tìm thấy bài viết nào.</p>
+            @else
+            <ul class="list-group mb-4">
+                @foreach($products as $product)
+                <li class="list-group-item">
+                    <a href="{{ route('products.index', ['id' => $product->id]) }}">{{ $product->name }}</a>
+                    <p>{{ Str::limit($product->description, 100) }}</p>
+                    <small>Viết bởi: {{ $product->user->username ?? 'Không có tên' }} - {{ $post->created_at->format('d-m-Y') }}</small>
+                </li>
+                @endforeach
+            </ul>
             @endif
 
             <!-- Kết quả tìm kiếm người dùng -->
             <h3>Người Dùng</h3>
             @if($users->isNotEmpty())
-                <ul class="list-group mb-4">
-                    @foreach($users as $user)
-                    <li class="list-group-item">
-                        <a href="{{ route('users.profile.index', $user->id) }}">{{ $user->username }}</a>
-                    </li>
-                    @endforeach
-                </ul>
+            <ul class="list-group mb-4">
+                @foreach($users as $user)
+                <li class="list-group-item">
+                    <a href="{{ route('users.profile.index', $user->id) }}">{{ $user->username }}</a>
+                </li>
+                @endforeach
+            </ul>
             @else
-                <p>Không tìm thấy người dùng nào.</p>
+            <p>Không tìm thấy người dùng nào.</p>
             @endif
 
             <!-- Kết quả tìm kiếm nhóm -->
             <h3>Nhóm</h3>
             @if($groups->isNotEmpty())
-                <ul class="list-group">
-                    @foreach($groups as $group)
-                    <li class="list-group-item">
-                        <a href="{{ route('users.groups.show', $group->id) }}">{{ $group->name }}</a>
-                    </li>
-                    @endforeach
-                </ul>
+            <ul class="list-group">
+                @foreach($groups as $group)
+                <li class="list-group-item">
+                    <a href="{{ route('users.groups.show', $group->id) }}">{{ $group->name }}</a>
+                </li>
+                @endforeach
+            </ul>
             @else
-                <p>Không tìm thấy nhóm nào.</p>
+            <p>Không tìm thấy nhóm nào.</p>
             @endif
         </div>
     </div>
