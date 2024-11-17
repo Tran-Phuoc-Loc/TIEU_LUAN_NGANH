@@ -23,12 +23,17 @@ class CommentController extends Controller
             'parent_id' => 'nullable|integer|exists:comments,id',
         ]);
 
+        // Kiểm tra tránh bình luận đệ quy (parent_id không thể là chính nó)
+        if (isset($validated['parent_id']) && $validated['parent_id'] == $post->id) {
+            return response()->json(['success' => false, 'message' => 'Không thể bình luận vào chính bài viết của mình.'], 400);
+        }
+
         // Tạo bình luận mới
         $comment = new Comment();
         $comment->content = $validated['content'];
         $comment->post_id = $post->id;
         $comment->user_id = Auth::id(); // Lấy ID của người dùng đã đăng nhập
-        $comment->parent_id = $validated['parent_id'] ?? null; // Null nếu không phải trả lời bình luận nào
+        $comment->parent_id = $validated['parent_id'] ?? null;
 
         // Kiểm tra nếu có hình ảnh được tải lên
         if ($request->hasFile('image')) {
@@ -43,12 +48,18 @@ class CommentController extends Controller
             return response()->json(['success' => false, 'message' => 'Có lỗi xảy ra: ' . $e->getMessage()], 500);
         }
 
+        // Gắn `is_owner = true` cho bình luận vừa tạo
+        $comment->is_owner = true;
+
+        // Tải thông tin người dùng để hiển thị
+        $comment->load('user');
+
         // Kiểm tra xem yêu cầu có phải AJAX không
         if ($request->ajax()) {
             return response()->json([
                 'success' => true,
                 'message' => 'Bình luận đã được gửi!',
-                'comment' => $comment->load('user'), // Tải thông tin người dùng để hiển thị tên
+                'comment' => $comment,
             ]);
         }
 
@@ -57,57 +68,66 @@ class CommentController extends Controller
     }
 
     public function index($postId)
-    {
-        $currentUserId = Auth::id(); // Lấy ID người dùng hiện tại
+{
+    $currentUserId = Auth::id();
 
-        // Lấy tất cả bình luận gốc cho bài viết cùng với người dùng và các reply lồng nhau
-        $comments = Comment::with('user')
-            ->where('post_id', $postId)
-            ->whereNull('parent_id') // Chỉ lấy bình luận gốc (không có parent_id)
-            ->get()
-            ->map(function ($comment) use ($currentUserId) {
-                // Hàm đệ quy để lấy các replies nhiều cấp
-                $fetchReplies = function ($comment) use (&$fetchReplies, $currentUserId) {
-                    return $comment->replies()->with('user')->get()->map(function ($reply) use ($fetchReplies, $currentUserId) {
-                        return [
-                            'id' => $reply->id,
-                            'content' => $reply->content,
-                            'created_at' => $reply->created_at,
-                            'likes_count' => $reply->likes_count ?? 0,
-                            'is_owner' => $currentUserId === $reply->user_id, // Kiểm tra quyền xóa
-                            'user' => [
-                                'id' => $reply->user->id,
-                                'username' => $reply->user->username,
-                                'profile_picture' => $reply->user->profile_picture,
-                            ],
-                            'image_url' => $reply->image_url,
-                            // Gọi lại hàm để lấy các replies của reply hiện tại (nếu có)
-                            'replies' => $fetchReplies($reply),
-                        ];
-                    });
-                };
+    // Lấy tất cả các bình luận gốc (cấp 1)
+    $comments = Comment::with('user')
+        ->where('post_id', $postId)
+        ->whereNull('parent_id')
+        ->orderBy('created_at', 'asc')
+        ->get();
 
+    // Lấy tất cả replies (cấp 2) của bài viết, bất kể chúng là reply của ai
+    $replies = Comment::with('user')
+        ->where('post_id', $postId)
+        ->whereNotNull('parent_id')
+        ->orderBy('created_at', 'asc')
+        ->get();
+
+    // Kết hợp các replies vào đúng vị trí của bình luận cha
+    $formattedComments = $comments->map(function ($comment) use ($replies, $currentUserId) {
+        // Lọc ra tất cả các replies của bình luận hiện tại
+        $commentReplies = $replies->filter(function ($reply) use ($comment) {
+            return $reply->parent_id == $comment->id || $reply->parent_id != null;
+        });
+
+        // Đưa các replies vào cùng cấp với bình luận cha
+        return [
+            'id' => $comment->id,
+            'content' => $comment->content,
+            'created_at' => $comment->created_at,
+            'likes_count' => $comment->likes_count ?? 0,
+            'is_owner' => Auth::id() === $comment->user_id,
+            'user' => [
+                'id' => $comment->user->id,
+                'username' => $comment->user->username,
+                'profile_picture' => $comment->user->profile_picture,
+            ],
+            'image_url' => $comment->image_url,
+            'replies' => $commentReplies->map(function ($reply) use ($currentUserId) {
                 return [
-                    'id' => $comment->id,
-                    'content' => $comment->content,
-                    'created_at' => $comment->created_at,
-                    'likes_count' => $comment->likes_count ?? 0,
-                    'is_owner' => $currentUserId === $comment->user_id, // Kiểm tra quyền xóa
+                    'id' => $reply->id,
+                    'content' => $reply->content,
+                    'created_at' => $reply->created_at,
+                    'likes_count' => $reply->likes_count ?? 0,
+                    'is_owner' => $currentUserId === $reply->user_id,
                     'user' => [
-                        'id' => $comment->user->id,
-                        'username' => $comment->user->username,
-                        'profile_picture' => $comment->user->profile_picture,
+                        'id' => $reply->user->id,
+                        'username' => $reply->user->username,
+                        'profile_picture' => $reply->user->profile_picture,
                     ],
-                    'image_url' => $comment->image_url,
-                    'replies' => $fetchReplies($comment), // Gọi hàm để lấy tất cả replies
+                    'image_url' => $reply->image_url,
                 ];
-            });
+            })->values(),
+        ];
+    });
 
-        // Trả về JSON chứa danh sách bình luận và replies
-        return response()->json([
-            'comments' => $comments,
-        ]);
-    }
+    // Trả về kết quả dưới dạng JSON
+    return response()->json([
+        'comments' => $formattedComments,
+    ]);
+}
 
     public function like($id)
     {

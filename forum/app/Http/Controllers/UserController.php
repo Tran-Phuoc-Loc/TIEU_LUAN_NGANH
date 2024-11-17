@@ -22,34 +22,48 @@ class UserController extends Controller
         // Lấy tất cả người dùng
         $users = User::all();
         $posts = collect();  // Đảm bảo biến $posts luôn tồn tại
+        $user = Auth::user();
+        $group = Group::find($request->group_id);
+
+        // Khởi tạo biến $post mặc định là null
+        $post = null;
+        $postFromNotification = null; // Đảm bảo biến luôn tồn tại
 
         // Kiểm tra nếu có tham số 'id' trong URL (tìm kiếm bài viết theo id)
-        if ($request->has('id')) {
+        if ($request->has('post_id')) {
             // Lấy bài viết có id tương ứng
             $post = Post::with('user')
                 ->withCount('likes', 'comments')
                 ->where('status', 'published')
-                ->where('id', $request->id)  // Lọc bài viết theo id
-                ->first();  // Dùng first() thay vì get() để chỉ lấy 1 bài viết
+                ->where('id', $request->post_id)
+                ->first();
 
             // Kiểm tra nếu có bài viết
             if ($post) {
-                $posts = collect([$post]); // Chuyển bài viết duy nhất thành collection
+                $posts = collect([$post]); // Chuyển bài viết thành collection nếu tìm thấy
             } else {
-                $posts = collect(); // Nếu bài viết không tồn tại, trả về collection rỗng
+                $posts = collect(); // Nếu không có bài viết, trả về collection rỗng
             }
-        } else {
-            // Nếu không có id, lấy tất cả bài viết đã xuất bản
+        }
+        // Nếu có tham số 'folder_id', tìm bài viết theo thư mục
+        elseif ($request->has('folder_id') && $user) {
+            $folder = Folder::with('savedPosts.post')->find($request->folder_id);
+
+            if ($folder) {
+                // Lấy tất cả các bài viết trong thư mục đã lưu của người dùng
+                $posts = $folder->savedPosts->map(function ($savedPost) {
+                    return $savedPost->post;
+                });
+            }
+        }
+        // Nếu không có tham số nào, lấy tất cả bài viết đã xuất bản
+        else {
             $posts = Post::with('user')
                 ->withCount('likes', 'comments')
                 ->where('status', 'published')
                 ->orderByRaw('COALESCE(published_at, created_at) DESC')
                 ->get();
         }
-
-        // Kiểm tra xem người dùng đã đăng nhập chưa
-        $user = Auth::user();
-        $group = Group::find($request->group_id);
 
         // Lấy danh sách người dùng gợi ý theo dõi, lấy 5 người ngẫu nhiên
         $usersToFollow = User::where('role', 'user')
@@ -61,7 +75,6 @@ class UserController extends Controller
         // Khởi tạo các biến thông báo và bài viết
         $unreadNotifications = [];
         $readNotifications = [];
-        $post = null;
         $folders = [];
         $savedPosts = [];
         $groups = collect();
@@ -69,14 +82,15 @@ class UserController extends Controller
         if ($user) {
             // Lấy thông báo chưa đọc và đã đọc
             $unreadNotifications = $user->unreadNotifications;
-            $readNotifications = $user->notifications()->whereNotNull('read_at')->orderBy('created_at', 'desc')->paginate(10);
+            $readNotifications = $user->notifications()
+                ->whereNotNull('read_at')
+                ->orderBy('created_at', 'desc')
+                ->paginate(10);
 
             // Lấy thông tin bài viết từ thông báo đầu tiên chưa đọc (nếu có)
-            if ($unreadNotifications->isNotEmpty()) {
+            if ($user && $unreadNotifications->isNotEmpty()) {
                 $postId = $unreadNotifications->first()->data['post_id'] ?? null;
-                if ($postId) {
-                    $post = Post::find($postId);
-                }
+                $postFromNotification = $postId ? Post::find($postId) : null;
             }
 
             // Lấy các nhóm đã tham gia và tạo bởi người dùng
@@ -99,11 +113,11 @@ class UserController extends Controller
             'posts', // Truyền tất cả bài viết nếu không có id
             'folders',
             'savedPosts',
-            'post',
             'readNotifications',
             'groups',
             'group',
-            'usersToFollow'
+            'usersToFollow',
+            'postFromNotification'
         ));
     }
 
@@ -140,6 +154,9 @@ class UserController extends Controller
 
         $receivedFriendRequests = Auth::user()->receivedFriendRequests; // Lấy danh sách yêu cầu kết bạn nhận được
 
+        // Lấy các thư mục của người dùng
+        $folders = Folder::where('user_id', $id)->get();
+
         // Lấy tất cả nhóm mà người dùng đã tạo
         $ownedGroups = Group::where('creator_id', $id)->get();
 
@@ -149,7 +166,7 @@ class UserController extends Controller
         }
 
         // Trả về view và truyền dữ liệu người dùng cùng các bài viết của họ
-        return view('users.profile.index', compact('user', 'publishedCount', 'draftCount', 'favoritePosts', 'friendship', 'isOwnProfile', 'ownedGroups', 'receivedFriendRequests', 'friends', 'groups'));
+        return view('users.profile.index', compact('user', 'publishedCount', 'draftCount', 'favoritePosts', 'friendship', 'isOwnProfile', 'ownedGroups', 'receivedFriendRequests', 'friends', 'groups', 'folders'));
     }
 
     public function update(UserUpdateRequest $request, $id)

@@ -84,7 +84,7 @@ class Post extends Model
             }
 
             // Xóa tất cả các ảnh liên quan từ bảng post_images và thư mục lưu trữ
-            foreach ($post->images as $image) {
+            foreach ($post->postImages as $image) { //  $post->postImages
                 if (file_exists(public_path('storage/' . $image->file_path))) {
                     unlink(public_path('storage/' . $image->file_path));
                 }

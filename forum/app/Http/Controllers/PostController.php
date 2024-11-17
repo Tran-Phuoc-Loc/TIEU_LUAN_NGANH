@@ -147,7 +147,7 @@ class PostController extends Controller
                 } else {
                     // Nếu là ảnh, lưu vào thư mục image/
                     $filename = time() . '_' . $mediaSingle->getClientOriginalName();
-                    $filePath = $mediaSingle->storeAs('public/image', $filename, 'public');
+                    $filePath = $mediaSingle->storeAs('image', $filename, 'public');
                     $post->image_url = 'image/' . $filename;
                 }
 
@@ -155,18 +155,14 @@ class PostController extends Controller
                 $post->save();
             }
 
-            // **Xử lý tệp tải lên (nhiều ảnh)**
-            if ($request->hasFile('media_multiple')) {
-                // Xóa các ảnh cũ trước khi cập nhật ảnh mới (nếu có)
-                PostImage::where('post_id', $post->id)->delete();
+            // **Xử lý upload nhiều ảnh (chỉ khi media_single không phải video)**
+            if ($request->hasFile('media_multiple') && (!$request->hasFile('media_single') || !str_contains($request->file('media_single')->getMimeType(), 'video'))) {
 
                 foreach ($request->file('media_multiple') as $file) {
-                    // Chỉ xử lý nếu tệp là ảnh
                     if (str_contains($file->getMimeType(), 'image')) {
                         $filename = time() . '_' . $file->getClientOriginalName();
-                        $filePath = $file->storeAs('public/uploads', $filename, 'public');
+                        $filePath = $file->storeAs('uploads', $filename, 'public');
 
-                        // Lưu từng ảnh vào trong bảng post_images
                         PostImage::create([
                             'post_id' => $post->id,
                             'file_path' => 'uploads/' . $filename,
@@ -176,7 +172,7 @@ class PostController extends Controller
             }
 
             // Chuyển hướng sau khi lưu bài viết thành công
-            return redirect()->route('users.posts.create')->with('success', 'Bài viết đã được lưu thành công.');
+            return redirect()->route('users.index')->with('success', 'Bài viết đã được lưu thành công.');
         } catch (\Exception $e) {
             Log::error('Lỗi khi tạo bài viết: ' . $e->getMessage());
             return redirect()->route('users.posts.create')->with('error', 'Có lỗi xảy ra khi lưu bài viết.');
@@ -329,10 +325,14 @@ class PostController extends Controller
         // Xác định xem người dùng đang xem bài viết của mình hay của người khác
         $isCurrentUser = $currentUserId === (int) $userId;
 
+        // Lấy các thư mục của người dùng
+        $folders = Folder::where('user_id', $userId)->get();
+
         // Truyền vào view dưới dạng mảng
         return view('users.posts.published', [
             'published' => $published,
             'isCurrentUser' => $isCurrentUser,
+            'folders' => $folders, // Thêm biến $folders vào view
             'groups' => $this->groups
         ]);
     }
@@ -371,7 +371,6 @@ class PostController extends Controller
         // Chuyển hướng hoặc trả về phản hồi
         return redirect()->route('users.index')->with('success', 'Bài viết đã được xuất bản!');
     }
-
 
     public function destroy($id)
     {
@@ -478,14 +477,37 @@ class PostController extends Controller
         return response()->json(['success' => true, 'message' => 'Bài viết đã được lưu thành công!']);
     }
 
-    public function showSavedPosts()
+    public function showFolderSelection($folderId)
     {
-        // Tải các thư mục kèm theo bài viết đã lưu trong từng thư mục
-        $folders = Folder::with('savedPosts.post')
-            ->where('user_id', Auth::id())
+        // Lấy thư mục theo folderId và kiểm tra quyền sở hữu
+        $folder = Folder::with('savedPosts')->findOrFail($folderId);
+
+        // Kiểm tra nếu thư mục không thuộc về người dùng hiện tại
+        if ($folder->user_id !== Auth::id()) {
+            // Nếu không phải chủ sở hữu, redirect về trang trước đó hoặc trả về lỗi
+            return redirect()->route('some.route')->with('error', 'Bạn không có quyền truy cập thư mục này.');
+        }
+
+        // Lấy các thư mục và bài viết đã lưu của người dùng
+        $folders = Folder::with('savedPosts')
+            ->where('user_id', Auth::id()) // Chỉ lấy thư mục của người dùng hiện tại
             ->get();
 
+        // Lấy tất cả nhóm (có thể sẽ sử dụng trong view)
         $groups = Group::all();
-        return view('users.posts.savePost', compact('folders', 'groups'));
+
+        // Trả về view và truyền dữ liệu
+        return view('users.posts.savePost', compact('folders', 'groups', 'folder'));
+        
+    }    
+
+    public function showSavedPosts()
+    {
+        // Lấy tất cả các thư mục của người dùng hiện tại
+        $folders = Folder::where('user_id', Auth::id())->get(); // Dùng Auth::id() để lấy thư mục của người dùng hiện tại
+    
+        $groups = Group::all(); // Nếu cần các nhóm để lựa chọn, lấy chúng ở đây
+        // Truyền vào view để người dùng chọn thư mục
+        return view('users.posts.selectFolder', compact('folders', 'groups'));
     }
 }

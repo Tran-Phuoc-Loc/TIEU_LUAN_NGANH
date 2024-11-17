@@ -148,7 +148,20 @@
                     @endif
 
                     <a href="{{ route('forums.index') }}">Forums</a>
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="navbarDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        Tùy Chọn
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="{{ route('users.posts.published') }}">Bài Viết Đã Xuất Bản</a></li>
 
+                        <!-- Kiểm tra nếu có thư mục -->
+                        @if($folders->isEmpty())
+                        <li><a class="dropdown-item" href="#">Không có bài viết đã lưu</a></li>
+                        @else
+                        <!-- Liên kết đến trang chọn thư mục -->
+                        <li><a class="dropdown-item" href="{{ route('users.posts.savePost') }}">Thư Mục Yêu thích</a></li>
+                        @endif
+                    </ul>
                 </div>
 
                 <!-- Content Section -->
@@ -179,34 +192,34 @@
 
                                 // Lấy ảnh đại diện nếu có
                                 if ($user->profile_picture) {
-                                    $images[] = asset('storage/' . $user->profile_picture);
+                                $images[] = asset('storage/' . $user->profile_picture);
                                 }
 
                                 // Lấy ảnh bìa nếu có
                                 if ($user->cover_image) {
-                                    $images[] = asset('storage/' . $user->cover_image);
+                                $images[] = asset('storage/' . $user->cover_image);
                                 }
 
                                 // Lấy ảnh từ các bài đăng (bao gồm ảnh từ bảng post_images)
                                 foreach ($user->posts as $post) {
-                                    // Lấy ảnh chính của bài đăng nếu có
-                                    if ($post->image_url && ($post->status === 'published' || Auth::id() === $user->id)) {
-                                        $fileExtension = strtolower(pathinfo($post->image_url, PATHINFO_EXTENSION));
-                                        
-                                        // Kiểm tra định dạng và phân loại vào mảng ảnh hoặc video
-                                        if (in_array($fileExtension, ['jpg', 'jpeg', 'png', 'gif'])) {
-                                            $images[] = asset('storage/' . $post->image_url);
-                                        } elseif (in_array($fileExtension, ['mp4', 'webm', 'ogg'])) {
-                                            $videos[] = asset('storage/public/' . $post->image_url);
-                                        }
-                                    }
+                                // Lấy ảnh chính của bài đăng nếu có
+                                if ($post->image_url && ($post->status === 'published' || Auth::id() === $user->id)) {
+                                $fileExtension = strtolower(pathinfo($post->image_url, PATHINFO_EXTENSION));
 
-                                    // Lấy ảnh phụ từ bảng post_images nếu có
-                                    if ($post->postImages) {
-                                        foreach ($post->postImages as $image) {
-                                            $images[] = asset('storage/' . $image->file_path);
-                                        }
-                                    }
+                                // Kiểm tra định dạng và phân loại vào mảng ảnh hoặc video
+                                if (in_array($fileExtension, ['jpg', 'jpeg', 'png', 'gif'])) {
+                                $images[] = asset('storage/' . $post->image_url);
+                                } elseif (in_array($fileExtension, ['mp4', 'webm', 'ogg'])) {
+                                $videos[] = asset('storage/public/' . $post->image_url);
+                                }
+                                }
+
+                                // Lấy ảnh phụ từ bảng post_images nếu có
+                                if ($post->postImages) {
+                                foreach ($post->postImages as $image) {
+                                $images[] = asset('storage/' . $image->file_path);
+                                }
+                                }
                                 }
                                 @endphp
 
@@ -285,74 +298,74 @@
                         <!-- Bài viết yêu thích -->
                         <div class="col-md-3 mx-auto mt-5">
                             @if (!$isOwnProfile)
-                                @php
-                                    // Kiểm tra các yêu cầu kết bạn đã gửi và nhận
-                                    $friendship = Auth::user()->sentFriendRequests->where('receiver_id', $user->id)->first();
-                                    $friendshipReverse = Auth::user()->receivedFriendRequests->where('sender_id', $user->id)->first();
-                                @endphp
+                            @php
+                            // Kiểm tra các yêu cầu kết bạn đã gửi và nhận
+                            $friendship = Auth::user()->sentFriendRequests->where('receiver_id', $user->id)->first();
+                            $friendshipReverse = Auth::user()->receivedFriendRequests->where('sender_id', $user->id)->first();
+                            @endphp
 
-                                @if (Auth::id() !== $user->id) <!-- Kiểm tra nếu người dùng không phải là chính họ -->
-                                    @if (is_null($friendship) && is_null($friendshipReverse))
-                                        <!-- Nút gửi yêu cầu kết bạn -->
-                                        <form action="{{ route('friend.sendRequest', $user->id) }}" method="POST">
-                                            @csrf
-                                            <button type="submit">Gửi yêu cầu kết bạn</button>
-                                        </form>
-                                    @elseif ($friendship && $friendship->status === 'pending')
-                                        <p>Đã gửi yêu cầu kết bạn. Đang chờ phản hồi.</p>
-                                    @elseif ($friendship && $friendship->status === 'accepted')
-                                        <p>Đã là bạn bè với {{ $user->name }}.</p>
-                                        <img src="{{ $user->avatar }}" alt="{{ $user->name }}'s Avatar" style="width: 50px; height: 50px;">
-                                    @endif
-                                @else
-                                    <p>Bạn đang xem hồ sơ của chính mình, không thể gửi yêu cầu kết bạn với chính mình.</p>
-                                @endif
+                            @if (Auth::id() !== $user->id) <!-- Kiểm tra nếu người dùng không phải là chính họ -->
+                            @if (is_null($friendship) && is_null($friendshipReverse))
+                            <!-- Nút gửi yêu cầu kết bạn -->
+                            <form action="{{ route('friend.sendRequest', $user->id) }}" method="POST">
+                                @csrf
+                                <button type="submit">Gửi yêu cầu kết bạn</button>
+                            </form>
+                            @elseif ($friendship && $friendship->status === 'pending')
+                            <p>Đã gửi yêu cầu kết bạn. Đang chờ phản hồi.</p>
+                            @elseif ($friendship && $friendship->status === 'accepted')
+                            <p>Đã là bạn bè với {{ $user->name }}.</p>
+                            <img src="{{ $user->avatar }}" alt="{{ $user->name }}'s Avatar" style="width: 50px; height: 50px;">
+                            @endif
+                            @else
+                            <p>Bạn đang xem hồ sơ của chính mình, không thể gửi yêu cầu kết bạn với chính mình.</p>
+                            @endif
                             @endif
 
                             <!-- Hiển thị các yêu cầu kết bạn đã nhận, chỉ khi người dùng đang xem hồ sơ của chính mình -->
                             @if ($isOwnProfile && $receivedFriendRequests->isNotEmpty())
-                                <h3>Các yêu cầu kết bạn:</h3>
-                                @foreach ($receivedFriendRequests as $request)
-                                    @if ($request->receiver_id === Auth::id()) <!-- Kiểm tra xem người dùng hiện tại có phải là người nhận yêu cầu -->
-                                        <p>
-                                            {{ $request->sender->username }} đã gửi cho bạn một yêu cầu kết bạn.
-                                            @if ($request->status === 'pending') <!-- Kiểm tra xem yêu cầu đang ở trạng thái chờ xử lý -->
-                                                <form action="{{ route('friend.acceptRequest', $request->sender_id) }}" method="POST" style="display:inline;">
-                                                    @csrf
-                                                    <button type="submit">Chấp nhận</button>
-                                                </form>
-                                                <form action="{{ route('friend.declineRequest', $request->id) }}" method="POST" style="display:inline;">
-                                                    @csrf
-                                                    <button type="submit">Từ chối</button>
-                                                </form>
-                                            @elseif ($request->status === 'accepted')
-                                                <span>Yêu cầu đã được chấp nhận.</span>
-                                            @elseif ($request->status === 'declined')
-                                                <span>Yêu cầu đã bị từ chối.</span>
-                                            @endif
-                                        </p>
-                                    @endif
-                                @endforeach
+                            <h3>Các yêu cầu kết bạn:</h3>
+                            @foreach ($receivedFriendRequests as $request)
+                            @if ($request->receiver_id === Auth::id()) <!-- Kiểm tra xem người dùng hiện tại có phải là người nhận yêu cầu -->
+                            <p>
+                                {{ $request->sender->username }} đã gửi cho bạn một yêu cầu kết bạn.
+                                @if ($request->status === 'pending') <!-- Kiểm tra xem yêu cầu đang ở trạng thái chờ xử lý -->
+                            <form action="{{ route('friend.acceptRequest', $request->sender_id) }}" method="POST" style="display:inline;">
+                                @csrf
+                                <button type="submit">Chấp nhận</button>
+                            </form>
+                            <form action="{{ route('friend.declineRequest', $request->id) }}" method="POST" style="display:inline;">
+                                @csrf
+                                <button type="submit">Từ chối</button>
+                            </form>
+                            @elseif ($request->status === 'accepted')
+                            <span>Yêu cầu đã được chấp nhận.</span>
+                            @elseif ($request->status === 'declined')
+                            <span>Yêu cầu đã bị từ chối.</span>
+                            @endif
+                            </p>
+                            @endif
+                            @endforeach
                             @else
-                                @if ($isOwnProfile)
-                                    <!-- Khi người dùng đang xem hồ sơ của chính họ mà không có yêu cầu kết bạn nào -->
-                                    <p>Bạn hiện không có yêu cầu kết bạn nào.</p>
-                                @else
-                                    <!-- Khi người dùng đang xem hồ sơ của người khác -->
-                                    <p>Hồ sơ này không có yêu cầu kết bạn nào liên quan đến bạn.</p>
-                                @endif
+                            @if ($isOwnProfile)
+                            <!-- Khi người dùng đang xem hồ sơ của chính họ mà không có yêu cầu kết bạn nào -->
+                            <p>Bạn hiện không có yêu cầu kết bạn nào.</p>
+                            @else
+                            <!-- Khi người dùng đang xem hồ sơ của người khác -->
+                            <p>Hồ sơ này không có yêu cầu kết bạn nào liên quan đến bạn.</p>
+                            @endif
                             @endif
 
                             <!-- Hiển thị danh sách bạn bè -->
                             @if ($friends->isNotEmpty())
-                                <h3>Danh sách bạn bè:</h3>
-                                <ul>
-                                    @foreach ($friends as $friend)
-                                        <li>{{ $friend->username }}</li>
-                                    @endforeach
-                                </ul>
+                            <h3>Danh sách bạn bè:</h3>
+                            <ul>
+                                @foreach ($friends as $friend)
+                                <li>{{ $friend->username }}</li>
+                                @endforeach
+                            </ul>
                             @else
-                                <p>Không có bạn bè nào.</p>
+                            <p>Không có bạn bè nào.</p>
                             @endif
 
                             @if(Auth::check() && Auth::id() === $user->id)

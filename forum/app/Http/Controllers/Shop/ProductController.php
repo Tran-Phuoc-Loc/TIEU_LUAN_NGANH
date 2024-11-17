@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Shop;
 
 use App\Http\Controllers\Controller;
+use App\Models\Folder;
 use Illuminate\Http\Request;
 use App\Models\Group;
 use App\Models\Product;
@@ -41,6 +42,11 @@ class ProductController extends Controller
         // Lấy người nhận thông tin (người dùng hiện tại)
         $receiver = Auth::user();
 
+        // Lấy các thư mục và bài viết đã lưu của người dùng
+        $folders = Folder::with('savedPosts')
+            ->where('user_id', Auth::id()) // Chỉ lấy thư mục của người dùng hiện tại
+            ->get();
+
         // Lấy tất cả nhóm
         $groups = Group::all();
 
@@ -48,7 +54,7 @@ class ProductController extends Controller
         $relatedProducts = Product::inRandomOrder()->limit(5)->get();
 
         // Trả về view với các biến cần thiết
-        return view('products.index', compact('products', 'receiver', 'relatedProducts', 'groups'));
+        return view('products.index', compact('products', 'receiver', 'relatedProducts', 'groups', 'folders'));
     }
 
     /**

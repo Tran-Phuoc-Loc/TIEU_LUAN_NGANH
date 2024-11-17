@@ -430,8 +430,6 @@
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                             <li><a class="dropdown-item" href="#">{{ Auth::user()->name }}</a></li>
                             <li><a class="dropdown-item" href="{{ route('users.profile.index', Auth::user()->id) }}">Thông tin cá nhân</a></li>
-                            <li><a class="dropdown-item" href="{{ route('users.posts.published') }}">Bài Viết Đã Xuất Bản</a></li>
-                            <li><a class="dropdown-item" href="{{ route('users.posts.savePost') }}">Bài Viết Đã Lưu</a></li>
                             <li><a class="dropdown-item" href="{{ route('users.groups.index') }}">Danh sách các nhóm tham gia</a></li>
                             <li>
                                 <hr class="dropdown-divider">
@@ -459,9 +457,9 @@
         @yield('content')
     </main>
 
-
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 <script>
     // Xử lý chia sẻ lên Facebook
     $('.share-facebook').on('click', function(event) {
@@ -580,138 +578,292 @@
         window.location.href = '/login'; // Chuyển hướng đến trang đăng nhập
     }
 
-    // Định nghĩa parentId như một biến toàn cục
-    let parentId = null;
-
     $(document).ready(function() {
+
+        // Định nghĩa parentId như một biến toàn cục
+        let parentId = null;
+
+        // Khởi tạo các biến DOM elements được sử dụng
         const commentModal = $('#commentModal'); // Modal để hiển thị bình luận
         const commentForm = $('#commentForm'); // Form để gửi bình luận
-        const closeButton = $('.close');
+        const closeButton = $('.close'); // Nút đóng modal
         const commentsList = $('.comments-list'); // Danh sách bình luận trong modal
-        const loginModal = $('#loginModal');
+        const loginModal = $('#loginModal'); // Modal đăng nhập
 
-        // Hiển thị modal bình luận khi người dùng nhấn vào nút
+        /**
+         * Hàm tạo HTML cho một bình luận
+         * @param {Object} comment - Đối tượng chứa thông tin bình luận
+         * @param {number} postId - ID của bài viết
+         * @returns {string} HTML string của bình luận
+         */
+        function createCommentHtml(comment, postId) {
+            // Xử lý thời gian bình luận được tạo bằng thư viện moment.js
+            const createdAt = moment(comment.created_at).fromNow();
+            // Đặt giá trị mặc định cho lượt thích là 0 nếu chưa có
+            const likesCount = comment.likes_count || 0;
+            // Hiển thị tên người được trả lời nếu đây là reply
+            const repliedToUser = comment.replied_to_user ? `Trả lời ${comment.replied_to_user.username}` : '';
+            // Lấy URL avatar của người dùng, nếu không có thì dùng avatar mặc định
+            const avatarUrl = comment.user.profile_picture ? `/storage/${comment.user.profile_picture}` : '/storage/images/avataricon.png';
+
+            // Hiển thị thông báo nếu bình luận đã bị xóa
+            const commentContent = comment.is_deleted ? '<i>Bình luận này đã bị xóa.</i>' : comment.content;
+            // console.log(comment.is_owner);
+            // Khởi tạo nút xóa (chỉ hiển thị cho chủ bình luận)
+            let deleteButton = '';
+            if (comment.is_owner) {
+                deleteButton = `<button class="delete-button" data-comment-id="${comment.id}">
+                <i class="fas fa-trash-alt"></i> Xóa
+            </button>`;
+            }
+
+            // Tạo và trả về cấu trúc HTML của bình luận
+            return `
+            <div class="comment p-3 mb-3 border rounded shadow-sm" id="comment-${comment.id}" style="background-color: #f9f9f9;">
+                <div class="d-flex align-items-center mb-2">
+                    <img src="${avatarUrl}" alt="Avatar" class="rounded-circle me-3" width="40" height="40" loading="lazy" style="border: 1px solid #ddd;">
+                    <div>
+                        <strong>${comment.user.username}</strong>
+                        <small class="text-muted"> • ${createdAt}</small>
+                    </div>
+                </div>
+                <div class="ms-4">
+                    ${repliedToUser ? `<div class="text-muted small mb-1">${repliedToUser}</div>` : ''}
+                    <p class="mb-2" style="font-size: 1rem; line-height: 1.5;">${commentContent}</p>
+                    ${comment.image_url ? `<div class="comment-image mb-2"><img src="/storage/${comment.image_url}" class="img-fluid rounded" alt="Comment Image" loading="lazy" style="max-width: 100%; height: auto;"></div>` : ''}
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex">
+                            <button class="btn btn-sm btn-outline-secondary like-button me-2" data-comment-id="${comment.id}" style="border-radius: 20px; padding: 5px 10px;">
+                                <i class="far fa-thumbs-up"></i> <span class="like-count">${likesCount}</span>
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary reply-button" data-comment-id="${comment.id}" style="border-radius: 20px; padding: 5px 10px;">
+                                <i class="fas fa-reply"></i> Trả lời
+                            </button>
+                        </div>
+                        ${deleteButton ? `
+                            <button class="btn btn-sm btn-outline-danger delete-button" data-comment-id="${comment.id}" data-post-id="${postId}" style="border-radius: 20px; padding: 5px 10px;">
+                                <i class="fas fa-trash-alt"></i> Xóa
+                            </button>` : ''}
+                    </div>
+                </div>
+                <!-- Container cho các replies của bình luận này -->
+                <div class="replies ms-4 mt-3" id="replies-${comment.id}"></div>
+            </div>
+            `;
+        }
+
+        /**
+         * Hàm đệ quy xử lý và hiển thị các replies của bình luận
+         * @param {Array} replies - Mảng chứa các reply
+         * @param {number} parentId - ID của bình luận gốc
+         * @param {number} postId - ID của bài viết
+         */
+        function handleReplies(replies, parentId, postId) {
+            const repliesContainer = $(`#replies-${parentId}`);
+
+            // Kiểm tra nếu repliesContainer tồn tại
+            if (!repliesContainer.length) {
+                console.error('Không tìm thấy container để thêm replies cho comment với ID:', parentId);
+                return;
+            }
+
+            replies.forEach(reply => {
+                // Tạo HTML cho mỗi reply
+                const replyHtml = createCommentHtml(reply, postId);
+                repliesContainer.append(replyHtml);
+
+                // Nếu có replies cho reply này, gọi lại hàm xử lý replies
+                if (reply.replies && reply.replies.length > 0) {
+                    handleReplies(reply.replies, reply.id, postId);
+                }
+            });
+        }
+
+        // Xử lý sự kiện khi người dùng nhấn vào nút bình luận
         $('.comment-toggle').on('click', function() {
-            const postId = $(this).data('post-id'); // Lấy ID bài viết từ thuộc tính
-            const postTitle = $(this).closest('.post-card').find('.post-title').text(); // Lấy tiêu đề bài viết
+            const postId = $(this).data('post-id');
+            const postTitle = $(this).closest('.post-card').find('.post-title').text();
 
-            $('#modalPostTitle').text(postTitle); // Cập nhật tiêu đề trong modal
-            commentModal.show(); // Hiển thị modal
-            $('#parent_id').val(0); // Reset parent_id khi mở modal
+            $('#modalPostTitle').text(postTitle);
+            commentModal.show();
 
-            // Gọi API để lấy danh sách bình luận
+            $('#parent_id').val(0); // Reset parent_id khi mở modal mới 
+
             $.get(`users/posts/${postId}/comments`, function(data) {
-                commentsList.empty(); // Làm sạch danh sách bình luận
+                commentsList.empty(); // Xóa các bình luận cũ
+
                 if (data.comments && data.comments.length > 0) {
                     data.comments.forEach(comment => {
-                        const commentHtml = createCommentHtml(comment); // Tạo bình luận HTML
-                        commentsList.append(commentHtml); // Thêm bình luận vào danh sách
+                        const commentHtml = createCommentHtml(comment, postId);
+                        commentsList.append(commentHtml);
 
-                        // Nếu bình luận có replies, gọi đệ quy xử lý replies
                         if (comment.replies && comment.replies.length > 0) {
-                            handleReplies(comment.replies, comment.id); // Xử lý replies lồng nhau
+                            handleReplies(comment.replies, comment.id, postId);
                         }
                     });
                 } else {
                     commentsList.append('<p>Chưa có bình luận nào.</p>');
                 }
-                commentForm.attr('action', `users/posts/${postId}/comments`); // Cập nhật thuộc tính action của form
+
+                commentForm.attr('action', `users/posts/${postId}/comments`);
             });
-
-            // Hàm tạo comment HTML
-            function createCommentHtml(comment) {
-                const createdAt = moment(comment.created_at).fromNow(); // Xử lý thời gian
-                const likesCount = comment.likes_count || 0; // Đặt giá trị mặc định cho lượt thích
-                const repliedToUser = comment.replied_to_user ? `Trả lời ${comment.replied_to_user.username}` : ''; // Người được trả lời
-                const avatarUrl = comment.user.profile_picture ? `/storage/${comment.user.profile_picture}` : '/storage/images/avataricon.png';
-                // console.log('Avatar URL:', comment.user.profile_picture);
-
-                // Thông báo nếu bình luận gốc đã bị xóa
-                const commentContent = comment.is_deleted ? '<i>Bình luận này đã bị xóa.</i>' : comment.content;
-
-                // Khởi tạo deleteButton mặc định là chuỗi rỗng
-                let deleteButton = '';
-
-                // Kiểm tra nếu người dùng là chủ của bình luận, cho phép xóa
-                if (comment.is_owner) {
-                    deleteButton = `<button class="delete-button" data-comment-id="${comment.id}">
-                            <i class="fas fa-trash-alt"></i> Xóa
-                        </button>`;
-                }
-
-                return `
-                    <div class="comment p-3 mb-3 border rounded shadow-sm" id="comment-${comment.id}" style="background-color: #f9f9f9;">
-                        <div class="d-flex align-items-center mb-2">
-                            <img src="${avatarUrl}" alt="Avatar" class="rounded-circle me-3" width="40" height="40" loading="lazy" style="border: 1px solid #ddd;">
-                            <div>
-                                <strong>${comment.user.username}</strong>
-                                <small class="text-muted"> • ${createdAt}</small>
-                            </div>
-                        </div>
-                        <div class="ms-4">
-                            ${repliedToUser ? `<div class="text-muted small mb-1">${repliedToUser}</div>` : ''}
-                            <p class="mb-2" style="font-size: 1rem; line-height: 1.5;">${commentContent}</p>
-                            ${comment.image_url ? `<div class="comment-image mb-2"><img src="/storage/${comment.image_url}" class="img-fluid rounded" alt="Comment Image" loading="lazy" style="max-width: 100%; height: auto;"></div>` : ''}
-                            
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div class="d-flex">
-                                    <button class="btn btn-sm btn-outline-secondary like-button me-2" data-comment-id="${comment.id}" style="border-radius: 20px; padding: 5px 10px;">
-                                        <i class="far fa-thumbs-up"></i> <span class="like-count">${likesCount}</span>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-primary reply-button" data-comment-id="${comment.id}" style="border-radius: 20px; padding: 5px 10px;">
-                                        <i class="fas fa-reply"></i> Trả lời
-                                    </button>
-                                </div>
-                                ${deleteButton ? `
-                                    <button class="btn btn-sm btn-outline-danger delete-button" data-comment-id="${comment.id}" data-post-id="${postId}" style="border-radius: 20px; padding: 5px 10px;">
-                                        <i class="fas fa-trash-alt"></i> Xóa
-                                    </button>` : ''}
-                            </div>
-                        </div>
-                        <div class="replies ms-4 mt-3" id="replies-${comment.id}"></div> <!-- Vùng replies -->
-                    </div>
-                `;
-            }
-
-            // Hàm đệ quy để xử lý replies
-            function handleReplies(replies, parentId) {
-                replies.forEach(reply => {
-                    const replyHtml = createCommentHtml(reply); // Tạo reply HTML
-                    $(`#replies-${parentId}`).append(replyHtml); // Thêm reply vào đúng vị trí
-
-                    // Nếu reply này có replies con (nhiều cấp), tiếp tục đệ quy
-                    if (reply.replies && reply.replies.length > 0) {
-                        handleReplies(reply.replies, reply.id); // Gọi lại đệ quy để xử lý
-                    }
-                });
-            }
         });
+
+        // Khi gửi bình luận mới
+        $('#comment-form').on('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            $.ajax({
+                url: '/comments', // Đường dẫn gửi bình luận
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(data) {
+                    if (data.success) {
+                        // Dữ liệu bình luận vừa gửi thành công
+                        const newComment = data.comment; // Bình luận vừa gửi
+                        const postId = newComment.post_id; // ID bài viết
+
+                        // Tạo HTML cho bình luận mới
+                        const newCommentHtml = createCommentHtml(newComment, postId);
+
+                        // Thêm vào danh sách bình luận (nếu bình luận là trả lời, thêm vào container replies)
+                        if (newComment.parent_id) {
+                            const repliesContainer = $(`#replies-${newComment.parent_id}`);
+                            repliesContainer.append(newCommentHtml); // Thêm vào container replies của comment cha
+                        } else {
+                            $('#comments-list').prepend(newCommentHtml); // Thêm vào đầu danh sách bình luận chính
+                        }
+
+                        // Đóng modal sau khi gửi thành công
+                        $('#commentModal').modal('hide');
+
+                        // Nếu có form hoặc input, reset lại
+                        $('#comment-form')[0].reset();
+                    } else {
+                        alert('Gửi bình luận không thành công!');
+                    }
+                },
+                error: function() {
+                    alert('Lỗi khi gửi bình luận!');
+                }
+            });
+        });
+
+        $(document).on('click', '.reply-button', function() {
+            const commentId = $(this).data('comment-id');
+            const commentUserName = $(this).closest('.comment').find('strong').first().text();
+
+            // Cập nhật parentId trong input ẩn
+            $('#parent_id').val(commentId);
+
+            // Đưa con trỏ vào ô textarea và focus
+            const textarea = $('textarea[name="content"]');
+            textarea.val(`@${commentUserName} `).focus();
+
+            // Hiển thị thông báo đang trả lời
+            $('#replyToUser').text(`Đang trả lời bình luận của ${commentUserName}:`).show();
+        });
+
         // Xử lý sự kiện xóa bình luận
         $(document).on('click', '.delete-button', function() {
-            const commentId = parseInt($(this).data('comment-id')); // Chuyển đổi commentId thành số nguyên
-            const postId = $(this).data('post-id'); // Giữ nguyên postId nếu nó cũng là số nguyên
+            const commentId = parseInt($(this).data('comment-id'));
+            const postId = $(this).data('post-id');
 
-            console.log("Comment ID:", commentId);
-            console.log("Post ID:", postId);
+            // console.log("Comment ID:", commentId);
+            // console.log("Post ID:", postId);
+
             if (confirm('Bạn có chắc muốn xóa bình luận này không?')) {
                 $.ajax({
-                    url: '/users/posts/' + postId + '/comments/' + commentId, // Sử dụng commentId ở đây
+                    url: '/users/posts/' + postId + '/comments/' + commentId,
                     method: 'DELETE',
                     data: {
-                        _token: $('meta[name="csrf-token"]').attr('content') // CSRF token để bảo mật
+                        _token: $('meta[name="csrf-token"]').attr('content')
                     },
                     success: function(response) {
-                        console.log(response);
+                        // console.log(response);
                         if (response.success) {
-                            $(`#comment-${commentId}`).remove(); // Xóa bình luận khỏi giao diện
-                            alert('Bình luận đã được xóa.');
+                            // Lấy element của bình luận
+                            const $commentElement = $(`#comment-${commentId}`);
+
+                            // Kiểm tra xem đây có phải là bình luận cha không
+                            // Bình luận cha sẽ nằm trực tiếp trong .comments-list
+                            const isParentComment = $commentElement.parent().hasClass('comments-list');
+
+                            if (isParentComment) {
+                                // Nếu là bình luận cha, xóa tất cả bình luận con
+                                // Tìm và xóa tất cả các replies trong container của bình luận này
+                                $commentElement.find('.replies').find('.comment').each(function() {
+                                    $(this).slideUp(400, function() {
+                                        $(this).remove();
+                                    });
+                                });
+                                // Sau đó xóa bình luận cha
+                                $commentElement.slideUp(400, function() {
+                                    $(this).remove();
+                                });
+
+                                // Kiểm tra nếu không còn bình luận nào
+                                if ($('.comments-list .comment').length === 0) {
+                                    $('.comments-list').append('<p>Chưa có bình luận nào.</p>');
+                                }
+                            } else {
+                                // Nếu là bình luận con, chỉ xóa bình luận đó
+                                $commentElement.slideUp(400, function() {
+                                    $(this).remove();
+                                });
+                            }
+
+                            // Hiển thị thông báo thành công
+                            const successMessage = isParentComment ?
+                                'Bình luận và tất cả phản hồi đã được xóa.' :
+                                'Bình luận đã được xóa.';
+
+                            // Sử dụng toast hoặc alert để thông báo
+                            if (typeof Toastify === 'function') {
+                                Toastify({
+                                    text: successMessage,
+                                    duration: 3000,
+                                    gravity: "top",
+                                    position: 'right',
+                                    backgroundColor: "#4CAF50"
+                                }).showToast();
+                            } else {
+                                alert(successMessage);
+                            }
                         } else {
-                            alert(response.message || 'Có lỗi xảy ra khi xóa bình luận.'); // Cung cấp thông tin chi tiết từ phản hồi
+                            // Xử lý khi xóa không thành công
+                            const errorMessage = response.message || 'Có lỗi xảy ra khi xóa bình luận.';
+                            if (typeof Toastify === 'function') {
+                                Toastify({
+                                    text: errorMessage,
+                                    duration: 3000,
+                                    gravity: "top",
+                                    position: 'right',
+                                    backgroundColor: "#f44336"
+                                }).showToast();
+                            } else {
+                                alert(errorMessage);
+                            }
                         }
                     },
                     error: function(jqXHR) {
-                        console.error(jqXHR.responseText);
-                        alert('Có lỗi xảy ra. Vui lòng thử lại.');
+                        console.error('Error:', jqXHR.responseText);
+                        const errorMessage = 'Có lỗi xảy ra. Vui lòng thử lại.';
+                        if (typeof Toastify === 'function') {
+                            Toastify({
+                                text: errorMessage,
+                                duration: 3000,
+                                gravity: "top",
+                                position: 'right',
+                                backgroundColor: "#f44336"
+                            }).showToast();
+                        } else {
+                            alert(errorMessage);
+                        }
                     }
                 });
             }
@@ -742,75 +894,6 @@
             }
         });
 
-        // Gửi bình luận
-        commentForm.on('submit', function(e) {
-            e.preventDefault(); // Ngăn chặn tải lại trang
-            const formData = new FormData(this);
-
-            // Gửi giá trị null hoặc không gửi trường parent_id nếu không có bình luận cha
-            if (parentId === null || parentId === 0) {
-                formData.delete('parent_id'); // Xóa trường parent_id nếu không có bình luận cha
-            } else {
-                formData.append('parent_id', parentId); // Gửi parent_id nếu có
-            }
-
-            $.ajax({
-                url: $(this).attr('action'),
-                method: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(data) {
-                    if (data.success && data.comment) {
-                        const commentHtml = createCommentHtml(data.comment); // Sử dụng hàm tạo HTML
-
-                        // Nếu có parent_id thì thêm bình luận vào khu vực trả lời của comment cha
-                        if (data.comment.parent_id) {
-                            $(`#replies-${data.comment.parent_id}`).append(commentHtml);
-                        } else {
-                            commentsList.append(commentHtml);
-                        }
-
-                        commentForm[0].reset(); // Đặt lại form
-                        $('#parent_id').val(0); // Đặt lại parent_id về 0 sau khi bình luận thành công
-                        parentId = null; // Reset biến parentId
-                    } else {
-                        alert('Đã có lỗi xảy ra. Vui lòng thử lại.');
-                    }
-                },
-                error: function(xhr) {
-                    console.error('Có lỗi xảy ra:', xhr);
-                    alert('Có lỗi xảy ra. Vui lòng thử lại.');
-                }
-            });
-        });
-
-
-        // Khi người dùng nhấn nút "Trả lời", cập nhật parentId
-        $(document).on('click', '.reply-button', function() {
-            const commentId = $(this).data('comment-id');
-
-            // Lấy tên người đã bình luận
-            const commentUserName = $(this).closest('.comment').find('strong').first().text();
-
-            $('#parent_id').val(commentId); // Đặt parent_id là ID của bình luận cần trả lời
-            parentId = commentId; // Cập nhật biến parentId
-            $('textarea[name="content"]').focus(); // Đưa con trỏ chuột vào ô nhập liệu
-
-            // Chèn thông báo vào textarea (tạm thời để hiển thị)
-            $('textarea[name="content"]').val(`@${commentUserName} `);
-
-            // Hiển thị thông báo về việc trả lời
-            $('#replyToUser').text(`Đang trả lời bình luận của ${commentUserName}:`);
-        });
-
-        // Hàm kiểm tra tính hợp lệ của parent_id
-        function isValidParentId(parentId) {
-            return parentId === '0' || !isNaN(parentId); // Hoặc thêm logic kiểm tra ID tồn tại
-        }
     });
     // Xử lý sự kiện nhấn nút like
     $(document).on('click', '.like-button', function(e) {
@@ -948,31 +1031,67 @@
             e.preventDefault();
 
             const postId = $(this).data('post-id');
+            // console.log('Mở modal cho bài viết:', postId);
 
-            // Kiểm tra trạng thái đăng nhập
             $.ajax({
-                url: '/check-login', // Route để kiểm tra đăng nhập
+                url: '/check-login',
                 method: 'GET',
                 success: function(data) {
                     if (!data.isLoggedIn) {
-                        // Nếu chưa đăng nhập, hiển thị cảnh báo và chuyển hướng đến trang đăng nhập
                         alert('Bạn cần đăng nhập để lưu bài viết.');
-                        window.location.href = '/login'; // Chuyển hướng đến trang đăng nhập
+                        window.location.href = '/login';
                         return;
                     }
 
-                    // Nếu đã đăng nhập, hiển thị modal để chọn thư mục
-                    $('#folderModal').data('post-id', postId).modal('show');
+                    // Đảm bảo xóa modal cũ trước khi mở modal mới
+                    $('#folderModal').remove(); // Xóa modal cũ nếu tồn tại
+
+                    // Load lại modal từ mã HTML
+                    $('body').append(`
+                    <div class="modal fade" id="folderModal" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Chọn Thư Mục</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>Chọn hoặc tạo thư mục để lưu bài viết.</p>
+                                    @if(!empty($folders) && count($folders) > 0)
+                                        <select id="folderSelect" class="form-select">
+                                            <option value="" disabled selected>Chọn thư mục</option>
+                                            @foreach($folders as $folder)
+                                                <option value="{{ $folder->id }}">{{ $folder->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        <p>Chưa có thư mục nào. Vui lòng tạo thư mục mới.</p>
+                                    @endif
+                                    <input type="text" id="newFolderName" class="form-control" placeholder="Tên thư mục mới">
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                                    <button type="button" class="btn btn-primary" id="saveToFolder">Lưu</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `);
+
+                    // Khởi tạo modal và hiển thị
+                    const folderModal = new bootstrap.Modal(document.getElementById('folderModal'));
+                    $('#folderModal').attr('data-post-id', postId);
+                    folderModal.show();
                 },
                 error: function(xhr) {
-                    console.error('Có lỗi xảy ra khi kiểm tra đăng nhập:', xhr);
+                    console.error('Lỗi khi kiểm tra đăng nhập:', xhr);
                     alert('Có lỗi xảy ra. Vui lòng thử lại.');
                 }
             });
         });
 
         // Xử lý lưu bài viết vào thư mục
-        $('#saveToFolder').on('click', function() {
+        $(document).on('click', '#saveToFolder', function() {
             const postId = $('#folderModal').data('post-id');
             const folderId = $('#folderSelect').val();
             const newFolderName = $('#newFolderName').val().trim();
@@ -1004,7 +1123,7 @@
                         }
                     },
                     error: function(jqXHR) {
-                        console.error(jqXHR.responseText);
+                        console.error('Lỗi tạo thư mục:', jqXHR.responseText);
                         alert('Có lỗi xảy ra: ' + jqXHR.status + ' ' + jqXHR.statusText);
                         $('#saveToFolder').prop('disabled', false).text('Lưu');
                     }
@@ -1038,7 +1157,7 @@
                     $('#saveToFolder').prop('disabled', false).text('Lưu');
                 },
                 error: function(jqXHR) {
-                    console.error(jqXHR.responseText);
+                    console.error('Lỗi lưu bài viết:', jqXHR.responseText);
                     alert('Có lỗi xảy ra. Vui lòng thử lại.');
                     $('#saveToFolder').prop('disabled', false).text('Lưu');
                 }
@@ -1082,7 +1201,10 @@
         var formAction = '{{ route("folders.rename", ["folder_id" => ":folder_id"]) }}';
         formAction = formAction.replace(':folder_id', folderId);
 
+        // Cập nhật action của form
         $('#renameFolderForm').attr('action', formAction);
+
+        // Mở modal
         $('#renameModal').modal('show');
     });
 </script>

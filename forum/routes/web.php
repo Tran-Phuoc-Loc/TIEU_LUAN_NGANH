@@ -158,6 +158,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/published', [PostController::class, 'published'])->name('users.posts.published'); // Hiển thị danh sách bài viết đã xuất bản
 
         // Route để quản lý bài viết đã lưu
+        Route::get('/savepost/{folderId}', [PostController::class, 'showFolderSelection'])->name('users.posts.selectFolder');
         Route::get('/savepost', [PostController::class, 'showSavedPosts'])->name('users.posts.savePost');
         Route::post('/save-post', [PostController::class, 'savePost'])->name('posts.savePost');
 

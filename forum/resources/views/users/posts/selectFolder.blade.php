@@ -46,7 +46,7 @@
                         <ul class="list-group list-group-flush">
                             @foreach($folder->savedPosts as $savedPost)
                             <li class="list-group-item">
-                                <a href="{{ route('users.folders.index', $savedPost->post->id) }}" class="text-primary">
+                                <a href="{{ route('users.index', ['post_id' => $savedPost->post->id]) }}" class="text-primary">
                                     {{ $savedPost->post->title }}
                                 </a>
                             </li>

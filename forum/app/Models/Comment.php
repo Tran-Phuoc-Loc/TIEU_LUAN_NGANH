@@ -31,10 +31,9 @@ class Comment extends Model
     // Quan hệ để lấy các bình luận con
     public function replies()
     {
-        return $this->hasMany(Comment::class, 'parent_id');
+        return $this->hasMany(Comment::class, 'parent_id')->orderBy('created_at');
     }
 
-    // Quan hệ để lấy bình luận cha (nếu có)
     public function parent()
     {
         return $this->belongsTo(Comment::class, 'parent_id');
