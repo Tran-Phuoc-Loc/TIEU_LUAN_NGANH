@@ -29,6 +29,17 @@
                         @endforeach
                     </select>
                 </div>
+                
+                <div class="form-group">
+                    <label for="group">Nhóm</label>
+                    <select class="form-control" id="group" name="group_id" required>
+                        @foreach($groups as $group)
+                        <option value="{{ $group->id }}" {{ $post->group_id == $group->id ? 'selected' : '' }}>
+                            {{ $group->name }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
 
                 <div class="mb-3">
                     <label for="title" class="form-label">Tiêu đề bài viết</label>

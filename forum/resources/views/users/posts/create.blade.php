@@ -24,6 +24,11 @@
                 <form action="{{ route('users.posts.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
+                    @if(isset($group) && $group instanceof \App\Models\Group)
+                    <p>Group ID: {{ $group->id }}</p>
+                    <input type="hidden" name="group_id" value="{{ $group->id }}">
+                    @endif
+
                     <div class="mb-3">
                         <label for="category_id" class="form-label">Danh mục</label>
                         <select name="category_id" class="form-select" id="category_id" required>

@@ -177,7 +177,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('{post}/comments', [CommentController::class, 'store'])->name('comments.store'); // Tạo bình luận cho bài viết
         Route::get('{post}', [PostController::class, 'show'])->name('posts.show'); // Hiển thị bài viết cùng với bình luận
         Route::post('{post}/like', [PostController::class, 'like'])->name('posts.like'); // Lượt thích của bài viết
-
         // Để lấy danh sách bình luận của bài viết dưới dạng JSON
         Route::get('/{post}/comments', [CommentController::class, 'index']);
 

@@ -24,6 +24,7 @@ class StorePostRequest extends FormRequest
         $rules = [
             'title' => 'required|string|max:255',
             'content' => 'required',
+            'group_id' => 'nullable|exists:groups,id', // Kiểm tra nhóm hợp lệ
             'category_id' => 'required|exists:categories,id',
             // Tệp đơn: Ảnh tối đa 5MB, Video tối đa 60MB
             'media_single' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:61200', // 60MB

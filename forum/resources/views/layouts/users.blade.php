@@ -7,6 +7,11 @@
     <meta name="description" content="Nơi chia sẻ và thảo luận về công nghệ.">
     <meta name="keywords" content="TechTalks, công nghệ, thảo luận">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @auth
+    <meta name="authenticated" content="true">
+    @else
+    <meta name="authenticated" content="false">
+    @endauth
     <title>@yield('title', 'Chào Mừng Đến TeachTalks')</title>
 
     <!-- Bootstrap & Font Awesome CSS -->
@@ -326,11 +331,6 @@
             /* Bỏ viền cho menu */
         }
 
-        .dropdown-item {
-            color: #000;
-            /* Màu chữ của các item */
-        }
-
         .dropdown-item:hover {
             background-color: rgba(0, 0, 0, 0.1);
             /* Màu nền khi hover */
@@ -430,10 +430,6 @@
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                             <li><a class="dropdown-item" href="#">{{ Auth::user()->name }}</a></li>
                             <li><a class="dropdown-item" href="{{ route('users.profile.index', Auth::user()->id) }}">Thông tin cá nhân</a></li>
-                            <li><a class="dropdown-item" href="{{ route('users.groups.index') }}">Danh sách các nhóm tham gia</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
                             <li><a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Đăng Xuất</a>
                                 <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                                     @csrf
@@ -902,6 +898,7 @@
         const button = $(this);
         const commentId = button.data('comment-id'); // Lấy ID bình luận
         const postId = button.data('post-id'); // Lấy ID bài viết
+        const groupId = button.data('group-id'); // Lấy ID nhóm
         const likeCountElement = button.find('.like-count');
 
         // Gọi API để kiểm tra đăng nhập
@@ -922,7 +919,8 @@
                 if (commentId) {
                     likeUrl = `/comments/${commentId}/like`; // URL cho like comment
                 } else {
-                    likeUrl = `users/posts/${postId}/like`; // URL cho like bài viết
+                    // likeUrl = `users/posts/${postId}/like`; // URL cho like bài viết
+                    likeUrl = groupId ? `users/groups/${groupId}/posts/${postId}/like` : `users/posts/${postId}/like`;
                 }
                 $.ajax({
                     url: likeUrl,

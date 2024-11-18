@@ -40,6 +40,12 @@
                                 <span class="d-none d-lg-inline">Diễn đàn</span>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('users.groups.index') }}">
+                                <i class="bi bi-people"></i>
+                                <span class="d-none d-lg-inline">Nhóm tham gia</span>
+                            </a>
+                        </li>
                     </ul>
                 </nav>
 
@@ -60,9 +66,8 @@
                             </a>
                         </li>
                         <li class="nav-item" style="text-align: center;">
-                            @if ($groups->isNotEmpty())
-                            @php $firstGroup = $groups->first(); @endphp
-                            <a href="{{ route('groups.chat', $firstGroup->id) }}">
+                            @if (!empty($group))
+                            <a href="{{ route('groups.chat', $group->id) }}">
                                 <i class="fas fa-comment-sms" style="font-size: 40px"></i>
                             </a>
                             @endif

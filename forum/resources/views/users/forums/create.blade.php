@@ -45,6 +45,12 @@
                                 <span class="d-none d-lg-inline">Diễn đàn</span>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('users.groups.index') }}">
+                                <i class="bi bi-people"></i>
+                                <span class="d-none d-lg-inline">Nhóm tham gia</span>
+                            </a>
+                        </li>
                     </ul>
                 </nav>
 
@@ -69,7 +75,6 @@
                             @php $firstGroup = $groups->first(); @endphp
                             <a href="{{ route('groups.chat', $firstGroup->id) }}">
                                 <i class="fas fa-comment-sms" style="font-size: 40px"></i>
-                                <span class="d-none d-lg-inline">Tin nhắn</span>
                             </a>
                             @endif
                         </li>

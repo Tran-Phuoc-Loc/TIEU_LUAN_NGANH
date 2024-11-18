@@ -7,7 +7,9 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use App\Models\Group;
 use App\Models\GroupJoinRequest;
-use App\Models\Post;
+use App\Models\Category;
+use App\Models\SavedPost;
+use App\Models\Folder;
 
 class GroupController extends Controller
 {
@@ -15,18 +17,25 @@ class GroupController extends Controller
     {
         $user = Auth::user();
 
-        // Nạp trước các nhóm mà người dùng đã tham gia
-        $joinedGroups = $user->groups()->with(['creator', 'memberRequests.user'])->get();
+        // Lấy danh sách các nhóm mà người dùng đã tham gia
+        $joinedGroups = $user->groups()->with(['creator', 'memberRequests.user', 'users'])->get();
 
-        // Nạp trước các nhóm mà người dùng đã tạo
+        // Lấy các nhóm mà người dùng đã tạo
         $createdGroups = Group::where('creator_id', $user->id)
-            ->with(['creator', 'memberRequests.user'])
+            ->with(['creator', 'memberRequests.user', 'users'])
             ->get();
 
-        // Kết hợp hai tập hợp và loại bỏ nhóm trùng lặp
+        // Kết hợp hai tập hợp và loại bỏ trùng lặp dựa trên `id`
         $groups = $joinedGroups->merge($createdGroups)->unique('id');
 
-        return view('users.groups.index', compact('groups'));
+        // Lấy danh sách các nhóm gợi ý mà người dùng chưa tham gia
+        $userGroupIds = $groups->pluck('id'); // Lấy danh sách các ID của nhóm đã tham gia
+        $suggestedGroups = Group::whereNotIn('id', $userGroupIds)
+            ->with('creator')
+            ->take(5)
+            ->get();
+
+        return view('users.groups.index', compact('groups', 'suggestedGroups'));
     }
 
     public function create()
@@ -65,24 +74,29 @@ class GroupController extends Controller
 
     public function show($id)
     {
-        // Lấy thông tin nhóm, các thành viên trong nhóm, các bài viết liên quan đến nhóm và tin nhắn
-        $group = Group::with(['creator', 'users', 'posts', 'chats.user'])->findOrFail($id);
-
-        // Lấy các bài viết liên quan đến nhóm (nếu có) - có thể bỏ qua vì đã lấy trong Group
-        // $posts = Post::where('group_id', $id)->get(); // Không cần nữa vì đã có trong $group
-
+        // Lấy thông tin nhóm cùng với các bài viết, thành viên, tin nhắn
+        $group = Group::with(['creator', 'users', 'posts.user', 'chats.user'])->findOrFail($id);
+        $user = Auth::user();
+        // Lấy danh sách các danh mục cho bài viết (giả sử bạn có bảng categories)
+        $categories = Category::all();
+    
         // Lấy các thành viên trong nhóm
-        $members = $group->members;
-
+        $members = $group->users;
+    
         // Lấy các yêu cầu tham gia nhóm còn chờ xử lý
         $joinRequests = $group->joinRequests()->where('status', 'pending')->get();
+        $folders = [];
+        $savedPosts = [];
+        if ($user) {
 
-        // Log thông tin nhóm để kiểm tra
-        // Log::info('Group info: ', ['group' => $group]);
-
-        // Trả về view chi tiết nhóm
-        return view('users.groups.show', compact('group', 'joinRequests', 'members'));
-    }
+            // Lấy danh sách thư mục và bài viết đã lưu của người dùng hiện tại
+            $folders = Folder::where('user_id', $user->id)->get();
+            $savedPosts = SavedPost::where('user_id', $user->id)->pluck('post_id')->toArray();
+        }
+    
+        // Trả về view chi tiết nhóm với dữ liệu cần thiết
+        return view('users.groups.show', compact('group', 'joinRequests', 'members', 'categories', 'savedPosts'));
+    }    
 
     public function destroy(Group $group)
     {
@@ -155,5 +169,21 @@ class GroupController extends Controller
         $group->memberRequests()->where('user_id', $userId)->delete();
 
         return redirect()->back()->with('success', 'Người dùng đã bị đuổi khỏi nhóm.');
+    }
+
+    public function leaveGroup($id)
+    {
+        $user = Auth::user();
+        $group = Group::findOrFail($id);
+
+        // Kiểm tra nếu người dùng là thành viên của nhóm
+        if ($group->isMember($user)) {
+            // Xóa người dùng khỏi nhóm
+            $group->users()->detach($user->id);
+
+            return redirect()->route('users.groups.index')->with('success', 'Bạn đã rời khỏi nhóm thành công.');
+        }
+
+        return redirect()->route('users.groups.index')->with('error', 'Bạn không phải là thành viên của nhóm này.');
     }
 }

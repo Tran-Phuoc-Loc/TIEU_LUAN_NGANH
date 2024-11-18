@@ -32,8 +32,8 @@
                     <tbody>
                         @foreach ($published as $post)
                         <tr>
-                            <td><a href="{{ route('users.index', $post->id) }}">{{ $post->title }}</a></td>
-                            <td>{{ Str::limit($post->content, 50) }}</td>
+                            <td><a href="{{ route('users.index', ['post_id' => $post->id]) }}">{{ $post->title }}</a></td>
+                            <td>{!! Str::limit($post->content, 50) !!}</td>
                             <td>{{ $post->created_at->format('d/m/Y H:i') }}</td>
                             <td>{{ $post->category->name ?? 'Không có danh mục' }}</td>
                             <td>{{ ucfirst($post->status) }}</td> <!-- Hiển thị trạng thái với chữ cái đầu in hoa -->

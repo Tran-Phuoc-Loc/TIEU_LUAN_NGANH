@@ -29,15 +29,14 @@ class UserController extends Controller
         $post = null;
         $postFromNotification = null; // Đảm bảo biến luôn tồn tại
 
-        // Kiểm tra nếu có tham số 'id' trong URL (tìm kiếm bài viết theo id)
+        // Kiểm tra nếu có tham số 'post_id' trong URL
         if ($request->has('post_id')) {
-            // Lấy bài viết có id tương ứng
-            $post = Post::with('user')
+            $query = Post::with('user')
                 ->withCount('likes', 'comments')
                 ->where('status', 'published')
-                ->where('id', $request->post_id)
-                ->first();
+                ->where('id', $request->post_id);
 
+            $post = $query->first();
             // Kiểm tra nếu có bài viết
             if ($post) {
                 $posts = collect([$post]); // Chuyển bài viết thành collection nếu tìm thấy
@@ -45,7 +44,7 @@ class UserController extends Controller
                 $posts = collect(); // Nếu không có bài viết, trả về collection rỗng
             }
         }
-        // Nếu có tham số 'folder_id', tìm bài viết theo thư mục
+        // Nếu có tham số 'folder_id'
         elseif ($request->has('folder_id') && $user) {
             $folder = Folder::with('savedPosts.post')->find($request->folder_id);
 
@@ -56,13 +55,30 @@ class UserController extends Controller
                 });
             }
         }
-        // Nếu không có tham số nào, lấy tất cả bài viết đã xuất bản
+        // Nếu có 'group_id'
+        elseif ($request->has('group_id') && $user) {
+            if ($group && $group->members->contains($user->id)) {
+                $query = Post::with(['user', 'group.members'])
+                    ->withCount('likes', 'comments')
+                    ->where('status', 'published')
+                    ->where('group_id', $request->group_id);
+
+                // Áp dụng sorting
+                $query = $this->applySorting($query, $request->sort);
+                $posts = $query->get();
+            } else {
+                $posts = collect();
+            }
+        }
+        // Mặc định lấy tất cả bài viết
         else {
-            $posts = Post::with('user')
+            $query = Post::with(['user', 'group.members'])
                 ->withCount('likes', 'comments')
-                ->where('status', 'published')
-                ->orderByRaw('COALESCE(published_at, created_at) DESC')
-                ->get();
+                ->where('status', 'published');
+
+            // Áp dụng sorting
+            $query = $this->applySorting($query, $request->sort);
+            $posts = $query->get();
         }
 
         // Lấy danh sách người dùng gợi ý theo dõi, lấy 5 người ngẫu nhiên
@@ -88,7 +104,7 @@ class UserController extends Controller
                 ->paginate(10);
 
             // Lấy thông tin bài viết từ thông báo đầu tiên chưa đọc (nếu có)
-            if ($user && $unreadNotifications->isNotEmpty()) {
+            if ($unreadNotifications->isNotEmpty()) {
                 $postId = $unreadNotifications->first()->data['post_id'] ?? null;
                 $postFromNotification = $postId ? Post::find($postId) : null;
             }
@@ -120,7 +136,22 @@ class UserController extends Controller
             'postFromNotification'
         ));
     }
+    // Thêm method mới để xử lý sorting
+    private function applySorting($query, $sort)
+    {
+        switch ($sort) {
+            case 'hot':
+                return $query->withCount('likes')
+                    ->orderBy('likes_count', 'desc')
+                    ->orderByRaw('COALESCE(published_at, created_at) DESC');
 
+            case 'new':
+                return $query->orderByRaw('COALESCE(published_at, created_at) DESC');
+
+            default:
+                return $query->orderByRaw('COALESCE(published_at, created_at) DESC');
+        }
+    }
     // Trang xử lý Profile người dùng
     public function show(User $user, $section = 'profile')
     {

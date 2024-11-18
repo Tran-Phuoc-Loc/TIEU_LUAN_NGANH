@@ -108,14 +108,24 @@ class PostController extends Controller
         return view('users.posts.index', compact('forumPosts', 'posts', 'users', 'groups', 'query', 'products'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
         if (!Auth::check()) {
             return redirect()->route('login')->with('error', 'Bạn phải đăng nhập để tạo bài viết.');
         }
-        $groups = Group::all();
-        $categories = Category::all(); // Lấy tất cả danh mục
-        return view('users.posts.create', compact('categories', 'groups')); // Hiển thị trang tạo bài viết
+
+        // Lấy groupId từ query string
+        $groupId = $request->query('groupId');
+        $group = null;
+
+        if ($groupId) {
+            $group = Group::findOrFail($groupId);
+        }
+
+        $categories = Category::all();
+        // dd($groupId);
+
+        return view('users.posts.create', compact('categories', 'group'));
     }
 
     public function store(StorePostRequest $request)
@@ -128,18 +138,24 @@ class PostController extends Controller
             $post = Post::create([
                 'title' => $request->input('title'),
                 'content' => $request->input('content'),
+                'group_id' => $request->input('group_id'),
                 'user_id' => $userId,
                 'category_id' => $request->input('category_id'),
                 'status' => $request->input('status'),
                 'slug' => Str::slug($request->input('title')),
             ]);
 
+            // Nếu có group_id, bài viết thuộc nhóm
+            if ($request->group_id) {
+                $post->group_id = $request->group_id;
+            }
+
             // **Xử lý tệp đơn (ảnh hoặc video)**
             if ($request->hasFile('media_single')) {
                 $mediaSingle = $request->file('media_single');
 
                 // Kiểm tra xem tệp tải lên có phải là video không
-                if (str_contains($mediaSingle->getMimeType(), 'video')) {
+                if (in_array($mediaSingle->getMimeType(), ['video/mp4', 'video/avi', 'video/mov', 'video/mkv'])) {
                     // Lưu video vào thư mục uploads/
                     $filename = time() . '_' . $mediaSingle->getClientOriginalName();
                     $filePath = $mediaSingle->storeAs('public/uploads', $filename, 'public');
@@ -150,19 +166,16 @@ class PostController extends Controller
                     $filePath = $mediaSingle->storeAs('image', $filename, 'public');
                     $post->image_url = 'image/' . $filename;
                 }
-
-                // Lưu thông tin bài viết
-                $post->save();
             }
 
             // **Xử lý upload nhiều ảnh (chỉ khi media_single không phải video)**
-            if ($request->hasFile('media_multiple') && (!$request->hasFile('media_single') || !str_contains($request->file('media_single')->getMimeType(), 'video'))) {
-
+            if ($request->hasFile('media_multiple') && (!$request->hasFile('media_single') || !in_array($request->file('media_single')->getMimeType(), ['video/mp4', 'video/avi', 'video/mov', 'video/mkv']))) {
                 foreach ($request->file('media_multiple') as $file) {
-                    if (str_contains($file->getMimeType(), 'image')) {
+                    if (in_array($file->getMimeType(), ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'])) {
                         $filename = time() . '_' . $file->getClientOriginalName();
                         $filePath = $file->storeAs('uploads', $filename, 'public');
 
+                        // Lưu thông tin ảnh vào bảng PostImage
                         PostImage::create([
                             'post_id' => $post->id,
                             'file_path' => 'uploads/' . $filename,
@@ -170,6 +183,9 @@ class PostController extends Controller
                     }
                 }
             }
+
+            // Lưu thông tin bài viết nếu chưa được lưu trước đó
+            $post->save();
 
             // Chuyển hướng sau khi lưu bài viết thành công
             return redirect()->route('users.index')->with('success', 'Bài viết đã được lưu thành công.');
@@ -204,12 +220,13 @@ class PostController extends Controller
         return view('users.posts.edit', compact('post', 'categories', 'groups'));
     }
 
-
     public function update(StorePostRequest $request, Post $post)
     {
         try {
-            // Cập nhật bài viết
+
+            // Lấy dữ liệu đã được xác thực từ yêu cầu
             $validatedData = $request->validated();
+
             // Cập nhật bài viết
             $post->update([
                 'title' => $validatedData['title'],
@@ -218,6 +235,11 @@ class PostController extends Controller
                 'status' => $validatedData['status'],
                 'slug' => Str::slug($validatedData['title']),
             ]);
+
+            // Cập nhật `group_id` nếu có trong yêu cầu
+            if ($request->has('group_id')) {
+                $post->group_id = $request->input('group_id');
+            }
 
             // Nếu trạng thái là "published", cập nhật thời gian published_at
             if ($validatedData['status'] === 'published') {
@@ -337,6 +359,7 @@ class PostController extends Controller
         ]);
     }
 
+    // bỏ
     public function publish(Request $request, $id)
     {
         Log::info($request->all());
@@ -400,7 +423,7 @@ class PostController extends Controller
         $post->status = 'draft';
         $post->save();
 
-        return redirect()->route('users.posts.published')->with('success', 'Bài viết đã được thu hồi về nháp.');
+        return redirect()->route('users.posts.draft')->with('success', 'Bài viết đã được thu hồi về nháp.');
     }
 
     public function like($id)
@@ -498,14 +521,13 @@ class PostController extends Controller
 
         // Trả về view và truyền dữ liệu
         return view('users.posts.savePost', compact('folders', 'groups', 'folder'));
-        
-    }    
+    }
 
     public function showSavedPosts()
     {
         // Lấy tất cả các thư mục của người dùng hiện tại
         $folders = Folder::where('user_id', Auth::id())->get(); // Dùng Auth::id() để lấy thư mục của người dùng hiện tại
-    
+
         $groups = Group::all(); // Nếu cần các nhóm để lựa chọn, lấy chúng ở đây
         // Truyền vào view để người dùng chọn thư mục
         return view('users.posts.selectFolder', compact('folders', 'groups'));

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Like extends Model
 {
-    protected $fillable = ['user_id', 'comment_id', 'post_id'];
+    protected $fillable = ['user_id', 'comment_id', 'post_id', 'group_id'];
 
     public function comment()
     {
@@ -22,6 +22,11 @@ class Like extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function group()
+    {
+        return $this->belongsTo(Group::class);
     }
 
     public $timestamps = false; // Không sử dụng timestamps

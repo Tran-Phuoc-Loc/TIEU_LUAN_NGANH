@@ -90,8 +90,14 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('forums.index') }}">
-                                <i class="bi bi-chat-dots"></i>
+                                <i class="bi bi-wechat"></i>
                                 <span class="d-none d-lg-inline">Diễn đàn</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('users.groups.index') }}">
+                                <i class="bi bi-people"></i>
+                                <span class="d-none d-lg-inline">Nhóm tham gia</span>
                             </a>
                         </li>
                     </ul>
@@ -129,18 +135,34 @@
         <!-- Phần nội dung bài viết -->
         <div class="col-lg-7 col-md-7 offset-lg-2 content-col" style="border: 2px solid #c8ccd0; background-color:#fff;">
             <div class="post-container">
+                <!-- Thêm phần lọc -->
+                <div class="filter-buttons mb-3 d-flex gap-2">
+                    <a href="{{ request()->fullUrlWithQuery(['sort' => 'new']) }}"
+                        class="btn {{ request('sort') == 'new' ? 'btn-primary' : 'btn-outline-primary' }}">
+                        Mới nhất
+                    </a>
+                    <a href="{{ request()->fullUrlWithQuery(['sort' => 'hot']) }}"
+                        class="btn {{ request('sort') == 'hot' ? 'btn-primary' : 'btn-outline-primary' }}">
+                        Nổi bật
+                    </a>
+                    <a href="{{ request()->url() }}"
+                        class="btn {{ !request('sort') ? 'btn-primary' : 'btn-outline-primary' }}">
+                        Mặc định
+                    </a>
+                </div>
                 @if($posts->isEmpty())
                 <p>Không có bài viết nào.</p>
                 @else
                 @foreach ($posts as $post)
-                @if($post->status == 'published')
+                @if(!$post->group_id || ($post->group_id && Auth::check() && $post->group && $post->group->members->contains(Auth::id())))
+
                 <div class="post-card">
                     <div class="post-meta d-flex justify-content-between align-items-start">
                         <div class="d-flex align-items-center">
                             <a href="{{ route('users.profile.index', ['user' => $post->user->id]) }}">
                                 <img src="{{ $post->user->profile_picture ? asset('storage/' . $post->user->profile_picture) : asset('storage/images/avataricon.png') }}" alt="Avatar" class="post-avatar" loading="lazy">
                             </a>
-                            <span class="post-author">Đăng bởi: <strong>{{ $post->user->username }}</strong></span> |
+                            <span class="post-author">Đăng bởi: <strong style="color: #000;">{{ $post->user->username }}</strong></span> |
                             <span class="post-time">
                                 @if($post->published_at)
                                 {{ $post->published_at->isoFormat('MMM Do YYYY, h:mm ') }}
@@ -148,6 +170,14 @@
                                 {{ $post->created_at->isoFormat('MMM Do YYYY, h:mm ') }}
                                 @endif
                             </span>
+                            <!-- Hiển thị tên nhóm nếu có group_id -->
+                            @if($post->group_id)
+                            |<span class="group-name">Nhóm:
+                                <a href="{{ route('users.groups.show', ['id' => $post->group_id]) }}">
+                                    <strong>{{ $post->group->name }}</strong>
+                                </a>
+                            </span>
+                            @endif
                         </div>
 
                         <div class="dropdown">
@@ -155,18 +185,31 @@
                                 •••
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+                                <!-- Nút Báo vi phạm chỉ hiện nếu người dùng hiện tại không phải là tác giả bài viết -->
+                                @if(auth()->check() && auth()->user()->id !== $post->user_id)
                                 <li>
-                                    <button class="dropdown-item report-button" data-post-id="{{ $post->id }}" style="color: red;">Báo vi phạm</button>
+                                    <button class="dropdown-item report-button" data-post-id="{{ $post->id }}" style="color: red;">
+                                        Báo vi phạm
+                                    </button>
                                 </li>
+                                @endif
+                                <!-- Các tùy chọn khác chỉ hiện cho tác giả bài viết -->
                                 @if(auth()->check() && auth()->user()->id === $post->user_id)
                                 <li>
-                                    <a href="{{ route('posts.edit', $post->id) }}" class="dropdown-item btn btn-warning btn-sm">Chỉnh Sửa</a>
+                                    <a href="{{ route('posts.edit', $post->id) }}" class="dropdown-item btn btn-warning btn-sm"><i class="bi bi-brush-fill"></i> Chỉnh Sửa</a>
                                 </li>
                                 <li>
                                     <form action="{{ route('posts.recall', $post->id) }}" method="POST" style="display:inline;">
                                         @csrf
                                         @method('PUT')
-                                        <button type="submit" class="dropdown-item btn btn-dark btn-sm">Thu Hồi</button>
+                                        <button type="submit" class="dropdown-item btn btn-dark btn-sm"><i class="bi bi-arrow-counterclockwise"></i> Thu Hồi</button>
+                                    </form>
+                                </li>
+                                <li>
+                                    <form action="{{ route('posts.destroy', $post->id) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="dropdown-item btn btn-dark btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa bài viết này không?');"><i class="bi bi-x-circle-fill"></i> Xóa Bài Viết</button>
                                     </form>
                                 </li>
                                 @endif
@@ -175,7 +218,7 @@
                     </div>
                     <div class="post-category mt-1">
                         @if($post->category)
-                        <span>Danh mục:
+                        <span>
                             <a href="{{ route('categories.index', ['slug' => $post->category->slug]) }}">
                                 <strong>{{ $post->category->name }}</strong>
                             </a>
@@ -208,7 +251,7 @@
                             </div>
                             @elseif($post->isVideo())
                             <div class="post-video">
-                                <video class="video-player" controls>
+                                <video class="video-player" controls loading="lazy" preload="none">
                                     <source src="{{ asset('storage/public/' . $post->image_url) }}" type="video/mp4">
                                     Trình duyệt của bạn không hỗ trợ video.
                                 </video>

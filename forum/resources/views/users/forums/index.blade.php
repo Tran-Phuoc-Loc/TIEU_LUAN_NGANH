@@ -45,6 +45,12 @@
                                 <span class="d-none d-lg-inline">Diễn đàn</span>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('users.groups.index') }}">
+                                <i class="bi bi-people"></i>
+                                <span class="d-none d-lg-inline">Nhóm tham gia</span>
+                            </a>
+                        </li>
                     </ul>
                 </nav>
 
@@ -69,7 +75,6 @@
                             @php $firstGroup = $groups->first(); @endphp
                             <a href="{{ route('groups.chat', $firstGroup->id) }}">
                                 <i class="fas fa-comment-sms" style="font-size: 40px"></i>
-                                <span class="d-none d-lg-inline">Tin nhắn</span>
                             </a>
                             @endif
                         </li>
@@ -80,7 +85,7 @@
 
         <!-- Nội dung bài viết chính -->
         <div class="col-lg-6 col-md-7 offset-lg-2 content-col" style="border: 2px solid #007bff; background-color:#fff; margin-left: 17%;">
-            <h2>Bài Viết</h2>
+            <h2>Bài Viết</h2>             <a href="{{ route('forums.create') }}" class="btn btn-primary">Thêm Bài Viết Mới</a>
             @if(isset($posts) && $posts->isNotEmpty())
             <ul>
                 @foreach ($posts as $post)
@@ -172,8 +177,6 @@
                 </li>
                 @endforeach
             </ul>
-
-            <a href="{{ route('forums.create') }}" class="btn btn-primary">Thêm Bài Viết Mới</a>
         </div>
     </div>
 </div>

@@ -41,8 +41,14 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('forums.index') }}">
-                                <i class="bi bi-chat-dots"></i>
+                                <i class="bi bi-wechat"></i>
                                 <span class="d-none d-lg-inline">Diễn đàn</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('users.groups.index') }}">
+                                <i class="bi bi-people"></i>
+                                <span class="d-none d-lg-inline">Nhóm tham gia</span>
                             </a>
                         </li>
                     </ul>
@@ -69,7 +75,7 @@
                         @auth
                         @if(auth()->user()->products->count() > 0)
                         <li class="nav-item">
-                            <a href="{{ route('chat.seller') }}" class="nav-link">Tin nhắn từ khách hàng</a>
+                            <a href="{{ route('chat.seller') }}" class="nav-link"><i class="bi bi-messenger"></i>Khách hàng</a>
                         </li>
                         @endif
                         @endauth
