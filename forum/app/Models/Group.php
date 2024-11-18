@@ -5,14 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Group extends Model
 {
-    use HasFactory;
+    use HasFactory,SoftDeletes;
 
     // Các thuộc tính có thể được gán hàng loạt
     // Các cột này sẽ được sử dụng khi tạo hoặc cập nhật nhóm trong cơ sở dữ liệu
-    protected $fillable = ['name', 'description', 'creator_id', 'requires_approval', 'groups'];
+    protected $fillable = ['name', 'description', 'creator_id', 'requires_approval', 'groups', 'visibility'];
 
     /**
      * Định nghĩa mối quan hệ nhiều-nhiều với model `User`.
@@ -133,4 +134,20 @@ class Group extends Model
         // Truy vấn trực tiếp từ cơ sở dữ liệu nếu chưa load
         return $this->users()->where('user_id', $user->id)->exists();
     }
+    /**
+     * Sự kiện khi nhóm bị xóa, xóa tất cả các bài viết trong nhóm
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleted(function ($group) {
+            $group->posts->each(function ($post) {
+                $post->comments()->delete(); // Xóa các bình luận của bài viết trước khi xóa bài viết
+                $post->delete(); // Sau đó xóa bài viết
+            });
+        });
+        
+    }
+
 }

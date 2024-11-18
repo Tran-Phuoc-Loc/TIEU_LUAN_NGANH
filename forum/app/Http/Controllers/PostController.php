@@ -154,6 +154,19 @@ class PostController extends Controller
             if ($request->hasFile('media_single')) {
                 $mediaSingle = $request->file('media_single');
 
+                // Kiểm tra kích thước tệp (giới hạn 5MB cho ảnh, 50MB cho video)
+                if (in_array($mediaSingle->getMimeType(), ['video/mp4', 'video/avi', 'video/mov', 'video/mkv'])) {
+                    if ($mediaSingle->getSize() > 50 * 1024 * 1024) {
+                        Log::error('Video quá lớn: ' . $mediaSingle->getSize());
+                        return redirect()->route('users.posts.create')->with('error', 'Video quá lớn. Kích thước tối đa là 50MB.');
+                    }
+                } else {
+                    if ($mediaSingle->getSize() > 5 * 1024 * 1024) {
+                        Log::error('Ảnh quá lớn: ' . $mediaSingle->getSize());
+                        return redirect()->route('users.posts.create')->with('error', 'Ảnh quá lớn. Kích thước tối đa là 5MB.');
+                    }
+                }
+
                 // Kiểm tra xem tệp tải lên có phải là video không
                 if (in_array($mediaSingle->getMimeType(), ['video/mp4', 'video/avi', 'video/mov', 'video/mkv'])) {
                     // Lưu video vào thư mục uploads/
@@ -171,6 +184,13 @@ class PostController extends Controller
             // **Xử lý upload nhiều ảnh (chỉ khi media_single không phải video)**
             if ($request->hasFile('media_multiple') && (!$request->hasFile('media_single') || !in_array($request->file('media_single')->getMimeType(), ['video/mp4', 'video/avi', 'video/mov', 'video/mkv']))) {
                 foreach ($request->file('media_multiple') as $file) {
+
+                    // Kiểm tra kích thước tệp (giới hạn 5MB)
+                    if ($file->getSize() > 5 * 1024 * 1024) {  // 5MB
+                        return redirect()->route('users.posts.create')->with('error', 'Một số ảnh bạn tải lên quá lớn, vui lòng thử lại với ảnh nhỏ hơn 5MB.');
+                    }
+
+                    // Kiểm tra loại tệp ảnh
                     if (in_array($file->getMimeType(), ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'])) {
                         $filename = time() . '_' . $file->getClientOriginalName();
                         $filePath = $file->storeAs('uploads', $filename, 'public');
@@ -188,10 +208,10 @@ class PostController extends Controller
             $post->save();
 
             // Chuyển hướng sau khi lưu bài viết thành công
-            return redirect()->route('users.index')->with('success', 'Bài viết đã được lưu thành công.');
+            return redirect()->route('users.index')->withErrors('success', 'Bài viết đã được lưu thành công.');
         } catch (\Exception $e) {
             Log::error('Lỗi khi tạo bài viết: ' . $e->getMessage());
-            return redirect()->route('users.posts.create')->with('error', 'Có lỗi xảy ra khi lưu bài viết.');
+            return redirect()->route('users.posts.create')->withErrors('error', 'Có lỗi xảy ra khi lưu bài viết.');
         }
     }
 

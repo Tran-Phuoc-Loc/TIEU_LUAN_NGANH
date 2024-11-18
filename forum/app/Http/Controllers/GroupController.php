@@ -46,13 +46,13 @@ class GroupController extends Controller
 
     public function store(Request $request)
     {
-        // Kiểm tra dữ liệu nhận được
-        // dd($request->all());
         // Validate dữ liệu
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'requires_approval' => 'boolean',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'visibility' => 'required|in:public,private',
+            'requires_approval' => 'nullable|boolean', // cho phép null nếu checkbox không chọn
         ]);
 
         // Nếu checkbox không được chọn, giá trị sẽ là null
@@ -62,9 +62,18 @@ class GroupController extends Controller
         $group = Group::create([
             'name' => $request->input('name'),
             'description' => $request->input('description'),
+            'visibility' => $request->input('visibility'),
             'creator_id' => Auth::id(),
             'requires_approval' => $requiresApproval,
         ]);
+
+        // Xử lý ảnh nếu có
+        if ($request->hasFile('avatar')) {
+            // Lưu ảnh mới và lấy đường dẫn lưu trữ
+            $avatarPath = $request->file('avatar')->store('groups/avatars', 'public');
+            $group->avatar = $avatarPath; // Cập nhật đường dẫn avatar cho nhóm
+            $group->save(); // Lưu lại nhóm với avatar
+        }
 
         // Thêm người tạo nhóm vào nhóm luôn
         $group->users()->attach(Auth::id());
@@ -77,14 +86,17 @@ class GroupController extends Controller
         // Lấy thông tin nhóm cùng với các bài viết, thành viên, tin nhắn
         $group = Group::with(['creator', 'users', 'posts.user', 'chats.user'])->findOrFail($id);
         $user = Auth::user();
-        // Lấy danh sách các danh mục cho bài viết (giả sử bạn có bảng categories)
+
+        // Lấy danh sách các danh mục cho bài viết
         $categories = Category::all();
-    
+
         // Lấy các thành viên trong nhóm
         $members = $group->users;
-    
+
         // Lấy các yêu cầu tham gia nhóm còn chờ xử lý
         $joinRequests = $group->joinRequests()->where('status', 'pending')->get();
+
+        // Lấy danh sách thư mục và bài viết đã lưu của người dùng nếu có
         $folders = [];
         $savedPosts = [];
         if ($user) {
@@ -93,10 +105,10 @@ class GroupController extends Controller
             $folders = Folder::where('user_id', $user->id)->get();
             $savedPosts = SavedPost::where('user_id', $user->id)->pluck('post_id')->toArray();
         }
-    
-        // Trả về view chi tiết nhóm với dữ liệu cần thiết
-        return view('users.groups.show', compact('group', 'joinRequests', 'members', 'categories', 'savedPosts'));
-    }    
+
+        // Trả về view và truyền biến $user
+        return view('users.groups.show', compact('group', 'joinRequests', 'members', 'categories', 'savedPosts', 'user'));
+    }
 
     public function destroy(Group $group)
     {
@@ -185,5 +197,47 @@ class GroupController extends Controller
         }
 
         return redirect()->route('users.groups.index')->with('error', 'Bạn không phải là thành viên của nhóm này.');
+    }
+    
+    public function edit(Group $group)
+    {
+        // Kiểm tra xem người dùng có phải là chủ nhóm không
+        if ($group->creator_id !== Auth::id()) {
+            return redirect()->route('groups.show', $group->id)->with('error', 'Bạn không có quyền chỉnh sửa nhóm này.');
+        }
+
+        return view('users.groups.edit', compact('group'));
+    }
+
+    public function update(Request $request, Group $group)
+    {
+        // Kiểm tra xem người dùng có phải là chủ nhóm không
+        if ($group->creator_id !== Auth::id()) {
+            return redirect()->route('groups.show', $group->id)->with('error', 'Bạn không có quyền chỉnh sửa nhóm này.');
+        }
+
+        // Validate dữ liệu
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'visibility' => 'required|in:public,private',
+        ]);
+
+        // Cập nhật thông tin nhóm
+        $group->name = $request->input('name');
+        $group->description = $request->input('description');
+        $group->visibility = $request->input('visibility');
+
+        // Xử lý ảnh nếu có
+        if ($request->hasFile('avatar')) {
+            // Lưu ảnh mới
+            $avatarPath = $request->file('avatar')->store('groups/avatars', 'public');
+            $group->avatar = $avatarPath;
+        }
+
+        $group->save();
+
+        return redirect()->route('users.groups.show', $group->id)->with('success', 'Nhóm đã được cập nhật thành công!');
     }
 }

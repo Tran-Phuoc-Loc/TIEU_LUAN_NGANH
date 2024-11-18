@@ -9,7 +9,7 @@
         <div class="row">
             <h1>Tạo nhóm mới</h1>
 
-            <form action="{{ route('users.groups.store') }}" method="POST">
+            <form action="{{ route('users.groups.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
                 <div class="form-group">
@@ -22,13 +22,29 @@
                     <textarea name="description" id="description" class="form-control"></textarea>
                 </div>
 
-                <label for="requires_approval">
-                    <input type="checkbox" id="requires_approval" name="requires_approval" value="1">
-                    Yêu cầu phê duyệt tham gia nhóm
-                </label>
+                <div class="form-group">
+                    <label for="avatar">Ảnh đại diện nhóm (Avatar)</label>
+                    <input type="file" name="avatar" id="avatar" class="form-control" accept="image/*">
+                </div>
+
+                <div class="form-group">
+                    <label for="visibility">Trạng thái nhóm</label>
+                    <select name="visibility" id="visibility" class="form-control">
+                        <option value="public">Công khai</option>
+                        <option value="private">Riêng tư</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="requires_approval">
+                        <input type="checkbox" id="requires_approval" name="requires_approval" value="1">
+                        Yêu cầu phê duyệt tham gia nhóm
+                    </label>
+                </div>
 
                 <button type="submit" class="btn btn-primary">Tạo nhóm</button>
             </form>
         </div>
     </div>
-    @endsection
+</div>
+@endsection

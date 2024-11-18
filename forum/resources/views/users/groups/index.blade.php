@@ -49,7 +49,7 @@
 </style>
 
 @include('layouts.partials.sidebar')
-<div class="col-lg-6 col-md-7 offset-lg-2 content-col" style="border: 2px solid #007bff; background-color:#fff; margin-left: 17%;">
+<div class="col-lg-6 col-md-7 offset-lg-2 content-col" style="border: 2px solid #e1e1e2; background-color:#fff; margin-left: 17%; overflow-y: auto;">
     <h2 class="text-center">Các Nhóm Tôi Tham Gia</h2>
     @if($groups->isNotEmpty())
     <ul class="list-group">

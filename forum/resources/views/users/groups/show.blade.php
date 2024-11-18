@@ -60,7 +60,18 @@
         <p>Nhóm này chưa đăng tải bài viết nào.</p>
         @else
         @foreach($group->posts as $post)
-        @if($post->status == 'published')
+        @if($post->group)
+        @php
+        // Kiểm tra xem bài viết có thuộc nhóm riêng tư không và người dùng có thuộc nhóm đó không
+        $isGroupPostVisible = $post->group->visibility == 'public' || ($user && $user->groups->contains($post->group));
+        @endphp
+
+        @if(!$isGroupPostVisible)
+        <!-- Hiển thị cảnh báo nếu bài viết thuộc nhóm riêng tư và người dùng chưa tham gia -->
+        <div class="alert alert-warning">
+            <i class="fas fa-lock"></i> Bài viết này thuộc nhóm riêng tư. Hãy tham gia nhóm để xem nội dung.
+        </div>
+        @else
         <div class="post-card">
             <div class="post-meta d-flex justify-content-between align-items-start">
                 <div class="d-flex align-items-center">
@@ -213,21 +224,50 @@
             </div>
         </div>
         @endif
+        @endif
         @endforeach
         @endif
     </div>
 </div>
 <div class="col-lg-3 col-md-3 mt-lg-0 right-sidebar" style="background-color: #fff; width: 32%; margin-left: auto;">
-    <a href="{{ route('users.posts.create', ['groupId' => $group->id]) }}" class="btn btn-success">
-        <i class="fas fa-file-pen"></i>
-        <span class="d-none d-lg-inline">Viết bài</span>
-    </a>
+    @if(auth()->check() && auth()->user()->groups->contains($group))
+        <!-- Nút Viết bài -->
+        <a href="{{ route('users.posts.create', ['groupId' => $group->id]) }}" class="btn btn-success">
+            <i class="fas fa-file-pen"></i>
+            <span class="d-none d-lg-inline">Viết bài</span>
+        </a>
+    @endif
     <div class="post-container mb-4">
         <div class="row">
-            <h1>{{ $group->name }}</h1>
-            <p>{{ $group->description }}</p>
-            <p>Người tạo: {{ $group->creator->username ?? 'Không rõ' }}</p>
-            <p>Ngày tạo: {{ $group->created_at->format('d/m/Y H:i') }}</p>
+            <!-- Hiển thị avatar nhóm bên trái -->
+            <div class="d-flex align-items-center">
+                <img src="{{ asset('storage/' . ($group->avatar ?? 'groups/avatars/group_icon.png')) }}" alt="Avatar của nhóm {{ $group->name }}" class="rounded thumbnail" style="width: 80px; height: 100px; margin-right: 15px;">
+                <h1>{{ $group->name }}</h1>
+            </div>
+            @if ($group->creator_id === Auth::id())
+            <div class="d-flex mt-3">
+                <!-- Nút chỉnh sửa nhóm -->
+                <a href="{{ route('groups.edit', $group->id) }}" class="btn btn-warning mr-2">Chỉnh sửa nhóm</a>
+
+                <!-- Nút xóa nhóm -->
+                <form action="{{ route('groups.destroy', $group->id) }}" method="POST" style="display:inline;">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" onclick="return confirm('Bạn có chắc chắn muốn xóa nhóm này?')" class="btn btn-danger">Xóa nhóm</button>
+                </form>
+            </div>
+        @endif
+            <p>Số lượng thành viên: {{ $group->members->count() }}</p>
+            <p><strong>Nội Dung:</strong> {{ $group->description }}</p>
+            <p><strong>Người tạo:</strong> {{ $group->creator->username ?? 'Không rõ' }}</p>
+            <p><strong>Ngày tạo:</strong> {{ $group->created_at->format('d/m/Y H:i') }}</p>
+
+            <!-- Thêm trạng thái nhóm -->
+            @if($group->requires_approval)
+            <p>Trạng thái nhóm: Cần phê duyệt tham gia</p>
+            @else
+            <p>Trạng thái nhóm: Mở (Không cần phê duyệt tham gia)</p>
+            @endif
 
             @php
             $isMember = $group->members()->where('user_id', Auth::id())->exists();
@@ -275,20 +315,26 @@
 
             <!-- Hiển thị danh sách thành viên -->
             <h3>Thành viên trong nhóm:</h3>
-            <ul class="list-unstyled overflow-auto" style="max-height: 200px;">
+            <div class="row">
                 @foreach ($group->members as $user)
-                <li>
-                    {{ $user->username }}
-                    @if(Auth::id() === $group->creator_id && Auth::id() !== $user->id) <!-- Kiểm tra nếu là chủ nhóm và không phải là chính mình -->
+                <div class="col-6 col-md-4 col-lg-3 mb-3 text-center">
+                    <a href="{{ route('users.profile.index', $user->id) }}">
+                        <!-- Avatar người dùng -->
+                        <img src="{{ $user->profile_picture ? asset('storage/' . $user->profile_picture) : asset('storage/images/avataricon.png') }}"
+                            alt="Avatar của {{ $user->username }}" class="rounded-circle" style="width: 40px; height: 40px;">
+                    </a>
+
+                    <!-- Nếu người dùng là chủ nhóm và không phải chính mình, cho phép đuổi người khỏi nhóm -->
+                    @if(Auth::id() === $group->creator_id && Auth::id() !== $user->id)
                     <form action="{{ route('groups.kick', [$group->id, $user->id]) }}" method="POST" style="display:inline;">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" onclick="return confirm('Bạn có chắc chắn muốn đuổi người này ra khỏi nhóm?')">Kick Rời nhóm</button>
+                        <button type="submit" class="btn btn-danger btn-sm mt-2" onclick="return confirm('Bạn có chắc chắn muốn đuổi người này ra khỏi nhóm?')">Kick Rời nhóm</button>
                     </form>
                     @endif
-                </li>
+                </div>
                 @endforeach
-            </ul>
+            </div>
 
             <!-- Hiển thị yêu cầu tham gia (dành cho chủ nhóm) -->
             @if(Auth::id() === $group->creator_id)

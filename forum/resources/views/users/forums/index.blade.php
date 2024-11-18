@@ -84,17 +84,43 @@
         </div>
 
         <!-- Nội dung bài viết chính -->
-        <div class="col-lg-6 col-md-7 offset-lg-2 content-col" style="border: 2px solid #007bff; background-color:#fff; margin-left: 17%;">
-            <h2>Bài Viết</h2>             <a href="{{ route('forums.create') }}" class="btn btn-primary">Thêm Bài Viết Mới</a>
+        <div class="col-lg-6 col-md-7 offset-lg-2 content-col" style="border: 2px solid #e1e1e2; background-color:#fff; margin-left: 17%;">
+            <h2>Bài Viết</h2>
+            <a href="{{ route('forums.create') }}" class="btn btn-primary">Thêm Bài Viết Mới</a>
+
             @if(isset($posts) && $posts->isNotEmpty())
             <ul>
                 @foreach ($posts as $post)
                 <li>
-                    <h4>
-                        <a href="{{ route('forums.show', $post->id) }}" style="text-decoration: none; color: #007bff;">
-                            {{ $post->title }}
-                        </a>
-                    </h4>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4>
+                            <a href="{{ route('forums.show', $post->id) }}" style="text-decoration: none; color: #007bff;">
+                                {{ $post->title }}
+                            </a>
+                        </h4>
+
+                        <!-- Hiển thị menu dropdown cho tác giả hoặc admin -->
+                        @if(auth()->user()->id === $post->user_id || auth()->user()->role === 'admin')
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                Tùy chọn
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('forums.edit', $post->id) }}">Chỉnh sửa</a>
+                                </li>
+                                <li>
+                                    <form action="{{ route('forums.destroy', $post->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa bài viết này?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="dropdown-item text-danger">Xóa</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                        @endif
+                    </div>
+
                     <p>{!! Str::limit($post->content, 200) !!}</p>
                     <p><small>Viết bởi: {{ $post->user->username ?? 'Không có tên' }} - {{ $post->created_at->format('d-m-Y H:i') }}</small></p>
 
@@ -104,29 +130,6 @@
                     </div>
                     @endif
 
-                    <!-- Hiển thị menu dropdown cho tác giả hoặc admin -->
-                    @if(auth()->user()->id === $post->user_id || auth()->user()->role === 'admin')
-                    <div class="dropdown" style="display: inline;">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                            Tùy chọn
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                            <!-- Chỉnh sửa bài viết (nếu cần) -->
-                            <li>
-                                <a class="dropdown-item" href="{{ route('forums.edit', $post->id) }}">Chỉnh sửa</a>
-                            </li>
-
-                            <!-- Form xóa bài viết -->
-                            <li>
-                                <form action="{{ route('forums.destroy', $post->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa bài viết này?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="dropdown-item text-danger">Xóa</button>
-                                </form>
-                            </li>
-                        </ul>
-                    </div>
-                    @endif
                     <hr>
                 </li>
                 @endforeach

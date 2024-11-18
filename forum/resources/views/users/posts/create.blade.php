@@ -10,12 +10,6 @@
             @if(session('error'))
             <div class="alert alert-danger alert-dismissible fade show text-center" role="alert" style="position: fixed; top: 10px; right: 10px; width: 300px;">
                 {{ session('error') }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                <div class="mt-2">
-                    <a href="{{ route('login') }}" class="btn btn-primary btn-sm">Đăng Nhập</a>
-                </div>
             </div>
             @endif
 

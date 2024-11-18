@@ -207,6 +207,12 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/groups/user-groups', [GroupController::class, 'userGroups'])->name('users.groups.index'); // Danh sách các nhóm mà người dùng đã tham gia
         Route::get('/groups/create', [GroupController::class, 'create'])->name('users.groups.create'); // Tạo nhóm mới
         Route::post('/groups', [GroupController::class, 'store'])->name('users.groups.store'); // Xử lý việc lưu nhóm mới được tạo
+        // Chỉnh sửa nhóm
+        Route::get('groups/{group}/edit', [GroupController::class, 'edit'])->name('groups.edit');
+        Route::put('groups/{group}', [GroupController::class, 'update'])->name('groups.update');
+
+        // Xóa nhóm
+        Route::delete('groups/{group}', [GroupController::class, 'destroy'])->name('groups.destroy');
 
         // Sau đó là các route có tham số động
         Route::get('/groups/{id}', [GroupController::class, 'show'])->name('users.groups.show'); // Hiển thị thông tin chi tiết của một nhóm cụ thể
