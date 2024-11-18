@@ -165,6 +165,7 @@ class UserController extends Controller
                 return $query->orderByRaw('COALESCE(published_at, created_at) DESC');
         }
     }
+    
     // Trang xử lý Profile người dùng
     public function show(User $user, $section = 'profile')
     {

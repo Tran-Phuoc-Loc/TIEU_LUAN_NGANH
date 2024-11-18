@@ -94,6 +94,22 @@
         </div>
 
         <div class="col-lg-7 col-md-7 offset-lg-2 content-col" style="border: 2px solid #c8ccd0; background-color:#fff;">
+            <!-- Form lọc sản phẩm -->
+            <form method="GET" action="{{ route('products.index') }}">
+                <div class="d-flex justify-content-between">
+                    <select name="sort_by" class="form-select w-25">
+                        <option value="">Lọc theo</option>
+                        <option value="name_asc" {{ request('sort_by') == 'name_asc' ? 'selected' : '' }}>A-Z</option>
+                        <option value="name_desc" {{ request('sort_by') == 'name_desc' ? 'selected' : '' }}>Z-A</option>
+                        <option value="price_asc" {{ request('sort_by') == 'price_asc' ? 'selected' : '' }}>Giá tăng dần</option>
+                        <option value="price_desc" {{ request('sort_by') == 'price_desc' ? 'selected' : '' }}>Giá giảm dần</option>
+                        <option value="newest" {{ request('sort_by') == 'newest' ? 'selected' : '' }}>Sản phẩm mới</option>
+                    </select>
+
+                    <button type="submit" class="btn btn-primary">Lọc</button>
+                </div>
+            </form>
+
             <div class="post-container mb-4">
                 <div class="row">
                     @foreach($products as $product)

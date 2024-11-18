@@ -125,9 +125,19 @@
                                 <span class="visually-hidden">Next</span>
                             </button>
                         </div>
+                        @else
+                        <!-- Nếu chỉ có một ảnh, hiển thị ảnh chính -->
+                        <div class="carousel-item active">
+                            <img
+                                src="{{ asset('storage/' . $product->image) }}"
+                                alt="{{ $product->name }}"
+                                class="img-fluid d-block w-100"
+                                style="height: 400px; object-fit: cover; border-radius: 8px;">
+                        </div>
                         @endif
 
                         <!-- Hàng ảnh nhỏ bên dưới -->
+                        @if($product->images->count() > 1)
                         <div class="row mt-3">
                             <div class="col-12">
                                 <div class="d-flex overflow-auto" style="gap: 10px; max-width: 100%; padding-bottom: 10px;">
@@ -157,6 +167,7 @@
                                 </div>
                             </div>
                         </div>
+                        @endif
                     </div>
 
                     <!-- Cột chi tiết sản phẩm -->

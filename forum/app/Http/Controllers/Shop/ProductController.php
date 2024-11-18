@@ -27,30 +27,28 @@ class ProductController extends Controller
     // Hiển thị danh sách sản phẩm
     public function index(Request $request)
     {
+        // Lấy giá trị sắp xếp từ request
+        $sort = $request->input('sort_by');
+
+        // Khởi tạo truy vấn
+        $query = Product::with('user');
+
+        // Áp dụng sắp xếp nếu có
+        $query = $this->applySorting($query, $sort);
+
         // Kiểm tra nếu có tham số 'id' trong URL
         if ($request->has('id')) {
             // Lọc sản phẩm theo id nếu có tham số 'id'
-            $products = Product::with('user')
-                ->where('id', $request->id) // Lọc sản phẩm theo id
-                ->latest()
-                ->get(); // Sử dụng get() khi không cần phân trang
+            $products = $query->where('id', $request->id)->get(); // Sử dụng get() khi không cần phân trang
         } else {
-            // Nếu không có id, sử dụng paginate để phân trang sản phẩm
-            $products = Product::with('user')->latest()->paginate(9); // Sử dụng paginate khi cần phân trang
+            // Sử dụng paginate khi cần phân trang
+            $products = $query->paginate(9);
         }
 
-        // Lấy người nhận thông tin (người dùng hiện tại)
+        // Lấy các thông tin cần thiết cho view
         $receiver = Auth::user();
-
-        // Lấy các thư mục và bài viết đã lưu của người dùng
-        $folders = Folder::with('savedPosts')
-            ->where('user_id', Auth::id()) // Chỉ lấy thư mục của người dùng hiện tại
-            ->get();
-
-        // Lấy tất cả nhóm
+        $folders = Folder::with('savedPosts')->where('user_id', Auth::id())->get();
         $groups = Group::all();
-
-        // Lấy các sản phẩm liên quan để hiển thị trong sidebar
         $relatedProducts = Product::inRandomOrder()->limit(5)->get();
 
         // Trả về view với các biến cần thiết
@@ -184,5 +182,24 @@ class ProductController extends Controller
         $product->delete();
 
         return redirect()->route('products.index')->with('success', 'Sản phẩm đã được xóa thành công.');
+    }
+
+    // Thêm method mới để xử lý sorting
+    private function applySorting($query, $sort)
+    {
+        switch ($sort) {
+            case 'name_asc':
+                return $query->orderBy('name', 'asc');
+            case 'name_desc':
+                return $query->orderBy('name', 'desc');
+            case 'price_asc':
+                return $query->orderBy('price', 'asc');
+            case 'price_desc':
+                return $query->orderBy('price', 'desc');
+            case 'newest':
+                return $query->orderBy('created_at', 'desc');
+            default:
+                return $query;
+        }
     }
 }
