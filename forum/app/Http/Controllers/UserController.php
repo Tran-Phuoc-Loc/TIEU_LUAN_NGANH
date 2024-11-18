@@ -70,6 +70,18 @@ class UserController extends Controller
                 $posts = collect();
             }
         }
+
+        // Nếu có tham số 'user_posts', chỉ lấy bài viết của người dùng hiện tại
+        elseif ($request->has('user_posts') && $user) {
+            $query = Post::with(['user', 'group.members'])
+                ->withCount('likes', 'comments')
+                ->where('user_id', $user->id)
+                ->where('status', 'published');
+
+            // Áp dụng sorting nếu có
+            $query = $this->applySorting($query, $request->sort);
+            $posts = $query->get();
+        }
         // Mặc định lấy tất cả bài viết
         else {
             $query = Post::with(['user', 'group.members'])
@@ -136,6 +148,7 @@ class UserController extends Controller
             'postFromNotification'
         ));
     }
+
     // Thêm method mới để xử lý sorting
     private function applySorting($query, $sort)
     {

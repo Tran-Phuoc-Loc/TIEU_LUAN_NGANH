@@ -60,9 +60,9 @@
                 <!-- Thông tin người dùng -->
                 <div class="user-info text-center mb-4" style="background-color: black;background-image: linear-gradient(135deg, #52545f 0%, #383a45 50%);">
                     @if(auth()->check())
-                    <img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : asset('storage/images/avataricon.png') }}"
+                    <a class="dropdown-item" href="{{ route('users.profile.index', Auth::user()->id) }}"><img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : asset('storage/images/avataricon.png') }}"
                         alt="Profile picture of {{ auth()->user()->username }}"
-                        class="rounded-circle" style="width: 45px; height: 50px;">
+                        class="rounded-circle" style="width: 45px; height: 50px;"></a>
                     <h5 class="d-none d-md-block" style="color: #fff;">{{ auth()->user()->username }}</h5>
                     <hr style="border-top: 1px solid black; margin: 10px 0;">
                     @endif
@@ -76,12 +76,14 @@
                                 <span class="d-none d-lg-inline">Trang chủ</span>
                             </a>
                         </li>
+                        @auth
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('users.index') }}">
+                            <a class="nav-link" href="{{ route('users.index', ['user_posts' => 'true']) }}">
                                 <i class="bi bi-pencil"></i>
                                 <span class="d-none d-lg-inline">Bài viết của bạn</span>
                             </a>
                         </li>
+                        @endauth
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('categories.index') }}">
                                 <i class="bi bi-folder"></i>
@@ -136,7 +138,7 @@
         <div class="col-lg-7 col-md-7 offset-lg-2 content-col" style="border: 2px solid #c8ccd0; background-color:#fff;">
             <div class="post-container">
                 <!-- Thêm phần lọc -->
-                <div class="filter-buttons mb-3 d-flex gap-2">
+                <div class="filter-buttons my-3 d-flex justify-content-end gap-2">
                     <a href="{{ request()->fullUrlWithQuery(['sort' => 'new']) }}"
                         class="btn {{ request('sort') == 'new' ? 'btn-primary' : 'btn-outline-primary' }}">
                         Mới nhất
@@ -151,7 +153,7 @@
                     </a>
                 </div>
                 @if($posts->isEmpty())
-                <p>Không có bài viết nào.</p>
+                <p>Bạn chưa đăng bài viết nào.</p>
                 @else
                 @foreach ($posts as $post)
                 @if(!$post->group_id || ($post->group_id && Auth::check() && $post->group && $post->group->members->contains(Auth::id())))
@@ -444,7 +446,7 @@
         <p>Chưa có bình luận nào.</p>
         @endif
     </div>
-    @if(auth()->check())
+    @if(auth()->check() && isset($post) && $post->id)
     <form id="commentForm" action="{{ route('comments.store', $post->id) }}" method="POST" enctype="multipart/form-data" style="margin-top: auto;">
         @csrf
         <div class="textarea-container">
@@ -465,11 +467,15 @@
 </div>
 </div>
 
+@if(isset($post) && $post->id)
 <!-- Form ẩn để gửi báo cáo -->
 <form id="reportForm-{{ $post->id }}" action="{{ route('admin.reports.store') }}" method="POST" style="display: none;">
     @csrf
     <input type="hidden" name="post_id" value="{{ $post->id }}">
     <input type="hidden" name="reason" id="reasonInput-{{ $post->id }}" value="">
 </form>
+@else
+<p class="text-danger">Không thể gửi báo cáo vì bài viết không tồn tại.</p>
+@endif
 
 @endsection
