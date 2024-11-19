@@ -86,7 +86,24 @@
         <!-- Nội dung bài viết chính -->
         <div class="col-lg-6 col-md-7 offset-lg-2 content-col" style="border: 2px solid #e1e1e2; background-color:#fff; margin-left: 17%;">
             <h2>Bài Viết</h2>
+            <!-- Form bộ lọc -->
+            <form action="{{ route('forums.index') }}" method="GET" class="mb-3">
+                <div class="row">
+                    <div class="col-md-4">
+                        <input type="text" name="title" class="form-control" placeholder="Tìm theo tiêu đề" value="{{ request('title') }}">
+                    </div>
+                    <div class="col-md-4">
+                        <select name="sort" class="form-control">
+                            <option value="new" {{ request('sort') === 'new' ? 'selected' : '' }}>Mới nhất</option>
+                            <option value="old" {{ request('sort') === 'old' ? 'selected' : '' }}>Cũ nhất</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary mt-2">Lọc</button>
+            </form>
+
             <a href="{{ route('forums.create') }}" class="btn btn-primary">Thêm Bài Viết Mới</a>
+            <hr>
 
             @if(isset($posts) && $posts->isNotEmpty())
             <ul>

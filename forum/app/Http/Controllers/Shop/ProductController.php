@@ -202,4 +202,13 @@ class ProductController extends Controller
                 return $query;
         }
     }
+
+    // Quản lý sản phăm
+    public function management()
+    {
+        $user = auth::user();  // Lấy thông tin người dùng đã đăng nhập
+        $products = Product::where('user_id', $user->id)->get();  // Lấy các sản phẩm của người dùng
+
+        return view('products.management', compact('products'));
+    }
 }

@@ -105,6 +105,9 @@ Route::middleware(['auth'])->group(function () {
     // Trang quản lý danh sách tin nhắn
     Route::get('messages', [AdminMessageController::class, 'index'])->name('admin.messages.index');
 
+    // Quản lý sản phẩm
+    Route::get('/product-management', [ProductController::class, 'management'])->name('product.management');
+
     // Trang xem chi tiết tin nhắn
     Route::get('messages/{productMessage}', [AdminMessageController::class, 'show'])->name('admin.messages.show');
 
@@ -203,6 +206,9 @@ Route::middleware(['auth'])->group(function () {
 
     // Route quản lý Group
     Route::prefix('users')->group(function () {
+
+        Route::get('/profile/liked-posts', [UserController::class, 'showLikedPosts'])->name('users.liked.posts');
+
         // Đặt route không có tham số động lên trước
         Route::get('/groups/user-groups', [GroupController::class, 'userGroups'])->name('users.groups.index'); // Danh sách các nhóm mà người dùng đã tham gia
         Route::get('/groups/create', [GroupController::class, 'create'])->name('users.groups.create'); // Tạo nhóm mới
@@ -210,7 +216,7 @@ Route::middleware(['auth'])->group(function () {
         // Chỉnh sửa nhóm
         Route::get('groups/{group}/edit', [GroupController::class, 'edit'])->name('groups.edit');
         Route::put('groups/{group}', [GroupController::class, 'update'])->name('groups.update');
-
+        Route::get('/folders/{folder}', [PostController::class, 'showPostsByFolder'])->name('folders.showPosts');
         // Xóa nhóm
         Route::delete('groups/{group}', [GroupController::class, 'destroy'])->name('groups.destroy');
 

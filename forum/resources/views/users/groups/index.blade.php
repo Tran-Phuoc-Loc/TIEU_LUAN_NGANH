@@ -55,7 +55,7 @@
     <ul class="list-group">
         @foreach ($groups as $group)
         <li class="group-item d-flex justify-content-between align-items-center">
-            <a href="{{ route('users.groups.show', $group->id) }}" class="group-link">
+            <a href="{{ route('users.index', ['group_id' => $group->id]) }}" class="group-link">
                 <strong>{{ $group->name }}</strong>
             </a>
         </li>
@@ -72,7 +72,7 @@
     <ul class="list-group">
         @foreach ($suggestedGroups as $suggestedGroup)
         <li class="group-item d-flex justify-content-between align-items-center">
-            <a href="{{ route('users.groups.show', $suggestedGroup->id) }}" class="group-link">
+            <a href="{{ route('users.index', ['group_id' => $suggestedGroup->id]) }}" class="group-link">
                 <strong>{{ $suggestedGroup->name }}</strong>
             </a>
             <form action="{{ route('groups.join', $suggestedGroup->id) }}" method="POST" style="display:inline;">

@@ -25,4 +25,10 @@ class Folder extends Model
     {
         return $this->hasMany(SavedPost::class);
     }
+
+    // Thiết lập quan hệ nhiều-nhiều với Post thông qua bảng trung gian saved_posts
+    public function posts()
+    {
+        return $this->belongsToMany(Post::class, 'saved_posts', 'folder_id', 'post_id');
+    }
 }

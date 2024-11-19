@@ -158,7 +158,7 @@
                                     <a href="{{ route('chat.product', ['productId' => $product->id, 'receiverId' => $product->user->id]) }}" class="btn btn-primary w-100 mt-3">Nhắn tin với người bán</a>
                                     @else
                                     <!-- Nút chỉnh sửa sản phẩm cho người bán -->
-                                    <a href="{{ route('products.edit', $product->id) }}" class="btn btn-success w-100 mt-3">Sửa Sản Phẩm</a>
+                                    <a href="{{ route('products.edit', $product->id) }}" class="btn btn-edit-product">Sửa Sản Phẩm</a>
                                     @endif
                                     @else
                                     <!-- Nút đăng nhập -->
@@ -181,54 +181,46 @@
         </div>
 
         <!-- Sidebar phải: Mẹo Vặt -->
-        <div class="col-lg-3 col-md-3 mt-lg-0 right-sidebar" style="background-color: #fff; position: fixed; right: 0; height: 100vh; overflow-y: auto;">
-            <div class="right-sidebars p-3">
-                <h5>Mẹo Vặt Mua Sắm</h5>
-                <ul class="list-group list-unstyled mt-3">
+        <div class="col-lg-3 col-md-3 mt-lg-0 right-sidebar bg-light" style="position: fixed; right: 0; height: 100vh; overflow-y: auto;">
+            <div class="right-sidebars p-4 shadow-sm">
+                <h5 class="fw-bold text-primary">Mẹo Vặt Sản Phẩm</h5>
+                <p class="text-muted">Cập nhật những mẹo hay giúp bạn mua sắm thông minh và hiệu quả!</p>
+                <p class="text-muted">Cẩn thận khi mua hàng qua mạng⚠️</p>
+                <ul class="list-group list-unstyled mt-4">
                     <!-- Mẹo 1: Cách chọn laptop phù hợp cho sinh viên -->
-                    <li class="mb-3">
-                        <a href="#collapseExample1" class="text-dark" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="collapseExample1">
-                            💡 Cách chọn laptop phù hợp cho sinh viên
+                    <li class="mb-4">
+                        <a href="#collapseLaptopTips" class="text-dark fw-bold d-flex align-items-center" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="collapseLaptopTips">
+                            <i class="bi bi-laptop me-2 text-primary"></i> Cách chọn laptop phù hợp cho sinh viên
                         </a>
-                        <div class="collapse" id="collapseExample1">
-                            <ul class="list-group list-unstyled mt-2">
-                                <li><a class="text-dark" href="#">Nội dung mẹo 1.1</a></li>
-                                <li><a class="text-dark" href="#">Nội dung mẹo 1.2</a></li>
-                                <li><a class="text-dark" href="#">Nội dung mẹo 1.3</a></li>
+                        <div class="collapse mt-2" id="collapseLaptopTips">
+                            <ul class="list-group list-unstyled ps-3">
+                                <li><a class="text-secondary" href="#">✔️ Tìm laptop theo ngân sách</a></li>
+                                <li><a class="text-secondary" href="#">✔️ Cấu hình phù hợp với ngành học</a></li>
+                                <li><a class="text-secondary" href="#">✔️ Cần lựa chọn người bán uy tính</a></li>
                             </ul>
                         </div>
                     </li>
 
-                    <!-- Mẹo 2: Mẹo tiết kiệm khi mua sách online -->
-                    <li class="mb-3">
-                        <a href="#collapseExample2" class="text-dark" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="collapseExample2">
-                            🔍 Mẹo tiết kiệm khi mua sách online
+                    <!-- Mẹo 2: Cách tránh lừa đảo khi mua hàng qua mạng -->
+                    <li class="mb-4">
+                        <a href="#collapseFraudTips" class="text-dark fw-bold d-flex align-items-center" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="collapseFraudTips">
+                            <i class="bi bi-shield-check me-2 text-danger"></i> Cách tránh lừa đảo khi mua hàng qua mạng
                         </a>
-                        <div class="collapse" id="collapseExample2">
-                            <ul class="list-group list-unstyled mt-2">
-                                <li><a class="text-dark" href="#">Nội dung mẹo 2.1</a></li>
-                                <li><a class="text-dark" href="#">Nội dung mẹo 2.2</a></li>
-                                <li><a class="text-dark" href="#">Nội dung mẹo 2.3</a></li>
-                            </ul>
-                        </div>
-                    </li>
-
-                    <!-- Mẹo 3: Cách tránh lừa đảo khi mua hàng qua mạng -->
-                    <li class="mb-3">
-                        <a href="#collapseExample3" class="text-dark" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="collapseExample3">
-                            🛒 Cách tránh lừa đảo khi mua hàng qua mạng
-                        </a>
-                        <div class="collapse" id="collapseExample3">
-                            <ul class="list-group list-unstyled mt-2">
-                                <li><a class="text-dark" href="#">Nội dung mẹo 3.1</a></li>
-                                <li><a class="text-dark" href="#">Nội dung mẹo 3.2</a></li>
-                                <li><a class="text-dark" href="#">Nội dung mẹo 3.3</a></li>
+                        <div class="collapse mt-2" id="collapseFraudTips">
+                            <ul class="list-group list-unstyled ps-3">
+                                <li><a class="text-secondary" href="#">✔️ Xem người bán cẩn thận trước khi mua hàng</a></li>
+                                <li><a class="text-secondary" href="#">✔️ Không thanh toán trước khi nhận hàng</a></li>
+                                <li><a class="text-secondary" href="#">✔️ Kiểm tra thông tin người bán</a></li>
                             </ul>
                         </div>
                     </li>
                 </ul>
+                <div class="mt-4">
+                    <a href="{{ route('product.management') }}" class="btn btn-primary w-100">Quản lý sản phẩm</a>
+                </div>
             </div>
         </div>
+
     </div>
 </div>
 @endsection

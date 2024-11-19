@@ -110,14 +110,14 @@
             <!-- Profile -->
             <div class="col-lg-12 col-md-12 col-sm-12 col-12" style=" background-color: #fff">
                 <div class="cover-image position-relative">
-                    <img src="{{ $user->cover_image ? asset('storage/' . $user->cover_image) : asset('storage/images/covers/1200x300.png') }}" alt="Avatar" style="max-width:100%">
+                    <img src="{{ $user->cover_image ? asset('storage/' . $user->cover_image) : asset('storage/images/covers/1200x300.png') }}" alt="Avatar" style="max-width:100%" class="rounded thumbnail">
                 </div>
 
                 <!-- Ảnh đại diện và thông tin người dùng -->
                 <div class="profile-wrapper d-flex flex-column align-items-center">
                     <!-- Ảnh đại diện -->
                     <div class="profile-pic">
-                        <img src="{{ $user->profile_picture ? asset('storage/' . $user->profile_picture) : asset('storage/images/avataricon.png') }}" alt="Avatar">
+                        <img src="{{ $user->profile_picture ? asset('storage/' . $user->profile_picture) : asset('storage/images/avataricon.png') }}" alt="Avatar" class="rounded thumbnail">
                     </div>
 
                     <!-- Thông tin người dùng -->
@@ -129,11 +129,12 @@
 
                 <div class="profile-nav">
                     <a href="{{ url('/') }}">Home</a>
+                    <a href="{{ route('users.profile.index', ['user' => $user->id]) }}">Frofile</a>
                     <a href="{{ route('users.profile.friend', ['user' => $user->id, 'section' => 'friends']) }}">Friends</a>
                     <a href="{{ route('users.groups.index') }}">Groups</a>
 
                     <!-- Kiểm tra nếu người dùng là chủ nhóm hoặc thành viên trong ít nhất một nhóm -->
-                    @if ($groups->isNotEmpty())
+                    @if (isset($groups) && $groups->isNotEmpty())
                     @php
                     $firstGroup = $groups->first();
                     $isGroupOwnerOrMember = $groups->contains(function($group) {
@@ -153,13 +154,13 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                         <li><a class="dropdown-item" href="{{ route('users.posts.published') }}">Bài Viết Đã Xuất Bản</a></li>
-
+                        <li><a class="dropdown-item" href="{{ route('users.liked.posts') }}">Bài Viết Đã Thích</a></li>
                         <!-- Kiểm tra nếu có thư mục -->
                         @if($folders->isEmpty())
                         <li><a class="dropdown-item" href="#">Không có bài viết đã lưu</a></li>
                         @else
                         <!-- Liên kết đến trang chọn thư mục -->
-                        <li><a class="dropdown-item" href="{{ route('users.posts.savePost') }}">Thư Mục Yêu thích</a></li>
+                        <li><a class="dropdown-item" href="{{ route('users.posts.savePost') }}">Thư Mục Của Tôi</a></li>
                         @endif
                     </ul>
                 </div>
@@ -314,8 +315,17 @@
                             @elseif ($friendship && $friendship->status === 'pending')
                             <p>Đã gửi yêu cầu kết bạn. Đang chờ phản hồi.</p>
                             @elseif ($friendship && $friendship->status === 'accepted')
-                            <p>Đã là bạn bè với {{ $user->name }}.</p>
-                            <img src="{{ $user->avatar }}" alt="{{ $user->name }}'s Avatar" style="width: 50px; height: 50px;">
+                            <p>Đã là bạn bè với {{ $user->username }}.</p>
+
+                            @foreach ($friends as $friend)
+                            <div class="friend-card">
+                                <a href="{{ route('users.profile.index', ['user' => $friend->id]) }}" style="text-decoration:none;">
+                                    <img src="{{ $friend->profile_picture ? asset('storage/' . $friend->profile_picture) : asset('storage/images/avataricon.png') }}" alt="Avatar" class="friend-avatar" loading="lazy" style="width: 50px; height: 50px;">
+                                </a>
+                                <span class="friend-name">{{ $friend->username }}</span>
+                            </div>
+                            @endforeach
+
                             @endif
                             @else
                             <p>Bạn đang xem hồ sơ của chính mình, không thể gửi yêu cầu kết bạn với chính mình.</p>
@@ -377,7 +387,7 @@
                                 <ul class="list-group">
                                     @foreach($favoritePosts as $post)
                                     <li class="list-group-item">
-                                        <a href="{{ route('posts.show', $post->id) }}">{{ $post->title }}</a>
+                                        <a href="{{ route('users.index', ['post_id' => $post->id]) }}">{{ $post->title }}</a>
                                         <span class="badge bg-primary float-end">{{ $post->likes_count }} lượt thích</span>
                                     </li>
                                     @endforeach

@@ -359,6 +359,19 @@
             /* Đường viền bên trái cho phần trả lời */
             padding-left: 10px;
         }
+
+        .btn-edit-product {
+            background-color: #ff9800;
+            /* Màu cam, bạn có thể thay đổi màu này */
+            border-color: #ff9800;
+            color: white;
+        }
+
+        .btn-edit-product:hover {
+            background-color: #fb8c00;
+            /* Màu cam đậm khi hover */
+            border-color: #fb8c00;
+        }
     </style>
 </head>
 

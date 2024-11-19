@@ -20,8 +20,20 @@ class ForumController extends Controller
                 ->latest()
                 ->get();
         } else {
-            // Nếu không có id, lấy tất cả bài viết
-            $posts = ForumPost::with('user')->latest()->get();
+            // Nếu không có id, tạo query cơ bản để lọc và sắp xếp bài viết
+            $query = ForumPost::query();
+
+            // Lọc theo tiêu đề
+            if ($request->has('title') && $request->title != '') {
+                $query->where('title', 'like', '%' . $request->title . '%');
+            }
+
+            // Sắp xếp bài viết
+            $sort = $request->input('sort', 'new'); // Mặc định là sắp xếp theo "new"
+            $query = $this->applySorting($query, $sort);
+
+            // Lấy bài viết theo các điều kiện đã lọc và sắp xếp
+            $posts = $query->get();
         }
 
         // Lấy 5 danh mục và 5 bài viết mới nhất trong mỗi danh mục
@@ -38,6 +50,18 @@ class ForumController extends Controller
         // Trả về view với các biến cần thiết
         return view('users.forums.index', compact('categories', 'posts', 'latestPosts', 'groups'));
     }
+
+    // Thêm method mới để xử lý sorting
+    private function applySorting($query, $sort)
+    {
+        switch ($sort) {
+            case 'old':
+                return $query->orderByRaw('COALESCE(created_at, updated_at) ASC'); // Sắp xếp tăng dần
+            case 'new':
+            default:
+                return $query->orderByRaw('COALESCE(updated_at, created_at) DESC'); // Sắp xếp giảm dần
+        }
+    }    
 
     public function show($id)
     {
@@ -76,43 +100,43 @@ class ForumController extends Controller
 
     // Lưu bài viết mới vào cơ sở dữ liệu
     public function store(Request $request)
-{
-    $validatedData = $request->validate([
-        'title' => 'required|string|max:255',
-        'content' => 'required|string',
-        'forum_category_id' => 'required|exists:forum_categories,id',
-        'file' => 'nullable|file|mimes:pdf,docx,pptx,jpeg,png,jpg|max:2048',  // Kiểm tra tệp tải lên
-    ]);
+    {
+        $validatedData = $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'forum_category_id' => 'required|exists:forum_categories,id',
+            'file' => 'nullable|file|mimes:pdf,docx,pptx,jpeg,png,jpg|max:2048',  // Kiểm tra tệp tải lên
+        ]);
 
-    // Xử lý tải tệp (nếu có)
-    $filePath = null;
-    if ($request->hasFile('file')) {
-        $file = $request->file('file');
-        
-        // Kiểm tra lại phần mở rộng tệp
-        $extension = $file->getClientOriginalExtension();  // Lấy phần mở rộng tệp
-        $mimeType = $file->getMimeType();  // Lấy MIME type của tệp
+        // Xử lý tải tệp (nếu có)
+        $filePath = null;
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
 
-        // Kiểm tra loại tệp tải lên
-        if (!in_array($extension, ['pdf', 'docx', 'pptx', 'jpeg', 'png', 'jpg'])) {
-            return back()->withErrors(['file' => 'Chỉ hỗ trợ tệp có định dạng pdf, docx, pptx, jpeg, png, jpg.']);
+            // Kiểm tra lại phần mở rộng tệp
+            $extension = $file->getClientOriginalExtension();  // Lấy phần mở rộng tệp
+            $mimeType = $file->getMimeType();  // Lấy MIME type của tệp
+
+            // Kiểm tra loại tệp tải lên
+            if (!in_array($extension, ['pdf', 'docx', 'pptx', 'jpeg', 'png', 'jpg'])) {
+                return back()->withErrors(['file' => 'Chỉ hỗ trợ tệp có định dạng pdf, docx, pptx, jpeg, png, jpg.']);
+            }
+
+            // Lưu tệp
+            $filePath = $file->store('forum_uploads', 'public');
         }
 
-        // Lưu tệp
-        $filePath = $file->store('forum_uploads', 'public');
+        // Lưu bài viết vào cơ sở dữ liệu
+        ForumPost::create([
+            'title' => $validatedData['title'],
+            'content' => $validatedData['content'],
+            'forum_category_id' => $validatedData['forum_category_id'],
+            'user_id' => Auth::id(),
+            'file_path' => $filePath,  // Lưu đường dẫn tệp
+        ]);
+
+        return redirect()->route('forums.index')->with('success', 'Bài viết đã được tạo!');
     }
-
-    // Lưu bài viết vào cơ sở dữ liệu
-    ForumPost::create([
-        'title' => $validatedData['title'],
-        'content' => $validatedData['content'],
-        'forum_category_id' => $validatedData['forum_category_id'],
-        'user_id' => Auth::id(),
-        'file_path' => $filePath,  // Lưu đường dẫn tệp
-    ]);
-
-    return redirect()->route('forums.index')->with('success', 'Bài viết đã được tạo!');
-}
 
 
     // Phương thức chỉnh sửa bài viết

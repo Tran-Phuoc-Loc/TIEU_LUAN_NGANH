@@ -20,7 +20,11 @@
             <div class="col-md-12" style="margin-bottom: 12px;">
                 <div class="card shadow-sm border-0">
                     <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Thư mục: {{ $folder->name }}</h5>
+                        <h5 class="mb-0">
+                            <a href="{{ route('folders.showPosts', $folder->id) }}" class="text-primary">
+                                Thư mục: {{ $folder->name }}
+                            </a>
+                        </h5>
 
                         <!-- Nút Xóa và Đổi Tên -->
                         <div class="folder-actions">

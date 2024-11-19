@@ -97,4 +97,9 @@ class Post extends Model
             }
         });
     }
+
+    public function folders()
+    {
+        return $this->belongsToMany(Folder::class, 'saved_posts', 'post_id', 'folder_id');
+    }
 }

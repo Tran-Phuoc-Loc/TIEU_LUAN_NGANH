@@ -1,53 +1,7 @@
-<style>
-    /* Ẩn các ảnh sau ảnh thứ 2 */
-    .image-grid .image-item:nth-child(n+3) {
-        display: none;
-    }
+@extends('layouts.users')
 
-    .post-images-gallery {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-    }
+@section('title', 'Quản Lý Sản Phẩm')
 
-    .image-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 8px;
-    }
-
-    .image-item {
-        position: relative;
-        overflow: hidden;
-        border-radius: 8px;
-        width: 100%;
-        aspect-ratio: 1;
-        /* Khung hình vuông */
-    }
-
-    .image-item img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: center;
-        border-radius: 8px;
-    }
-
-    /* Hiển thị số lượng ảnh còn lại */
-    .more-images-overlay {
-        position: absolute;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        background-color: rgba(0, 0, 0, 0.6);
-        color: #fff;
-        font-size: 24px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 8px;
-    }
-</style>
 @section('content')
 <div class="container-fluid">
     <div class="row">
@@ -57,9 +11,9 @@
                 <!-- Thông tin người dùng -->
                 <div class="user-info text-center mb-4" style="background-color: black;background-image: linear-gradient(135deg, #52545f 0%, #383a45 50%);">
                     @if(auth()->check())
-                    <a class="dropdown-item" href="{{ route('users.profile.index', Auth::user()->id) }}"><img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : asset('storage/images/avataricon.png') }}"
-                            alt="Profile picture of {{ auth()->user()->username }}"
-                            class="rounded-circle" style="width: 45px; height: 50px;"></a>
+                    <img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : asset('storage/images/avataricon.png') }}"
+                        alt="Profile picture of {{ auth()->user()->username }}"
+                        class="rounded-circle" style="width: 45px; height: 50px;">
                     <h5 class="d-none d-md-block" style="color: #fff;">{{ auth()->user()->username }}</h5>
                     <hr style="border-top: 1px solid black; margin: 10px 0;">
                     @endif
@@ -73,14 +27,12 @@
                                 <span class="d-none d-lg-inline">Trang chủ</span>
                             </a>
                         </li>
-                        @auth
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('users.index', ['user_posts' => 'true']) }}">
+                            <a class="nav-link" href="{{ route('users.index') }}">
                                 <i class="bi bi-pencil"></i>
                                 <span class="d-none d-lg-inline">Bài viết của bạn</span>
                             </a>
                         </li>
-                        @endauth
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('categories.index') }}">
                                 <i class="bi bi-folder"></i>
@@ -107,9 +59,9 @@
                 <nav class="navbar navbar-dark flex-column">
                     <ul class="navbar-nav">
                         <li class="nav-item" style="padding-bottom: 10px;">
-                            <a href="{{ route('users.posts.create') }}" class="btn btn-success">
+                            <a href="{{ route('products.create') }}" class="btn btn-success">
                                 <i class="fas fa-file-pen"></i>
-                                <span class="d-none d-lg-inline">Viết bài</span>
+                                <span class="d-none d-lg-inline">Tạo sản phẩm</span>
                             </a>
                         </li>
                         <li class="nav-item" style="padding-bottom: 10px;">
@@ -118,6 +70,16 @@
                                 <span class="d-none d-lg-inline">Tạo nhóm</span>
                             </a>
                         </li>
+
+                        <!-- Kiểm tra nếu người dùng đã đăng ít nhất 1 sản phẩm -->
+                        @auth
+                        @if(auth()->user()->products->count() > 0)
+                        <li class="nav-item">
+                            <a href="{{ route('chat.seller') }}" class="nav-link"><i class="bi bi-messenger"></i>Khách hàng</a>
+                        </li>
+                        @endif
+                        @endauth
+
                         <li class="nav-item" style="text-align: center;">
                             @if (isset($groups) && $groups->isNotEmpty())
                             @php $firstGroup = $groups->first(); @endphp
@@ -130,3 +92,47 @@
                 </nav>
             </div>
         </div>
+
+        <div class="col-lg-10 col-md-10 offset-lg-2 content-col" style="border: 2px solid #c8ccd0; background-color:#fff;">
+            <h1>Quản lý sản phẩm</h1>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Tên sản phẩm</th>
+                        <th>Danh mục</th>
+                        <th>Giá</th>
+                        <th>Trạng thái</th>
+                        <th>Ảnh</th>
+                        <th>Ngày tạo</th>
+                        <th>Ngày cập nhật</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($products as $product)
+                    <tr>
+                        <td>{{ $loop->iteration }}</td>
+                        <td>{{ $product->name }}</td>
+                        <td>{{ optional($product->category)->name }}</td>
+                        <td>{{ number_format($product->price, 2) }} VND</td>
+                        <td>{{ ucfirst($product->status) }}</td>
+                        <td>
+                            @if($product->image)
+                            <img src="{{ asset('storage/'.$product->image) }}" width="50" height="50" alt="product image">
+                            @else
+                            Chưa có ảnh
+                            @endif
+                        </td>
+                        <td>{{ $product->created_at->format('d-m-Y H:i:s') }}</td>
+                        <td>{{ $product->updated_at->format('d-m-Y H:i:s') }}</td>
+                        <td>
+                            <a href="{{ route('products.edit', $product->id) }}" class="btn btn-sm btn-primary">Chỉnh sửa</a>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+
+            @endsection

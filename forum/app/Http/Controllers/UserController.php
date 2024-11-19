@@ -57,16 +57,34 @@ class UserController extends Controller
         }
         // Nếu có 'group_id'
         elseif ($request->has('group_id') && $user) {
-            if ($group && $group->members->contains($user->id)) {
-                $query = Post::with(['user', 'group.members'])
-                    ->withCount('likes', 'comments')
-                    ->where('status', 'published')
-                    ->where('group_id', $request->group_id);
+            // Kiểm tra nhóm và xem trạng thái của nhóm
+            if ($group) {
+                if ($group->status === 'public') {
+                    // Nếu nhóm là public, lấy tất cả bài viết của nhóm
+                    $query = Post::with(['user', 'group.members'])
+                        ->withCount('likes', 'comments')
+                        ->where('status', 'published')
+                        ->where('group_id', $request->group_id);
 
-                // Áp dụng sorting
-                $query = $this->applySorting($query, $request->sort);
-                $posts = $query->get();
+                    // Áp dụng sorting nếu có
+                    $query = $this->applySorting($query, $request->sort);
+                    $posts = $query->get();
+                } elseif ($group->status === 'private' && $group->members->contains($user->id)) {
+                    // Nếu nhóm là private và người dùng là thành viên, lấy bài viết của nhóm
+                    $query = Post::with(['user', 'group.members'])
+                        ->withCount('likes', 'comments')
+                        ->where('status', 'published')
+                        ->where('group_id', $request->group_id);
+
+                    // Áp dụng sorting nếu có
+                    $query = $this->applySorting($query, $request->sort);
+                    $posts = $query->get();
+                } else {
+                    // Nếu nhóm private và người dùng không phải là thành viên, trả về danh sách rỗng
+                    $posts = collect();
+                }
             } else {
+                // Nếu không tìm thấy nhóm, trả về danh sách rỗng
                 $posts = collect();
             }
         }
@@ -165,7 +183,7 @@ class UserController extends Controller
                 return $query->orderByRaw('COALESCE(published_at, created_at) DESC');
         }
     }
-    
+
     // Trang xử lý Profile người dùng
     public function show(User $user, $section = 'profile')
     {
@@ -205,13 +223,15 @@ class UserController extends Controller
         // Lấy tất cả nhóm mà người dùng đã tạo
         $ownedGroups = Group::where('creator_id', $id)->get();
 
+        $videos = $videos ?? [];
+
         if ($section === 'friends') {
             // Truyền biến cần thiết
-            return view('users.profile.friends', compact('friends', 'user', 'isOwnProfile', 'receivedFriendRequests', 'groups'));
+            return view('users.profile.friends', compact('friends', 'user', 'isOwnProfile', 'receivedFriendRequests', 'groups', 'folders', 'videos'));
         }
 
         // Trả về view và truyền dữ liệu người dùng cùng các bài viết của họ
-        return view('users.profile.index', compact('user', 'publishedCount', 'draftCount', 'favoritePosts', 'friendship', 'isOwnProfile', 'ownedGroups', 'receivedFriendRequests', 'friends', 'groups', 'folders'));
+        return view('users.profile.index', compact('user', 'publishedCount', 'draftCount', 'favoritePosts', 'friendship', 'isOwnProfile', 'ownedGroups', 'receivedFriendRequests', 'friends', 'groups', 'folders', 'videos'));
     }
 
     public function update(UserUpdateRequest $request, $id)
@@ -284,5 +304,30 @@ class UserController extends Controller
         // Kiểm tra xem người dùng hiện tại có phải là người đang được xem hay không
         $isOwnProfile = Auth::user()->id === $user->id;
         return view('users.profile.friends', compact('friends', 'user', 'isOwnProfile'));
+    }
+
+    public function showLikedPosts()
+    {
+        // Lấy người dùng hiện tại
+        $user = Auth::user();
+        // Lấy ID từ đối tượng user đã được truyền vào
+        $id = $user->id;
+
+        // Lấy các thư mục của người dùng
+        $folders = Folder::where('user_id', $id)->get();
+
+        $groups = Group::all();
+        // Kiểm tra nếu người dùng chưa đăng nhập
+        if (!$user) {
+            abort(403, 'Bạn cần đăng nhập để xem danh sách bài viết đã thích.');
+        }
+
+        // Lấy danh sách bài viết đã được like bởi người dùng
+        $favoritePosts = Post::whereHas('likes', function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })->with('user')->get();
+
+        // Truyền dữ liệu vào view
+        return view('users.profile.favorite_posts', compact('user', 'groups', 'favoritePosts', 'folders'));
     }
 }

@@ -546,10 +546,37 @@ class PostController extends Controller
     public function showSavedPosts()
     {
         // Lấy tất cả các thư mục của người dùng hiện tại
-        $folders = Folder::where('user_id', Auth::id())->get(); // Dùng Auth::id() để lấy thư mục của người dùng hiện tại
+        $folders = Folder::where('user_id', Auth::id())->with('posts')->get(); // Gắn quan hệ bài viết trong mỗi thư mục
 
-        $groups = Group::all(); // Nếu cần các nhóm để lựa chọn, lấy chúng ở đây
-        // Truyền vào view để người dùng chọn thư mục
+        $groups = Group::all(); // Lấy nhóm nếu cần
+
+        // Truyền dữ liệu vào view
         return view('users.posts.selectFolder', compact('folders', 'groups'));
+    }
+
+    // Xử lý việc hiển thị bài viết trong một thư mục
+    public function showPostsByFolder(Folder $folder)
+    {
+        // Lấy người dùng hiện tại
+        $user = Auth::user();
+
+        // Lấy danh sách người dùng gợi ý theo dõi, lấy 5 người ngẫu nhiên
+        $usersToFollow = User::where('role', 'user')
+            ->where('id', '!=', Auth::id()) // Loại bỏ người dùng hiện tại
+            ->inRandomOrder()
+            ->take(5)
+            ->get();
+
+        // Lấy tất cả bài viết trong thư mục, kèm thông tin người tạo bài viết
+        $posts = $folder->posts()->with('user')->get();
+
+        // Lấy danh sách ID bài viết đã lưu nếu người dùng đã đăng nhập
+        $savedPosts = [];
+        if ($user) {
+            $savedPosts = SavedPost::where('user_id', $user->id)->pluck('post_id')->toArray();
+        }
+
+        // Truyền dữ liệu vào view
+        return view('users.index', compact('posts', 'folder', 'usersToFollow', 'savedPosts'));
     }
 }
