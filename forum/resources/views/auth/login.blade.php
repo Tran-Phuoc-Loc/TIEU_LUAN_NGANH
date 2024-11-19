@@ -62,6 +62,10 @@
                     <button type="submit" class="btn btn-primary">Đăng nhập</button>
                 </div>
             </form>
+            <a href="{{ route('google.login') }}" class="btn btn-danger">
+                <i class="fab fa-google"></i> Đăng nhập bằng Google
+            </a>
+
             <div class="card-footer text-center">
                 <p>Chưa có tài khoản?</p><a href="{{ route('register') }}"> Đăng ký ngay</a>
             </div>

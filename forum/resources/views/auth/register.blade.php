@@ -82,22 +82,26 @@
 
                 <button type="submit" class="btn btn-primary w-100">Đăng ký</button>
             </form>
+            <!-- Đăng ký bằng Google -->
+            <a href="{{ route('google.login') }}" class="btn btn-success">
+                <i class="fab fa-google"></i> Đăng ký bằng Google
+            </a>
             <div class="mt-3 text-center">
                 <p>Bạn đã có tài khoản?</p><a href="{{ route('login') }}"> Đăng Nhập tại đây</a>
             </div>
         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
         <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('registrationForm');
-            if (form) {
-                form.addEventListener('submit', function(event) {
-                    // event.preventDefault(); // Ngăn chặn gửi form
-                    console.log('Form submitted');
-                });
-            }
-        });
-    </script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.getElementById('registrationForm');
+                if (form) {
+                    form.addEventListener('submit', function(event) {
+                        // event.preventDefault(); // Ngăn chặn gửi form
+                        console.log('Form submitted');
+                    });
+                }
+            });
+        </script>
 </body>
 
 </html>
