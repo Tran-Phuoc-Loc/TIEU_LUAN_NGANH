@@ -11,8 +11,20 @@ use Illuminate\Http\Request;
 
 class CommentController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+    
+
     public function store(Request $request, $postId)
     {
+            // Kiểm tra người dùng đã đăng nhập hay chưa
+    if (!Auth::check()) {
+        Log::info('User not authenticated');
+        return response()->json(['success' => false, 'message' => 'Chưa đăng nhập.'], 401); // 401 Unauthorized
+    }
+    Log::info('User authenticated');
         // Tìm bài viết
         $post = Post::findOrFail($postId);
 
@@ -22,10 +34,26 @@ class CommentController extends Controller
             'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
             'parent_id' => 'nullable|integer|exists:comments,id',
         ]);
+        Log::info('Received postId: ' . $postId);
+        // Kiểm tra parent_id (nếu có)
+        $parentId = $validated['parent_id'] ?? null;
+        Log::info('parentId: ' . $parentId . ', postId: ' . $postId);
 
-        // Kiểm tra tránh bình luận đệ quy (parent_id không thể là chính nó)
-        if (isset($validated['parent_id']) && $validated['parent_id'] == $post->id) {
-            return response()->json(['success' => false, 'message' => 'Không thể bình luận vào chính bài viết của mình.'], 400);
+        if ($parentId) {
+            $parentComment = Comment::where('id', $parentId)->where('post_id', $postId)->first();
+
+            // Nếu không tìm thấy bình luận cha hoặc không thuộc bài viết hiện tại
+            if (!$parentComment) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bình luận cha không hợp lệ hoặc không thuộc bài viết này.',
+                ], 400);
+            }
+
+            // Nếu bình luận cha đã là cấp 2 (đã có parent_id)
+            if ($parentComment->parent_id) {
+                $parentId = $parentComment->parent_id; // Gán lại parent_id để tạo bình luận cùng cấp với cha
+            }
         }
 
         // Tạo bình luận mới
@@ -33,11 +61,17 @@ class CommentController extends Controller
         $comment->content = $validated['content'];
         $comment->post_id = $post->id;
         $comment->user_id = Auth::id(); // Lấy ID của người dùng đã đăng nhập
-        $comment->parent_id = $validated['parent_id'] ?? null;
+        $comment->parent_id = $parentId; // Dùng parent_id đã xử lý
 
         // Kiểm tra nếu có hình ảnh được tải lên
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('comments', 'public');
+            $image = $request->file('image');
+            $imagePath = $image->store('comments', 'public');
+
+            if (!$imagePath) {
+                return response()->json(['success' => false, 'message' => 'Không thể lưu hình ảnh.'], 500);
+            }
+
             $comment->image_url = $imagePath;
         }
 
@@ -53,14 +87,15 @@ class CommentController extends Controller
 
         // Tải thông tin người dùng để hiển thị
         $comment->load('user');
-
+        Log::info('Received comment data', $validated);
+ 
         // Kiểm tra xem yêu cầu có phải AJAX không
         if ($request->ajax()) {
             return response()->json([
                 'success' => true,
                 'message' => 'Bình luận đã được gửi!',
                 'comment' => $comment,
-            ]);
+            ], 201); // HTTP 201: Created
         }
 
         // Nếu không phải AJAX, chuyển hướng lại trang trước với thông báo
@@ -68,66 +103,53 @@ class CommentController extends Controller
     }
 
     public function index($postId)
-{
-    $currentUserId = Auth::id();
+    {
+        $currentUserId = Auth::id();
 
-    // Lấy tất cả các bình luận gốc (cấp 1)
-    $comments = Comment::with('user')
-        ->where('post_id', $postId)
-        ->whereNull('parent_id')
-        ->orderBy('created_at', 'asc')
-        ->get();
+        // Lấy tất cả bình luận của bài viết
+        $allComments = Comment::with('user')
+            ->where('post_id', $postId)
+            ->orderBy('created_at', 'asc')
+            ->get();
 
-    // Lấy tất cả replies (cấp 2) của bài viết, bất kể chúng là reply của ai
-    $replies = Comment::with('user')
-        ->where('post_id', $postId)
-        ->whereNotNull('parent_id')
-        ->orderBy('created_at', 'asc')
-        ->get();
+        // Hàm đệ quy để sắp xếp bình luận và các trả lời
+        $buildCommentsTree = function ($comments, $parentId = null, $depth = 0, $maxDepth = 2) use (&$buildCommentsTree, $currentUserId) {
+            if ($depth >= $maxDepth) {
+                // Dừng đệ quy nếu đạt đến độ sâu tối đa
+                return collect();
+            }
 
-    // Kết hợp các replies vào đúng vị trí của bình luận cha
-    $formattedComments = $comments->map(function ($comment) use ($replies, $currentUserId) {
-        // Lọc ra tất cả các replies của bình luận hiện tại
-        $commentReplies = $replies->filter(function ($reply) use ($comment) {
-            return $reply->parent_id == $comment->id || $reply->parent_id != null;
-        });
+            return $comments
+                ->filter(function ($comment) use ($parentId) {
+                    return $comment->parent_id === $parentId;
+                })
+                ->map(function ($comment) use ($comments, $buildCommentsTree, $currentUserId, $depth, $maxDepth) {
+                    return [
+                        'id' => $comment->id,
+                        'content' => $comment->content,
+                        'created_at' => $comment->created_at,
+                        'likes_count' => $comment->likes_count ?? 0,
+                        'is_owner' => $currentUserId === $comment->user_id,
+                        'user' => [
+                            'id' => $comment->user->id,
+                            'username' => $comment->user->username,
+                            'profile_picture' => $comment->user->profile_picture,
+                        ],
+                        'image_url' => $comment->image_url,
+                        // Đệ quy với độ sâu tăng thêm 1
+                        'replies' => $buildCommentsTree($comments, $comment->id, $depth + 1, $maxDepth)->values(),
+                    ];
+                });
+        };
 
-        // Đưa các replies vào cùng cấp với bình luận cha
-        return [
-            'id' => $comment->id,
-            'content' => $comment->content,
-            'created_at' => $comment->created_at,
-            'likes_count' => $comment->likes_count ?? 0,
-            'is_owner' => Auth::id() === $comment->user_id,
-            'user' => [
-                'id' => $comment->user->id,
-                'username' => $comment->user->username,
-                'profile_picture' => $comment->user->profile_picture,
-            ],
-            'image_url' => $comment->image_url,
-            'replies' => $commentReplies->map(function ($reply) use ($currentUserId) {
-                return [
-                    'id' => $reply->id,
-                    'content' => $reply->content,
-                    'created_at' => $reply->created_at,
-                    'likes_count' => $reply->likes_count ?? 0,
-                    'is_owner' => $currentUserId === $reply->user_id,
-                    'user' => [
-                        'id' => $reply->user->id,
-                        'username' => $reply->user->username,
-                        'profile_picture' => $reply->user->profile_picture,
-                    ],
-                    'image_url' => $reply->image_url,
-                ];
-            })->values(),
-        ];
-    });
+        // Gọi hàm đệ quy để xây dựng cây bình luận với độ sâu tối đa là 2
+        $commentsTree = $buildCommentsTree($allComments);
 
-    // Trả về kết quả dưới dạng JSON
-    return response()->json([
-        'comments' => $formattedComments,
-    ]);
-}
+        // Trả về kết quả dưới dạng JSON
+        return response()->json([
+            'comments' => $commentsTree->values(),
+        ]);
+    }
 
     public function like($id)
     {
