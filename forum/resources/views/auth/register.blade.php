@@ -20,6 +20,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            padding-bottom: 0;
         }
     </style>
 </head>
@@ -83,7 +84,7 @@
                 <button type="submit" class="btn btn-primary w-100">Đăng ký</button>
             </form>
             <!-- Đăng ký bằng Google -->
-            <a href="{{ route('google.login') }}" class="btn btn-success">
+            <a href="{{ route('google.login') }}" class="btn btn-danger mt-1">
                 <i class="fab fa-google"></i> Đăng ký bằng Google
             </a>
             <div class="mt-3 text-center">

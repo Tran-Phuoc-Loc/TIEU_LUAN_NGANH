@@ -36,9 +36,16 @@
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <div class="user-circle">
                                         @if(Auth::user()->profile_picture)
-                                        @php($imagePath = asset('storage/' . Auth::user()->profile_picture))
-                                        <img src="{{ $imagePath }}" alt="Ảnh đại diện" class="img-fluid" style="border-radius: 50%;" loading="lazy">
+                                        <!-- Nếu có profile_picture, kiểm tra xem đó là URL tuyệt đối hoặc đường dẫn tĩnh -->
+                                        @if(filter_var(Auth::user()->profile_picture, FILTER_VALIDATE_URL))
+                                        <!-- Nếu profile_picture là URL, hiển thị trực tiếp -->
+                                        <img src="{{ Auth::user()->profile_picture }}" alt="Ảnh đại diện" class="img-fluid" style="border-radius: 50%;" loading="lazy">
                                         @else
+                                        <!-- Nếu không phải URL (ví dụ, đường dẫn trong storage), thì tải ảnh từ thư mục public -->
+                                        <img src="{{ asset('storage/' . Auth::user()->profile_picture) }}" alt="Ảnh đại diện" class="img-fluid" style="border-radius: 50%;" loading="lazy">
+                                        @endif
+                                        @else
+                                        <!-- Nếu không có ảnh, hiển thị ảnh mặc định hoặc ký tự đầu tiên của tên -->
                                         <img src="{{ asset('storage/images/avataricon.png') }}" alt="Ảnh đại diện mặc định" class="img-fluid" style="border-radius: 50%;" loading="lazy">
                                         {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                                         @endif

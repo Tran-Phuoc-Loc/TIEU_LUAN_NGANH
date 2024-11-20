@@ -62,7 +62,7 @@
                     <button type="submit" class="btn btn-primary">Đăng nhập</button>
                 </div>
             </form>
-            <a href="{{ route('google.login') }}" class="btn btn-danger">
+            <a href="{{ route('google.login') }}" class="btn btn-danger mt-1">
                 <i class="fab fa-google"></i> Đăng nhập bằng Google
             </a>
 

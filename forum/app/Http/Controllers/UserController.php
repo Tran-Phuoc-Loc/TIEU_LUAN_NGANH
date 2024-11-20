@@ -149,7 +149,8 @@ class UserController extends Controller
             // Lấy danh sách thư mục và bài viết đã lưu của người dùng hiện tại
             $folders = Folder::where('user_id', $user->id)->get();
             $savedPosts = SavedPost::where('user_id', $user->id)->pluck('post_id')->toArray();
-        }
+        } 
+        Log::debug($posts);
 
         // Trả về view với các biến cần thiết
         return view('users.index', compact(

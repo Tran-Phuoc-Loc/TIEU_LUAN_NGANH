@@ -166,7 +166,14 @@
                 <div class="profile-wrapper d-flex flex-column align-items-center">
                     <!-- Ảnh đại diện -->
                     <div class="profile-pic">
-                        <img src="{{ $user->profile_picture ? asset('storage/' . $user->profile_picture) : asset('storage/images/avataricon.png') }}" alt="Avatar" class="rounded thumbnail">
+                        <img src="{{ 
+                                (filter_var($user->profile_picture, FILTER_VALIDATE_URL)) 
+                                ? $user->profile_picture 
+                                : ($user->profile_picture 
+                                    ? asset('storage/' . $user->profile_picture) 
+                                    : asset('storage/images/avataricon.png')) 
+                            }}"
+                            alt="Avatar" class="rounded thumbnail">
                     </div>
 
                     <!-- Thông tin người dùng -->

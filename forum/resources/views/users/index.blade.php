@@ -58,11 +58,20 @@
         <div class="col-lg-2 col-md-1 sidebar d-none d-md-block" style="background-color: #fff; position: fixed; height: 100vh; overflow-y: auto;">
             <div class="vertical-navbar">
                 <!-- Thông tin người dùng -->
-                <div class="user-info text-center mb-4" style="background-color: black;background-image: linear-gradient(135deg, #52545f 0%, #383a45 50%);">
-                    @if(auth()->check())
-                    <a class="dropdown-item" href="{{ route('users.profile.index', Auth::user()->id) }}"><img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : asset('storage/images/avataricon.png') }}"
+                <div class="user-info text-center mb-4" style="background-color: black; background-image: linear-gradient(135deg, #52545f 0%, #383a45 50%);">
+                    @if(Auth::user()->profile_picture)
+                    <a class="dropdown-item" href="{{ route('users.profile.index', Auth::user()->id) }}">
+                        <!-- Kiểm tra nếu profile_picture là URL hợp lệ, nếu không thì lấy ảnh trong storage -->
+                        <img src="{{ 
+                    (filter_var(auth()->user()->profile_picture, FILTER_VALIDATE_URL)) 
+                    ? auth()->user()->profile_picture 
+                    : (auth()->user()->profile_picture 
+                        ? asset('storage/' . auth()->user()->profile_picture) 
+                        : asset('storage/images/avataricon.png')) 
+                }}"
                             alt="Profile picture of {{ auth()->user()->username }}"
-                            class="rounded-circle" style="width: 45px; height: 50px;"></a>
+                            class="rounded-circle" style="width: 45px; height: 50px;">
+                    </a>
                     <h5 class="d-none d-md-block" style="color: #fff;">{{ auth()->user()->username }}</h5>
                     <hr style="border-top: 1px solid black; margin: 10px 0;">
                     @endif
@@ -178,7 +187,8 @@
                     <div class="post-meta d-flex justify-content-between align-items-start">
                         <div class="d-flex align-items-center">
                             <a href="{{ route('users.profile.index', ['user' => $post->user->id]) }}">
-                                <img src="{{ $post->user->profile_picture ? asset('storage/' . $post->user->profile_picture) : asset('storage/images/avataricon.png') }}" alt="Avatar" class="post-avatar" loading="lazy">
+                                <img src="{{ $post->user->profile_picture ? (filter_var($post->user->profile_picture, FILTER_VALIDATE_URL) ? $post->user->profile_picture : asset('storage/' . $post->user->profile_picture)) : asset('storage/images/avataricon.png') }}" alt="Avatar" class="post-avatar" loading="lazy">
+
                             </a>
                             <span class="post-author">Đăng bởi: <strong style="color: #000;">{{ $post->user->username }}</strong></span> |
                             <span class="post-time">
@@ -249,10 +259,10 @@
                     <div class="post-content">
                         <div class="post-title">{{ $post->title }}</div>
                         <div class="post-description">
-                            <span class="content-preview">{!! Str::limit($post->content, 100) !!}</span>
+                            <span class="content-preview">{!! Str::limit(strip_tags($post->content), 100) !!}</span>
                             <span class="content-full" style="display: none;">{!! $post->content !!}</span>
                         </div>
-                        @if (strlen($post->content) > 100)
+                        @if (strlen(strip_tags($post->content)) > 100)
                         <button class="btn btn-link toggle-content">Xem thêm</button>
                         @endif
 
@@ -431,8 +441,8 @@
                                 <div class="col-6 col-md-4 col-lg-3 mb-3 text-center">
                                     <a href="{{ route('users.profile.index', $user->id) }}">
                                         <!-- Avatar người dùng -->
-                                        <img src="{{ $user->profile_picture ? asset('storage/' . $user->profile_picture) : asset('storage/images/avataricon.png') }}"
-                                            alt="Avatar của {{ $user->username }}" class="rounded-circle" style="width: 40px; height: 40px;">
+                                        <img src="{{ $post->user->profile_picture ? (filter_var($post->user->profile_picture, FILTER_VALIDATE_URL) ? $post->user->profile_picture : asset('storage/' . $post->user->profile_picture)) : asset('storage/images/avataricon.png') }}"
+                                            alt="Avatar" class="rounded-circle" style="width: 40px; height: 40px;" loading="lazy">
                                     </a>
 
                                     <!-- Nếu người dùng là chủ nhóm và không phải chính mình, cho phép đuổi người khỏi nhóm -->
@@ -561,79 +571,88 @@
                 </div>
             </div>
         </div>
+    </div>
+</div>
 
-        <!-- Modal Bình Luận -->
-        <div class="modal" id="commentModal" style="display:none;">
-            <div class="modal-content">
-                <span class="close" style="cursor:pointer;">&times;</span>
-                <div class="modal-body">
-                    <h5 id="modalPostTitle">Bình luận cho bài viết</h5>
-                    <div class="comments-list" style="max-height: 400px; overflow-y: auto;">
-                        @if(isset($comments) && $comments->count() > 0)
-                        @foreach($comments as $comment)
-                        <div class="comment">
-                            <img src="{{ $comment->user->profile_picture ? asset('storage/' . $comment->user->profile_picture) : asset('storage/images/avataricon.png') }}" alt="Avatar" class="comment-avatar" loading="lazy">
-                            <strong>{{ $comment->user->username }}</strong>:
-                            <small>
-                                {{ $comment->created_at->isoFormat('DD/MM/YYYY HH:mm') }}
-                                ({{ $comment->created_at->diffForHumans() }})
-                            </small>
-                            <h6>{{ $comment->content }}</h6>
-                            @if($comment->image_url)
-                            <div class="comment-image">
-                                <img src="{{ asset('storage/' . $comment->image_url) }}" alt="Comment Image" loading="lazy">
-                            </div>
-                            @endif
-                            <div class="comment-actions">
-                                <button class="like-button" data-comment-id="${comment.id}">
-                                    <i class="far fa-thumbs-up"></i> <span class="like-count">${comment.likes_count}</span>
+<!-- Modal Bình Luận -->
+<div class="modal" id="commentModal" style="display:none;">
+    <div class="modal-content">
+        <span class="close" style="cursor:pointer;">&times;</span>
+        <div class="modal-body">
+            <h5 id="modalPostTitle">Bình luận cho bài viết</h5>
+            <div class="comments-list" style="max-height: 400px; overflow-y: auto;">
+                @if(isset($comments) && $comments->count() > 0)
+                @foreach($comments as $comment)
+                <div class="comment p-3 mb-3 border rounded shadow-sm" id="comment-{{ $comment->id }}" style="background-color: #f9f9f9;">
+                    <div class="d-flex align-items-center mb-2">
+                        <img src="{{ $comment->user->profile_picture ? asset('storage/' . $comment->user->profile_picture) : asset('storage/images/avataricon.png') }}" alt="Avatar" class="rounded-circle me-3" width="40" height="40" loading="lazy" style="border: 1px solid #ddd;">
+                        <div>
+                            <strong>{{ $comment->user->username }}</strong>
+                            <small class="text-muted"> • {{ $comment->created_at->isoFormat('DD/MM/YYYY HH:mm') }} ({{ $comment->created_at->diffForHumans() }})</small>
+                        </div>
+                    </div>
+                    <div class="ms-4">
+                        <p class="mb-2" style="font-size: 1rem; line-height: 1.5;">{{ $comment->content }}</p>
+                        @if($comment->image_url)
+                        <div class="comment-image mb-2">
+                            <img src="{{ asset('storage/' . $comment->image_url) }}" class="img-fluid rounded" alt="Comment Image" loading="lazy" style="max-width: 100%; height: auto;">
+                        </div>
+                        @endif
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex">
+                                <button class="btn btn-sm btn-outline-secondary like-button me-2" data-comment-id="{{ $comment->id }}" style="border-radius: 20px; padding: 5px 10px;">
+                                    <i class="far fa-thumbs-up"></i> <span class="like-count">{{ $comment->likes_count }}</span>
                                 </button>
-                                <button class="share-button" data-comment-id="${comment.id}">
-                                    <i class="fas fa-share-alt"></i> Chia sẻ
-                                </button>
-                                <button class="reply-button" data-comment-id="${comment.id}">
+                                <button class="btn btn-sm btn-outline-primary reply-button" data-comment-id="{{ $comment->id }}" style="border-radius: 20px; padding: 5px 10px;">
                                     <i class="fas fa-reply"></i> Trả lời
                                 </button>
                             </div>
-                            <div class="replies" id="replies-${comment.id}"></div> <!-- Khu vực để hiển thị các bình luận trả lời -->
+                            <!-- Nút xóa nếu cần -->
+                            @if(auth()->check() && auth()->user()->id == $comment->user_id) <!-- Kiểm tra quyền xóa -->
+                            <button class="btn btn-sm btn-outline-danger delete-button" data-comment-id="{{ $comment->id }}" style="border-radius: 20px; padding: 5px 10px;">
+                                <i class="fas fa-trash-alt"></i> Xóa
+                            </button>
+                            @endif
                         </div>
                     </div>
+                    <div class="replies ms-4 mt-3" id="replies-{{ $comment->id }}"></div> <!-- Khu vực để hiển thị các bình luận trả lời -->
                 </div>
                 @endforeach
                 @else
                 <p>Chưa có bình luận nào.</p>
                 @endif
             </div>
-            @if(auth()->check() && isset($post) && $post->id)
-            <form id="commentForm" action="{{ route('comments.store', $post->id) }}" method="POST" enctype="multipart/form-data" style="margin-top: auto;">
-                @csrf
-                <div class="textarea-container">
-                    <input type="hidden" id="parent_id" name="parent_id" value="0">
-                    <textarea name="content" class="form-control" rows="3" placeholder="Nhập bình luận của bạn" required></textarea>
-                    <input type="file" name="image" class="file-input" accept="image/*" id="fileInput" style="display:none;">
-                    <button type="button" class="file-icon" onclick="document.getElementById('fileInput').click();">
-                        <i class="fas fa-upload"></i> <!-- Icon tải lên -->
-                    </button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-arrow-right"></i> <!-- Hình mũi tên -->
-                    </button>
-                </div>
-            </form>
-            @else
-            <p>Vui lòng <a href="{{ route('login') }}">đăng nhập</a> để bình luận.</p>
-            @endif
         </div>
+        @if(auth()->check() && isset($post) && $post->id)
+        <form id="commentForm" data-post-id="{{ $post->id }}" action="{{ route('comments.store', $post->id) }}" method="POST" enctype="multipart/form-data" style="margin-top: auto;">
+            @csrf
+            <div class="textarea-container">
+                <input type="hidden" id="parent_id" name="parent_id" value="0">
+                <textarea name="content" class="form-control" rows="3" placeholder="Nhập bình luận của bạn" required></textarea>
+                <input type="file" name="image" class="file-input" accept="image/*" id="fileInput" style="display:none;">
+                <button type="button" class="file-icon" onclick="document.getElementById('fileInput').click();">
+                    <i class="fas fa-upload"></i> <!-- Icon tải lên -->
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-arrow-right"></i> <!-- Hình mũi tên -->
+                </button>
+            </div>
+        </form>
+        @else
+        <p>Vui lòng <a href="{{ route('login') }}">đăng nhập</a> để bình luận.</p>
+        @endif
     </div>
+</div>
 
-    @if(isset($post) && $post->id)
-    <!-- Form ẩn để gửi báo cáo -->
-    <form id="reportForm-{{ $post->id }}" action="{{ route('admin.reports.store') }}" method="POST" style="display: none;">
-        @csrf
-        <input type="hidden" name="post_id" value="{{ $post->id }}">
-        <input type="hidden" name="reason" id="reasonInput-{{ $post->id }}" value="">
-    </form>
-    @else
-    <p class="text-danger">Không thể gửi báo cáo vì bài viết không tồn tại.</p>
-    @endif
+@if(isset($post) && $post->id)
+<!-- Form ẩn để gửi báo cáo -->
+<form id="reportForm-{{ $post->id }}" action="{{ route('admin.reports.store') }}" method="POST" style="display: none;">
+    @csrf
+    <input type="hidden" name="post_id" value="{{ $post->id }}">
+    <input type="hidden" name="reason" id="reasonInput-{{ $post->id }}" value="">
+</form>
+@else
+<p class="text-danger">Không thể gửi báo cáo vì bài viết không tồn tại.</p>
+@endif
 
-    @endsection
+@endsection

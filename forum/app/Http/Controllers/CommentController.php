@@ -15,16 +15,17 @@ class CommentController extends Controller
     {
         $this->middleware('auth');
     }
-    
 
     public function store(Request $request, $postId)
     {
-            // Kiểm tra người dùng đã đăng nhập hay chưa
-    if (!Auth::check()) {
-        Log::info('User not authenticated');
-        return response()->json(['success' => false, 'message' => 'Chưa đăng nhập.'], 401); // 401 Unauthorized
-    }
-    Log::info('User authenticated');
+
+        // Kiểm tra người dùng đã đăng nhập hay chưa
+        if (!Auth::check()) {
+            Log::info('User not authenticated');
+            return response()->json(['success' => false, 'message' => 'Chưa đăng nhập.'], 401); // 401 Unauthorized
+        }
+        Log::info('User authenticated');
+
         // Tìm bài viết
         $post = Post::findOrFail($postId);
 
@@ -35,6 +36,7 @@ class CommentController extends Controller
             'parent_id' => 'nullable|integer|exists:comments,id',
         ]);
         Log::info('Received postId: ' . $postId);
+
         // Kiểm tra parent_id (nếu có)
         $parentId = $validated['parent_id'] ?? null;
         Log::info('parentId: ' . $parentId . ', postId: ' . $postId);
@@ -88,18 +90,15 @@ class CommentController extends Controller
         // Tải thông tin người dùng để hiển thị
         $comment->load('user');
         Log::info('Received comment data', $validated);
- 
-        // Kiểm tra xem yêu cầu có phải AJAX không
-        if ($request->ajax()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Bình luận đã được gửi!',
-                'comment' => $comment,
-            ], 201); // HTTP 201: Created
-        }
+        Log::info('Received request', $request->all());
+        Log::info('Saving comment for postId: ' . $postId);
 
-        // Nếu không phải AJAX, chuyển hướng lại trang trước với thông báo
-        return redirect()->back()->with('success', 'Bình luận đã được gửi!');
+        // Luôn trả về JSON
+        return response()->json([
+            'success' => true,
+            'message' => 'Bình luận đã được gửi!',
+            'comment' => $comment,
+        ], 201);
     }
 
     public function index($postId)

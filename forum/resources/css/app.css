@@ -181,11 +181,6 @@ img.img-thumbnail:hover {
     color: #333; /* Màu chữ cho tiêu đề */
 }
 
-.form-control {
-    padding: 15px; /* Padding cho input */
-    font-size: 16px; /* Kích thước font cho input */
-}
-
 /* Button Styles */
 .btn-primary {
     font-size: 16px; /* Kích thước font cho nút chính */
