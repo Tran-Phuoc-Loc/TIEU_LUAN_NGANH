@@ -1,7 +1,57 @@
 @extends('layouts.users')
 
-@section('title', 'Shop')
+@section('title', 'Chi tiết sản phẩm')
 
+<style>
+    /* Ẩn các ảnh sau ảnh thứ 2 */
+    .image-grid .image-item:nth-child(n+3) {
+        display: none;
+    }
+
+    .post-images-gallery {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .image-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .image-item {
+        position: relative;
+        overflow: hidden;
+        border-radius: 8px;
+        width: 100%;
+        aspect-ratio: 1;
+        /* Khung hình vuông */
+    }
+
+    .image-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        border-radius: 8px;
+    }
+
+    /* Hiển thị số lượng ảnh còn lại */
+    .more-images-overlay {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, 0.6);
+        color: #fff;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+    }
+</style>
 @section('content')
 <div class="container-fluid">
     <div class="row">
@@ -9,11 +59,20 @@
         <div class="col-lg-2 col-md-1 sidebar d-none d-md-block" style="background-color: #fff; position: fixed; height: 100vh; overflow-y: auto;">
             <div class="vertical-navbar">
                 <!-- Thông tin người dùng -->
-                <div class="user-info text-center mb-4" style="background-color: black;background-image: linear-gradient(135deg, #52545f 0%, #383a45 50%);">
-                    @if(auth()->check())
-                    <img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : asset('storage/images/avataricon.png') }}"
-                        alt="Profile picture of {{ auth()->user()->username }}"
-                        class="rounded-circle" style="width: 45px; height: 50px;">
+                <div class="user-info text-center mb-4" style="background-color: black; background-image: linear-gradient(135deg, #52545f 0%, #383a45 50%);">
+                    @if(Auth::user()->profile_picture)
+                    <a class="dropdown-item" href="{{ route('users.profile.index', Auth::user()->id) }}">
+                        <!-- Kiểm tra nếu profile_picture là URL hợp lệ, nếu không thì lấy ảnh trong storage -->
+                        <img src="{{ 
+                    (filter_var(auth()->user()->profile_picture, FILTER_VALIDATE_URL)) 
+                    ? auth()->user()->profile_picture 
+                    : (auth()->user()->profile_picture 
+                        ? asset('storage/' . auth()->user()->profile_picture) 
+                        : asset('storage/images/avataricon.png')) 
+                }}"
+                            alt="Profile picture of {{ auth()->user()->username }}"
+                            class="rounded-circle" style="width: 45px; height: 50px;">
+                    </a>
                     <h5 class="d-none d-md-block" style="color: #fff;">{{ auth()->user()->username }}</h5>
                     <hr style="border-top: 1px solid black; margin: 10px 0;">
                     @endif
@@ -27,12 +86,14 @@
                                 <span class="d-none d-lg-inline">Trang chủ</span>
                             </a>
                         </li>
+                        @auth
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('users.index') }}">
+                            <a class="nav-link" href="{{ route('users.index', ['user_posts' => 'true']) }}">
                                 <i class="bi bi-pencil"></i>
                                 <span class="d-none d-lg-inline">Bài viết của bạn</span>
                             </a>
                         </li>
+                        @endauth
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('categories.index') }}">
                                 <i class="bi bi-folder"></i>
@@ -41,8 +102,14 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('forums.index') }}">
-                                <i class="bi bi-chat-dots"></i>
+                                <i class="bi bi-wechat"></i>
                                 <span class="d-none d-lg-inline">Diễn đàn</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('users.groups.index') }}">
+                                <i class="bi bi-people"></i>
+                                <span class="d-none d-lg-inline">Nhóm tham gia</span>
                             </a>
                         </li>
                     </ul>
@@ -53,9 +120,9 @@
                 <nav class="navbar navbar-dark flex-column">
                     <ul class="navbar-nav">
                         <li class="nav-item" style="padding-bottom: 10px;">
-                            <a href="{{ route('products.create') }}" class="btn btn-success">
+                            <a href="{{ route('users.posts.create') }}" class="btn btn-success">
                                 <i class="fas fa-file-pen"></i>
-                                <span class="d-none d-lg-inline">Tạo sản phẩm</span>
+                                <span class="d-none d-lg-inline">Viết bài</span>
                             </a>
                         </li>
                         <li class="nav-item" style="padding-bottom: 10px;">
@@ -64,18 +131,8 @@
                                 <span class="d-none d-lg-inline">Tạo nhóm</span>
                             </a>
                         </li>
-
-                        <!-- Kiểm tra nếu người dùng đã đăng ít nhất 1 sản phẩm -->
-                        @auth
-                        @if(auth()->user()->products->count() > 0)
-                        <li class="nav-item">
-                            <a href="{{ route('chat.seller') }}" class="nav-link">Tin nhắn từ khách hàng</a>
-                        </li>
-                        @endif
-                        @endauth
-
                         <li class="nav-item" style="text-align: center;">
-                            @if ($groups->isNotEmpty())
+                            @if (isset($groups) && $groups->isNotEmpty())
                             @php $firstGroup = $groups->first(); @endphp
                             <a href="{{ route('groups.chat', $firstGroup->id) }}">
                                 <i class="fas fa-comment-sms" style="font-size: 40px"></i>
@@ -102,7 +159,7 @@
                                         src="{{ asset('storage/' . $product->image) }}"
                                         alt="{{ $product->name }}"
                                         class="img-fluid d-block w-100"
-                                        style="height: 400px; object-fit: cover; border-radius: 8px;">
+                                        style="object-fit: cover; border-radius: 8px;">
                                 </div>
                                 <!-- Các ảnh khác -->
                                 @foreach ($product->images as $index => $image)
@@ -127,12 +184,12 @@
                         </div>
                         @else
                         <!-- Nếu chỉ có một ảnh, hiển thị ảnh chính -->
-                        <div class="carousel-item active">
+                        <div class="carousel-item active" style="width:60%;">
                             <img
                                 src="{{ asset('storage/' . $product->image) }}"
                                 alt="{{ $product->name }}"
                                 class="img-fluid d-block w-100"
-                                style="height: 400px; object-fit: cover; border-radius: 8px;">
+                                style="object-fit: cover; border-radius: 8px;">
                         </div>
                         @endif
 

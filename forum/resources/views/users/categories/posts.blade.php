@@ -82,7 +82,7 @@
             <div class="post-meta d-flex justify-content-between align-items-start">
                 <div class="d-flex align-items-center">
                     <a href="{{ route('users.profile.index', ['user' => $post->user->id]) }}">
-                        <img src="{{ $post->user->profile_picture ? asset('storage/' . $post->user->profile_picture) : asset('storage/images/avataricon.png') }}" alt="Avatar" class="post-avatar" loading="lazy">
+                        <img src="{{ $post->user->profile_picture ? (filter_var($post->user->profile_picture, FILTER_VALIDATE_URL) ? $post->user->profile_picture : asset('storage/' . $post->user->profile_picture)) : asset('storage/images/avataricon.png') }}" alt="Avatar" class="post-avatar" loading="lazy">
                     </a>
                     <span class="post-author">Đăng bởi: <strong style="color: #000;">{{ $post->user->username }}</strong></span> |
                     <span class="post-time">
@@ -243,7 +243,27 @@
     </div>
 </div>
 <div class="col-lg-3 col-md-3 mt-lg-0 right-sidebar" style="background-color: #fff; width: 32%; margin-left: auto;">
+<div class="post-container mb-4">
+        <div class="row">
+            <h1 class="text-center">Danh Sách Danh Mục</h1>
 
+            @if ($categories->isEmpty())
+            <div class="empty-message">
+                <p>Không có danh mục nào.</p>
+            </div>
+            @else
+            <ul class="list-group">
+                @foreach ($categories as $category)
+                <li class="list-group-item category-item">
+                    <a href="{{ route('categories.posts', ['slug' => $category->slug]) }}" class="category-link">
+                        {{ $category->name }}
+                    </a>
+                </li>
+                @endforeach
+            </ul>
+            @endif
+        </div>
+    </div>
 </div>
 <!-- Modal Bình Luận -->
 <div class="modal" id="commentModal" style="display:none;">

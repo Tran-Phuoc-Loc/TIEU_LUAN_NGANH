@@ -417,7 +417,7 @@
 
                     <!-- Thông báo -->
                     @auth
-                    <li class="nav-item dropdown" style="padding-top: 7px;">
+                    <li class="nav-item dropdown" style="padding-top: 12px;">
                         <a href="{{ route('notifications.index') }}"
                             class="dropdown-item {{ auth()->check() && auth()->user()->unreadNotifications->count() > 0 ? 'new-notification' : '' }}">
                             <i class="fas fa-bell"></i>

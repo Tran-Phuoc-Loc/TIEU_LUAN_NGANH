@@ -249,7 +249,9 @@
 
                                 // Lấy ảnh đại diện nếu có
                                 if ($user->profile_picture) {
-                                $images[] = asset('storage/' . $user->profile_picture);
+                                $images[] = filter_var($user->profile_picture, FILTER_VALIDATE_URL)
+                                ? $user->profile_picture
+                                : asset('storage/' . $user->profile_picture);
                                 }
 
                                 // Lấy ảnh bìa nếu có

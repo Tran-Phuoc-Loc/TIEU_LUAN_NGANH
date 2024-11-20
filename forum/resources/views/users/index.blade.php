@@ -147,7 +147,7 @@
         <div class="col-lg-7 col-md-7 offset-lg-2 content-col" style="border: 2px solid #c8ccd0; background-color:#fff;">
             <div class="post-container">
                 <!-- Thêm phần lọc -->
-                <div class="filter-buttons my-3 d-flex justify-content-end gap-2">
+                <div class="filter-buttons my-3 d-flex gap-2">
                     <a href="{{ request()->fullUrlWithQuery(['sort' => 'new']) }}"
                         class="btn {{ request('sort') == 'new' ? 'btn-primary' : 'btn-outline-primary' }}">
                         Mới nhất
@@ -188,7 +188,6 @@
                         <div class="d-flex align-items-center">
                             <a href="{{ route('users.profile.index', ['user' => $post->user->id]) }}">
                                 <img src="{{ $post->user->profile_picture ? (filter_var($post->user->profile_picture, FILTER_VALIDATE_URL) ? $post->user->profile_picture : asset('storage/' . $post->user->profile_picture)) : asset('storage/images/avataricon.png') }}" alt="Avatar" class="post-avatar" loading="lazy">
-
                             </a>
                             <span class="post-author">Đăng bởi: <strong style="color: #000;">{{ $post->user->username }}</strong></span> |
                             <span class="post-time">
