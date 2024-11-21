@@ -378,7 +378,7 @@
 <body>
     <header>
         <!-- Navbar chính -->
-        <nav class="navbar navbar-expand-lg navbar-dark" style="border-bottom: 1px solid #ddd; background-color:#fff">
+        <nav class="navbar navbar-expand-lg navbar-dark" style="border-bottom: 1px solid #ddd; background-color:#fff; height:100px;">
             <a class="navbar-brand" href="{{ url('/') }}">
                 <img src="{{ asset('storage/images/bookicon.png') }}" alt="Description" loading="lazy">TechTalks
             </a>
@@ -431,7 +431,8 @@
                     <li class="nav-item dropdown ms-3">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <div class="user-circle">
-                                @if(Auth::user()->profile_picture)
+                                @if(Auth::check() && Auth::user()->profile_picture)
+
                                 <!-- Nếu có profile_picture, kiểm tra xem đó là URL tuyệt đối hoặc đường dẫn tĩnh -->
                                 @if(filter_var(Auth::user()->profile_picture, FILTER_VALIDATE_URL))
                                 <!-- Nếu profile_picture là URL, hiển thị trực tiếp -->

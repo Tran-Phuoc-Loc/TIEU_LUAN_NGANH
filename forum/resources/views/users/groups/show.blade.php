@@ -76,7 +76,11 @@
             <div class="post-meta d-flex justify-content-between align-items-start">
                 <div class="d-flex align-items-center">
                     <a href="{{ route('users.profile.index', ['user' => $post->user->id]) }}">
-                        <img src="{{ $post->user->profile_picture ? asset('storage/' . $post->user->profile_picture) : asset('storage/images/avataricon.png') }}" alt="Avatar" class="post-avatar" loading="lazy">
+                        <img
+                            src="{{ $post->user->profile_picture ? (filter_var($post->user->profile_picture, FILTER_VALIDATE_URL) ? $post->user->profile_picture : asset('storage/' . $post->user->profile_picture)) : asset('storage/images/avataricon.png') }}"
+                            alt="Avatar of {{ $post->user->username }}"
+                            class="post-avatar"
+                            loading="lazy">
                     </a>
                     <span class="post-author">Đăng bởi: <strong style="color: #000;">{{ $post->user->username }}</strong></span> |
                     <span class="post-time">
@@ -231,11 +235,11 @@
 </div>
 <div class="col-lg-3 col-md-3 mt-lg-0 right-sidebar" style="background-color: #fff; width: 32%; margin-left: auto;">
     @if(auth()->check() && auth()->user()->groups->contains($group))
-        <!-- Nút Viết bài -->
-        <a href="{{ route('users.posts.create', ['groupId' => $group->id]) }}" class="btn btn-success">
-            <i class="fas fa-file-pen"></i>
-            <span class="d-none d-lg-inline">Viết bài</span>
-        </a>
+    <!-- Nút Viết bài -->
+    <a href="{{ route('users.posts.create', ['groupId' => $group->id]) }}" class="btn btn-success">
+        <i class="fas fa-file-pen"></i>
+        <span class="d-none d-lg-inline">Viết bài</span>
+    </a>
     @endif
     <div class="post-container mb-4">
         <div class="row">
@@ -256,14 +260,14 @@
                     <button type="submit" onclick="return confirm('Bạn có chắc chắn muốn xóa nhóm này?')" class="btn btn-danger">Xóa nhóm</button>
                 </form>
             </div>
-        @endif
+            @endif
             <p>Số lượng thành viên: {{ $group->members->count() }}</p>
             <p><strong>Nội Dung:</strong> {{ $group->description }}</p>
             <p><strong>Người tạo:</strong> {{ $group->creator->username ?? 'Không rõ' }}</p>
             <p><strong>Ngày tạo:</strong> {{ $group->created_at->format('d/m/Y H:i') }}</p>
 
             <!-- Thêm trạng thái nhóm -->
-            @if($group->requires_approval)
+            @if($group->visibility)
             <p>Trạng thái nhóm: Cần phê duyệt tham gia</p>
             @else
             <p>Trạng thái nhóm: Mở (Không cần phê duyệt tham gia)</p>
@@ -275,7 +279,7 @@
             @endphp
 
             @if(Auth::id() !== $group->creator_id) <!-- Kiểm tra nếu người dùng không phải là người tạo -->
-            @if($group->requires_approval)
+            @if($group->visibility)
             @if(!$isMember && !$hasRequested)
             <form action="{{ route('groups.join', $group->id) }}" method="POST">
                 @csrf
@@ -318,10 +322,15 @@
             <div class="row">
                 @foreach ($group->members as $user)
                 <div class="col-6 col-md-4 col-lg-3 mb-3 text-center">
-                    <a href="{{ route('users.profile.index', $user->id) }}">
+                    <a href="{{ route('users.profile.index', ['user' => $user->id]) }}">
                         <!-- Avatar người dùng -->
-                        <img src="{{ $user->profile_picture ? asset('storage/' . $user->profile_picture) : asset('storage/images/avataricon.png') }}"
-                            alt="Avatar của {{ $user->username }}" class="rounded-circle" style="width: 40px; height: 40px;">
+                        <img src="{{ $user->profile_picture ? 
+                 (filter_var($user->profile_picture, FILTER_VALIDATE_URL) 
+                 ? $user->profile_picture 
+                 : asset('storage/' . $user->profile_picture)) 
+                 : asset('storage/images/avataricon.png') }}" 
+                 alt="Avatar của {{ $user->username }}" class="rounded-circle" style="width: 40px; height: 40px;">
+
                     </a>
 
                     <!-- Nếu người dùng là chủ nhóm và không phải chính mình, cho phép đuổi người khỏi nhóm -->

@@ -40,7 +40,7 @@
                     @endif
                 </div>
 
-                <button type="submit" class="btn btn-primary">Cập nhật nhóm</button>
+                <button type="submit" class="btn btn-primary mt-2">Cập nhật nhóm</button>
             </form>
         </div>
     </div>

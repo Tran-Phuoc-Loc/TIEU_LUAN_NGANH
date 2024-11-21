@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Post;
 use App\Models\User;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Notifications\PostUpdated;
 use Illuminate\Support\Facades\Storage;
@@ -53,7 +54,9 @@ class AdminPostController extends Controller
     public function edit($id)
     {
         $post = Post::findOrFail($id);  // Tìm bài viết theo ID
-        return view('admin.posts.edit', compact('post'));
+        // Lấy danh sách tất cả các danh mục
+        $categories = Category::all();
+        return view('admin.posts.edit', compact('post', 'categories'));
     }
 
     // Cập nhật bài viết

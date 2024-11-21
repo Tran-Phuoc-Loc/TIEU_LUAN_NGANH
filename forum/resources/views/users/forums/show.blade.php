@@ -99,6 +99,12 @@
 
             <p><small>Viết bởi: {{ $forumPost->user->username ?? 'Không có tên' }} - {{ $forumPost->created_at->format('d-m-Y H:i') }}</small></p>
 
+            @if($forumPost->file_path)
+            <div class="mb-3">
+                <a href="{{ asset('storage/' . $forumPost->file_path) }}" class="btn btn-info" download>Tải xuống tài liệu</a>
+            </div>
+            @endif
+
             <hr>
 
             <h3>Bình luận</h3>

@@ -73,11 +73,27 @@
                     <hr class="bg-secondary">
 
                     <!-- Nhóm: Quản lý nội dung -->
-                    <h6 class="text-light px-3">Quản Lý Nội Dung</h6>
+                    <h6 class="text-light px-3">Quản Lý Bài Viết</h6>
                     <ul class="nav flex-column mb-4">
                         <li class="nav-item">
                             <a class="nav-link text-light" href="{{ route('admin.posts.index') }}">
                                 <i class="fas fa-file-alt me-2"></i> Posts
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" href="{{ route('admin.categories.index') }}">
+                                <i class="fas fa-book me-2"></i> Categories
+                            </a>
+                        </li>
+                    </ul>
+                    <hr class="bg-secondary">
+
+                    <!-- Nhóm: Quản lý diễn dàn -->
+                    <h6 class="text-light px-3">Quản Lý Diễn Đàn</h6>
+                    <ul class="nav flex-column mb-4">
+                        <li class="nav-item">
+                            <a class="nav-link text-light" href="{{ route('admin.posts.index') }}">
+                                <i class="fas fa-file-alt me-2"></i> Forums
                             </a>
                         </li>
                         <li class="nav-item">

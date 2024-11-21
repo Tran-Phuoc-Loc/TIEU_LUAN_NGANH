@@ -60,7 +60,7 @@
             <div class="vertical-navbar">
                 <!-- Thông tin người dùng -->
                 <div class="user-info text-center mb-4" style="background-color: black; background-image: linear-gradient(135deg, #52545f 0%, #383a45 50%);">
-                    @if(Auth::user()->profile_picture)
+                @if(Auth::check() && Auth::user()->profile_picture)
                     <a class="dropdown-item" href="{{ route('users.profile.index', Auth::user()->id) }}">
                         <!-- Kiểm tra nếu profile_picture là URL hợp lệ, nếu không thì lấy ảnh trong storage -->
                         <img src="{{ 

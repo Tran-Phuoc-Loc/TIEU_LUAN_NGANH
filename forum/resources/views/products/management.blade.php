@@ -10,7 +10,7 @@
             <div class="vertical-navbar">
                 <!-- Thông tin người dùng -->
                 <div class="user-info text-center mb-4" style="background-color: black;background-image: linear-gradient(135deg, #52545f 0%, #383a45 50%);">
-                    @if(auth()->check())
+                @if(Auth::check() && Auth::user()->profile_picture)
                     <img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : asset('storage/images/avataricon.png') }}"
                         alt="Profile picture of {{ auth()->user()->username }}"
                         class="rounded-circle" style="width: 45px; height: 50px;">

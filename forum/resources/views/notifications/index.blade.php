@@ -60,7 +60,7 @@
             <div class="vertical-navbar">
                 <!-- Thông tin người dùng -->
                 <div class="user-info text-center mb-4" style="background-color: black; background-image: linear-gradient(135deg, #52545f 0%, #383a45 50%);">
-                    @if(Auth::user()->profile_picture)
+                    @if(Auth::check())
                     <a class="dropdown-item" href="{{ route('users.profile.index', Auth::user()->id) }}">
                         <!-- Kiểm tra nếu profile_picture là URL hợp lệ, nếu không thì lấy ảnh trong storage -->
                         <img src="{{ 
@@ -170,62 +170,62 @@
                     <!-- Tab thông báo chưa đọc -->
                     <div id="unread" class="tab-pane fade show active">
                         @if($unreadNotifications->isEmpty())
-                            <div class="alert alert-info text-center">Không có thông báo chưa đọc.</div>
+                        <div class="alert alert-info text-center">Không có thông báo chưa đọc.</div>
                         @else
-                            @foreach($unreadNotifications as $notification)
-                                <div class="alert alert-warning mb-4">
-                                    <strong>{{ $notification->data['title'] ?? 'Thông báo' }}</strong>
-                                    <p>{{ $notification->data['message'] }}</p>
+                        @foreach($unreadNotifications as $notification)
+                        <div class="alert alert-warning mb-4">
+                            <strong>{{ $notification->data['title'] ?? 'Thông báo' }}</strong>
+                            <p>{{ $notification->data['message'] }}</p>
 
-                                    <!-- Kiểm tra yêu cầu kết bạn -->
-                                    @if(isset($notification->data['friendship_request']))
-                                        <div class="notification-item">
-                                            <p><strong>{{ $notification->data['friendship_request']['message'] }}</strong></p>
-                                            <a href="{{ route('friendship.accept', $notification->data['friendship_request']['sender_id']) }}" class="btn btn-success btn-sm">
-                                                <i class="bi bi-check"></i> Chấp nhận
-                                            </a>
-                                            <a href="{{ route('friendship.decline', $notification->data['friendship_request']['sender_id']) }}" class="btn btn-danger btn-sm">
-                                                <i class="bi bi-x"></i> Từ chối
-                                            </a>
-                                        </div>
+                            <!-- Kiểm tra yêu cầu kết bạn -->
+                            @if(isset($notification->data['friendship_request']))
+                            <div class="notification-item">
+                                <p><strong>{{ $notification->data['friendship_request']['message'] }}</strong></p>
+                                <a href="{{ route('friendship.accept', $notification->data['friendship_request']['sender_id']) }}" class="btn btn-success btn-sm">
+                                    <i class="bi bi-check"></i> Chấp nhận
+                                </a>
+                                <a href="{{ route('friendship.decline', $notification->data['friendship_request']['sender_id']) }}" class="btn btn-danger btn-sm">
+                                    <i class="bi bi-x"></i> Từ chối
+                                </a>
+                            </div>
 
-                                    <!-- Kiểm tra thông báo bài viết -->
-                                    @elseif(isset($notification->data['post_id']))
-                                        <a href="{{ route('users.index', $notification->data['post_id']) }}" class="btn btn-info btn-sm">
-                                            <i class="bi bi-eye"></i> Xem bài viết
-                                        </a>
+                            <!-- Kiểm tra thông báo bài viết -->
+                            @elseif(isset($notification->data['post_id']))
+                            <a href="{{ route('users.index', $notification->data['post_id']) }}" class="btn btn-info btn-sm">
+                                <i class="bi bi-eye"></i> Xem bài viết
+                            </a>
 
-                                    <!-- Kiểm tra thông báo nhóm -->
-                                    @elseif(isset($notification->data['group_id']))
-                                        <a href="{{ route('users.groups.chat', $notification->data['group_id']) }}" class="btn btn-info btn-sm">
-                                            <i class="fas fa-users"></i> Xem nhóm
-                                        </a>
+                            <!-- Kiểm tra thông báo nhóm -->
+                            @elseif(isset($notification->data['group_id']))
+                            <a href="{{ route('users.groups.chat', $notification->data['group_id']) }}" class="btn btn-info btn-sm">
+                                <i class="fas fa-users"></i> Xem nhóm
+                            </a>
 
-                                    <!-- Kiểm tra thông báo sản phẩm -->
-                                    @elseif(isset($notification->data['product_id']))
-                                        <a href="{{ route('chat.product', ['productId' => $notification->data['product_id'], 'receiverId' => $notification->data['sender_id']]) }}" class="btn btn-success btn-sm">
-                                            <i class="bi bi-chat-dots"></i> Tin nhắn về sản phẩm
-                                        </a>
-                                        <p>{{ $notification->data['message_content'] }}</p>
+                            <!-- Kiểm tra thông báo sản phẩm -->
+                            @elseif(isset($notification->data['product_id']))
+                            <a href="{{ route('chat.product', ['productId' => $notification->data['product_id'], 'receiverId' => $notification->data['sender_id']]) }}" class="btn btn-success btn-sm">
+                                <i class="bi bi-chat-dots"></i> Tin nhắn về sản phẩm
+                            </a>
+                            <p>{{ $notification->data['message_content'] }}</p>
 
-                                    <!-- Kiểm tra thông báo tin nhắn cá nhân -->
-                                    @elseif(isset($notification->data['receiver_id']))
-                                        <a href="{{ route('chat.show', ['chat_id' => $notification->data['chat_id'], 'receiver_id' => $notification->data['receiver_id']]) }}" class="btn btn-primary btn-sm">
-                                            <i class="bi bi-chat-dots"></i> Xem tin nhắn cá nhân
-                                        </a>
-                                        <p>{{ $notification->data['message_content'] }}</p>
-                                    @endif
+                            <!-- Kiểm tra thông báo tin nhắn cá nhân -->
+                            @elseif(isset($notification->data['receiver_id']))
+                            <a href="{{ route('chat.show', ['chat_id' => $notification->data['chat_id'], 'receiver_id' => $notification->data['receiver_id']]) }}" class="btn btn-primary btn-sm">
+                                <i class="bi bi-chat-dots"></i> Xem tin nhắn cá nhân
+                            </a>
+                            <p>{{ $notification->data['message_content'] }}</p>
+                            @endif
 
-                                    <!-- Nút đánh dấu thông báo là đã đọc -->
-                                    <form action="{{ route('notifications.markAsRead', $notification->id) }}" method="POST" class="d-inline-block ms-2">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" class="btn btn-success btn-sm">
-                                            <i class="fas fa-check"></i> Đánh dấu là đã đọc
-                                        </button>
-                                    </form>
-                                </div>
-                            @endforeach
+                            <!-- Nút đánh dấu thông báo là đã đọc -->
+                            <form action="{{ route('notifications.markAsRead', $notification->id) }}" method="POST" class="d-inline-block ms-2">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" class="btn btn-success btn-sm">
+                                    <i class="fas fa-check"></i> Đánh dấu là đã đọc
+                                </button>
+                            </form>
+                        </div>
+                        @endforeach
                         @endif
                     </div>
 

@@ -32,6 +32,7 @@ class GroupController extends Controller
         $userGroupIds = $groups->pluck('id'); // Lấy danh sách các ID của nhóm đã tham gia
         $suggestedGroups = Group::whereNotIn('id', $userGroupIds)
             ->with('creator')
+            ->inRandomOrder()
             ->take(5)
             ->get();
 
@@ -105,9 +106,11 @@ class GroupController extends Controller
             $folders = Folder::where('user_id', $user->id)->get();
             $savedPosts = SavedPost::where('user_id', $user->id)->pluck('post_id')->toArray();
         }
+        // Lấy các bài viết của nhóm
+        $posts = $group->posts;
 
         // Trả về view và truyền biến $user
-        return view('users.groups.show', compact('group', 'joinRequests', 'members', 'categories', 'savedPosts', 'user'));
+        return view('users.index', compact('group', 'joinRequests', 'members', 'categories', 'savedPosts', 'user', 'posts'));
     }
 
     public function destroy(Group $group)
@@ -164,7 +167,6 @@ class GroupController extends Controller
         return redirect()->back()->with('success', 'Đã từ chối yêu cầu tham gia.');
     }
 
-
     public function kickMember($groupId, $userId)
     {
         $group = Group::findOrFail($groupId);
@@ -198,7 +200,7 @@ class GroupController extends Controller
 
         return redirect()->route('users.groups.index')->with('error', 'Bạn không phải là thành viên của nhóm này.');
     }
-    
+
     public function edit(Group $group)
     {
         // Kiểm tra xem người dùng có phải là chủ nhóm không
@@ -238,6 +240,6 @@ class GroupController extends Controller
 
         $group->save();
 
-        return redirect()->route('users.groups.show', $group->id)->with('success', 'Nhóm đã được cập nhật thành công!');
+        return redirect()->route('users.groups.index', $group->id)->with('success', 'Nhóm đã được cập nhật thành công!');
     }
 }

@@ -9,11 +9,20 @@
         <div class="col-lg-2 col-md-1 sidebar d-none d-md-block" style="background-color: #fff; position: fixed; height: 100vh; overflow-y: auto;">
             <div class="vertical-navbar">
                 <!-- Thông tin người dùng -->
-                <div class="user-info text-center mb-4" style="background-color: black;background-image: linear-gradient(135deg, #52545f 0%, #383a45 50%);">
-                    @if(auth()->check())
-                    <img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : asset('storage/images/avataricon.png') }}"
-                        alt="Profile picture of {{ auth()->user()->username }}"
-                        class="rounded-circle" style="width: 45px; height: 50px;">
+                <div class="user-info text-center mb-4" style="background-color: black; background-image: linear-gradient(135deg, #52545f 0%, #383a45 50%);">
+                @if(Auth::check() && Auth::user()->profile_picture)
+                    <a class="dropdown-item" href="{{ route('users.profile.index', Auth::user()->id) }}">
+                        <!-- Kiểm tra nếu profile_picture là URL hợp lệ, nếu không thì lấy ảnh trong storage -->
+                        <img src="{{ 
+                    (filter_var(auth()->user()->profile_picture, FILTER_VALIDATE_URL)) 
+                    ? auth()->user()->profile_picture 
+                    : (auth()->user()->profile_picture 
+                        ? asset('storage/' . auth()->user()->profile_picture) 
+                        : asset('storage/images/avataricon.png')) 
+                }}"
+                            alt="Profile picture of {{ auth()->user()->username }}"
+                            class="rounded-circle" style="width: 45px; height: 50px;">
+                    </a>
                     <h5 class="d-none d-md-block" style="color: #fff;">{{ auth()->user()->username }}</h5>
                     <hr style="border-top: 1px solid black; margin: 10px 0;">
                     @endif

@@ -1,6 +1,7 @@
 @extends('layouts.users')
 
-@section('title', 'Danh sách bài viết')
+<!-- Thiết lập tiêu đề trang mặc định -->
+@section('title', isset($pageTitle) ? $pageTitle : 'Bài viết - Trang chủ')
 <style>
     /* Ẩn các ảnh sau ảnh thứ 2 */
     .image-grid .image-item:nth-child(n+3) {
@@ -59,7 +60,7 @@
             <div class="vertical-navbar">
                 <!-- Thông tin người dùng -->
                 <div class="user-info text-center mb-4" style="background-color: black; background-image: linear-gradient(135deg, #52545f 0%, #383a45 50%);">
-                    @if(Auth::user()->profile_picture)
+                    @if(Auth::check())
                     <a class="dropdown-item" href="{{ route('users.profile.index', Auth::user()->id) }}">
                         <!-- Kiểm tra nếu profile_picture là URL hợp lệ, nếu không thì lấy ảnh trong storage -->
                         <img src="{{ 
@@ -141,11 +142,21 @@
                     </ul>
                 </nav>
             </div>
+            <!-- Phần dưới cùng: Liên kết Chính sách quyền riêng tư -->
+            <div class="mt-auto mb-2 text-center">
+                <a href="/privacy" class="text-blue">
+                    <span>Chính sách quyền riêng tư</span>
+                </a>
+            </div>
         </div>
 
         <!-- Phần nội dung bài viết -->
         <div class="col-lg-7 col-md-7 offset-lg-2 content-col" style="border: 2px solid #c8ccd0; background-color:#fff;">
             <div class="post-container">
+                <!-- Hiển thị thông báo "Bài viết của bạn" nếu user_posts=true -->
+                @if(request('user_posts') == 'true')
+                <h2>Bài viết của bạn</h2>
+                @endif
                 <!-- Thêm phần lọc -->
                 <div class="filter-buttons my-3 d-flex gap-2">
                     <a href="{{ request()->fullUrlWithQuery(['sort' => 'new']) }}"
@@ -344,233 +355,249 @@
                 @endif
                 @endforeach
                 @endif
+            </div>
+        </div>
 
-                <!-- Sidebar phải: Gợi ý người theo dõi -->
-                <div class="col-lg-3 col-md-3 mt-lg-0 right-sidebar" style="background-color: #fff; position: fixed; right: 0; bottom:0; height: calc(100vh - 106px); overflow-y: auto;">
+        <!-- Sidebar phải: Gợi ý người theo dõi và thông tin group -->
+        <div class="col-lg-3 col-md-3 mt-lg-0 right-sidebar" style="background-color: #fff; position: fixed; right: 0; bottom:0; height: calc(100vh - 102px); overflow-y: auto;">
 
-                    @if($group)
-                    @if(auth()->check() && auth()->user()->groups->contains($group))
-                    <!-- Nút Viết bài -->
-                    <a href="{{ route('users.posts.create', ['groupId' => $group->id]) }}" class="btn btn-success">
-                        <i class="fas fa-file-pen"></i>
-                        <span class="d-none d-lg-inline">Viết bài</span>
-                    </a>
-                    @endif
-                    <div class="post-container mb-4">
-                        <div class="row">
-                            <!-- Hiển thị avatar nhóm bên trái -->
-                            <div class="d-flex align-items-center">
-                                <img src="{{ asset('storage/' . ($group->avatar ?? 'groups/avatars/group_icon.png')) }}" alt="Avatar của nhóm {{ $group->name }}" class="rounded thumbnail" style="width: 80px; height: 100px; margin-right: 15px;">
-                                <h1>{{ $group->name }}</h1>
-                            </div>
-                            @if ($group->creator_id === Auth::id())
-                            <div class="d-flex mt-3">
-                                <!-- Nút chỉnh sửa nhóm -->
-                                <a href="{{ route('groups.edit', $group->id) }}" class="btn btn-warning btn-sm mr-2">Chỉnh sửa nhóm</a>
+            @if($group)
+            @if(auth()->check() && auth()->user()->groups->contains($group))
+            <!-- Nút Viết bài -->
+            <a href="{{ route('users.posts.create', ['groupId' => $group->id]) }}" class="btn btn-success mb-3">
+                <i class="fas fa-file-pen"></i>
+                <span class="d-none d-lg-inline">Viết bài</span>
+            </a>
+            @endif
 
-                                <!-- Nút xóa nhóm -->
-                                <form action="{{ route('groups.destroy', $group->id) }}" method="POST" style="display:inline;" class="ms-2">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" onclick="return confirm('Bạn có chắc chắn muốn xóa nhóm này?')" class="btn btn-danger btn-sm mr-2 ">Xóa nhóm</button>
-                                </form>
-                            </div>
+            <div class="post-container mb-4">
+                <div class="row">
+                    <!-- Hiển thị avatar nhóm bên trái -->
+                    <div class="col-md-4 d-flex align-items-center">
+                        <img src="{{ asset('storage/' . ($group->avatar ?? 'groups/avatars/group_icon.png')) }}" alt="Avatar của nhóm {{ $group->name }}" class="rounded-circle thumbnail" style="width: 80px; height: 80px; margin-right: 15px;">
+                        <h1 class="h4">{{ $group->name }}</h1>
+                    </div>
 
-                            @endif
-                            <p>Số lượng thành viên: {{ $group->members->count() }}</p>
-                            <p><strong>Nội Dung:</strong> {{ $group->description }}</p>
-                            <p><strong>Người tạo:</strong> {{ $group->creator->username ?? 'Không rõ' }}</p>
-                            <p><strong>Ngày tạo:</strong> {{ $group->created_at->format('d/m/Y H:i') }}</p>
-
-                            <!-- Thêm trạng thái nhóm -->
-                            @if($group->requires_approval)
-                            <p>Trạng thái nhóm: Cần phê duyệt tham gia</p>
-                            @else
-                            <p>Trạng thái nhóm: Mở (Không cần phê duyệt tham gia)</p>
-                            @endif
-
-                            @php
-                            $isMember = $group->members()->where('user_id', Auth::id())->exists();
-                            $hasRequested = $group->memberRequests()->where('user_id', Auth::id())->exists();
-                            @endphp
-
-                            @if(Auth::id() !== $group->creator_id) <!-- Kiểm tra nếu người dùng không phải là người tạo -->
-                            @if($group->requires_approval)
-                            @if(!$isMember && !$hasRequested)
-                            <form action="{{ route('groups.join', $group->id) }}" method="POST">
-                                @csrf
-                                <button type="submit">Yêu Cầu Tham Gia Nhóm</button>
-                            </form>
-                            @elseif($hasRequested && $group->memberRequests()->where('user_id', Auth::id())->where('status', 'pending')->exists())
-                            <p>Bạn đã yêu cầu tham gia nhóm này. Vui lòng chờ sự phê duyệt từ chủ nhóm.</p>
-                            @else
-                            <p>Bạn đã là thành viên của nhóm này.</p>
-                            @endif
-                            @else
-                            @if(!$isMember)
-                            <form action="{{ route('groups.join', $group->id) }}" method="POST">
-                                @csrf
-                                <button type="submit">Tham Gia Nhóm</button>
-                            </form>
-                            @else
-                            <form action="{{ route('groups.leave', $group->id) }}" method="POST" style="display:inline;">
-                                @csrf
-                                <button type="submit">Rời Nhóm</button>
-                            </form>
-                            <p>Bạn đã là thành viên của nhóm này.</p>
-                            @endif
-                            @endif
-                            @else
-                            <p>Xin chào chủ Group</p>
-                            @endif
-
-                            <!-- Kiểm tra nếu người dùng là người tạo nhóm -->
-                            @if(Auth::id() === $group->creator_id)
-                            <form action="{{ route('groups.destroy', $group->id) }}" method="POST" style="display:inline;">
+                    <!-- Nút chỉnh sửa và xóa nhóm (dành cho người tạo) -->
+                    @if ($group->creator_id === Auth::id())
+                    <div class="row mt-3">
+                        <div class="col-md-6 text-right">
+                            <a href="{{ route('groups.edit', $group->id) }}" class="btn btn-warning btn-sm">Chỉnh sửa nhóm</a>
+                        </div>
+                        <div class="col-md-6 text-left">
+                            <form action="{{ route('groups.destroy', $group->id) }}" method="POST">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" onclick="return confirm('Bạn có chắc chắn muốn xóa nhóm này?')">Xóa Nhóm</button>
+                                <button type="submit" onclick="return confirm('Bạn có chắc chắn muốn xóa nhóm này?')" class="btn btn-danger btn-sm">Xóa nhóm</button>
                             </form>
-                            @endif
-
-                            <!-- Hiển thị danh sách thành viên -->
-                            <h3>Thành viên trong nhóm:</h3>
-                            <div class="row">
-                                @foreach ($group->members as $user)
-                                <div class="col-6 col-md-4 col-lg-3 mb-3 text-center">
-                                    <a href="{{ route('users.profile.index', $user->id) }}">
-                                        <!-- Avatar người dùng -->
-                                        <img src="{{ $post->user->profile_picture ? (filter_var($post->user->profile_picture, FILTER_VALIDATE_URL) ? $post->user->profile_picture : asset('storage/' . $post->user->profile_picture)) : asset('storage/images/avataricon.png') }}"
-                                            alt="Avatar" class="rounded-circle" style="width: 40px; height: 40px;" loading="lazy">
-                                    </a>
-
-                                    <!-- Nếu người dùng là chủ nhóm và không phải chính mình, cho phép đuổi người khỏi nhóm -->
-                                    @if(Auth::id() === $group->creator_id && Auth::id() !== $user->id)
-                                    <form action="{{ route('groups.kick', [$group->id, $user->id]) }}" method="POST" style="display:inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm mt-2" onclick="return confirm('Bạn có chắc chắn muốn đuổi người này ra khỏi nhóm?')">Kick Rời nhóm</button>
-                                    </form>
-                                    @endif
-                                </div>
-                                @endforeach
-                            </div>
-
-                            <!-- Hiển thị yêu cầu tham gia (dành cho chủ nhóm) -->
-                            @if(Auth::id() === $group->creator_id)
-                            <h3>Các yêu cầu tham gia:</h3>
-                            <ul class="list-unstyled overflow-auto" style="max-height: 200px;">
-                                @foreach ($group->joinRequests()->where('status', 'pending')->get() as $request)
-                                <li>
-                                    {{ $request->user->username }}
-                                    <form action="{{ route('groups.approve', [$group->id, $request->user_id]) }}" method="POST" style="display:inline;">
-                                        @csrf
-                                        <button type="submit">Duyệt</button>
-                                    </form>
-                                    <form action="{{ route('groups.reject', [$group->id, $request->user_id]) }}" method="POST" style="display:inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit">Từ chối</button>
-                                    </form>
-                                </li>
-                                @endforeach
-                            </ul>
-                            @endif
-
-                            <!-- Hiển thị bài viết trong nhóm (nếu có) -->
-                            @if($group->posts->isNotEmpty())
-                            <h3>Bài viết trong nhóm:</h3>
-                            <ul class="list-unstyled overflow-auto" style="max-height: 200px;">
-                                @foreach ($group->posts as $post)
-                                <li>{{ $post->title }}</li>
-                                @endforeach
-                            </ul>
-                            @else
-                            <p>Nhóm này chưa đăng tải bài viết nào.</p>
-                            @endif
                         </div>
-                    </div>
-                    @else
-                    <div class="right-sidebars p-3">
-                        <h3 class="sidebar-title">Gợi ý theo dõi</h3>
-                        <ul class="suggested-users-list list-unstyled">
-                            @forelse ($usersToFollow as $user)
-                            <li class="d-flex align-items-center mb-3 follow-item">
-                                <img
-                                    src="{{ $user->profile_picture ? asset('storage/' . $user->profile_picture) : asset('storage/images/avataricon.png') }}"
-                                    alt="Profile picture of {{ $user->username }}"
-                                    class="rounded-circle"
-                                    height="40"
-                                    width="40" />
-                                <div class="info ms-2">
-                                    <h5 class="mb-0">{{ $user->username }}</h5>
-                                    <p class="mb-0 text-muted">{{ $user->role }}</p>
-                                </div>
-                                <div class="ms-auto">
-                                    @php
-                                    $currentUserId = Auth::id();
-                                    $friendship = \App\Models\Friendship::where(function ($query) use ($currentUserId, $user) {
-                                    $query->where('sender_id', $currentUserId)
-                                    ->where('receiver_id', $user->id);
-                                    })
-                                    ->orWhere(function ($query) use ($currentUserId, $user) {
-                                    $query->where('sender_id', $user->id)
-                                    ->where('receiver_id', $currentUserId);
-                                    })
-                                    ->first();
-                                    @endphp
-
-                                    @if (!$friendship)
-                                    <!-- Nút gửi yêu cầu kết bạn -->
-                                    <form action="{{ route('friend.sendRequest', $user->id) }}" method="POST">
-                                        @csrf
-                                        <button type="submit" class="btn btn-success btn-sm">Thêm bạn</button>
-                                    </form>
-                                    @elseif ($friendship->status === 'pending' && $friendship->sender_id === Auth::id())
-                                    <!-- Đã gửi yêu cầu kết bạn -->
-                                    <p class="text-muted">Đã gửi yêu cầu</p>
-                                    <form action="{{ route('friend.cancelRequest', $user->id) }}" method="POST">
-                                        @csrf
-                                        <button type="submit" class="btn btn-danger btn-sm">Hủy yêu cầu</button>
-                                    </form>
-
-                                    @elseif ($friendship->status === 'pending' && $friendship->receiver_id === $currentUserId)
-                                    <!-- Nút chấp nhận yêu cầu kết bạn -->
-                                    <form action="{{ route('friend.acceptRequest', $user->id) }}" method="POST">
-                                        @csrf
-                                        <button type="submit" class="btn btn-warning btn-sm">Chấp nhận</button>
-                                    </form>
-                                    <form action="{{ route('friend.declineRequest', $user->id) }}" method="POST" style="display:inline;">
-                                        @csrf
-                                        <button type="submit" class="btn btn-secondary btn-sm">Từ chối</button>
-                                    </form>
-                                    @elseif ($friendship->status === 'accepted')
-                                    <!-- Đã là bạn bè -->
-                                    <p class="text-muted">Bạn bè</p>
-                                    @elseif ($friendship->status === 'declined')
-                                    <!-- Đã từ chối yêu cầu -->
-                                    <p class="text-muted">Yêu cầu đã bị từ chối</p>
-                                    <form action="{{ route('friend.sendRequest', $user->id) }}" method="POST">
-                                        @csrf
-                                        <button type="submit" class="btn btn-success btn-sm">Gửi lại yêu cầu</button>
-                                    </form>
-                                    @elseif ($friendship->status === 'blocked')
-                                    <!-- Đã bị chặn -->
-                                    <p class="text-muted">Bạn đã bị chặn</p>
-                                    @endif
-
-                                </div>
-                            </li>
-                            @empty
-                            <p class="text-center">Không có người dùng nào để theo dõi.</p>
-                            @endforelse
-                        </ul>
                     </div>
                     @endif
                 </div>
+
+                <div class="group-info mt-4">
+                    <p><strong>Số lượng thành viên:</strong> {{ $group->members->count() }}</p>
+                    <p><strong>Nội dung:</strong> {{ $group->description }}</p>
+                    <p><strong>Người tạo:</strong> {{ $group->creator->username ?? 'Không rõ' }}</p>
+                    <p><strong>Ngày tạo:</strong> {{ $group->created_at->format('d/m/Y H:i') }}</p>
+
+                    <!-- Thêm trạng thái nhóm -->
+                    <p><strong>Trạng thái nhóm:</strong>
+                        @if($group->requires_approval)
+                        Cần phê duyệt tham gia
+                        @else
+                        Mở (Không cần phê duyệt tham gia)
+                        @endif
+                    </p>
+                </div>
+
+                @php
+                $isMember = $group->members()->where('user_id', Auth::id())->exists();
+                $hasRequested = $group->memberRequests()->where('user_id', Auth::id())->exists();
+                @endphp
+
+                @if(Auth::id() !== $group->creator_id) <!-- Kiểm tra nếu người dùng không phải là người tạo -->
+                @if($group->requires_approval)
+                @if(!$isMember && !$hasRequested)
+                <form action="{{ route('groups.join', $group->id) }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn btn-primary mt-3">Yêu Cầu Tham Gia Nhóm</button>
+                </form>
+                @elseif($hasRequested && $group->memberRequests()->where('user_id', Auth::id())->where('status', 'pending')->exists())
+                <p>Bạn đã yêu cầu tham gia nhóm này. Vui lòng chờ sự phê duyệt từ chủ nhóm.</p>
+                @else
+                <p>Bạn đã là thành viên của nhóm này.</p>
+                @endif
+                @else
+                @if(!$isMember)
+                <form action="{{ route('groups.join', $group->id) }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn btn-primary mt-3">Tham Gia Nhóm</button>
+                </form>
+                @else
+                <form action="{{ route('groups.leave', $group->id) }}" method="POST" style="display:inline;">
+                    @csrf
+                    <button type="submit" class="btn btn-warning mt-3">Rời Nhóm</button>
+                </form>
+                <p>Bạn đã là thành viên của nhóm này.</p>
+                @endif
+                @endif
+                @else
+                <p>Xin chào chủ nhóm!</p>
+                @endif
+
+                <!-- Hiển thị danh sách thành viên -->
+                <h3 class="mt-4">Thành viên trong nhóm:</h3>
+                <div class="row">
+                    @foreach ($group->members as $user)
+                    <div class="col-6 col-md-4 col-lg-3 mb-3 text-center">
+                        <a href="{{ route('users.profile.index', $user->id) }}">
+                            <img src="{{ $user->profile_picture ? (filter_var($user->profile_picture, FILTER_VALIDATE_URL) ? $user->profile_picture : asset('storage/' . $user->profile_picture)) : asset('storage/images/avataricon.png') }}"
+                                alt="Avatar" class="rounded-circle" height="50" width="50" loading="lazy">
+                        </a>
+
+                        <!-- Nếu người dùng là chủ nhóm và không phải chính mình, cho phép đuổi người khỏi nhóm -->
+                        @if(Auth::id() === $group->creator_id && Auth::id() !== $user->id)
+                        <form action="{{ route('groups.kick', [$group->id, $user->id]) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-sm mt-2" onclick="return confirm('Bạn có chắc chắn muốn đuổi người này ra khỏi nhóm?')">Kick Rời nhóm</button>
+                        </form>
+                        @endif
+                    </div>
+                    @endforeach
+                </div>
+
+                <!-- Hiển thị yêu cầu tham gia (dành cho chủ nhóm) -->
+                @if(Auth::id() === $group->creator_id)
+                <h3 class="mt-4">Các yêu cầu tham gia:</h3>
+                <ul class="list-unstyled overflow-auto" style="max-height: 200px;">
+                    @foreach ($group->joinRequests()->where('status', 'pending')->get() as $request)
+                    <li>
+                        {{ $request->user->username }}
+                        <form action="{{ route('groups.approve', [$group->id, $request->user_id]) }}" method="POST" style="display:inline;">
+                            @csrf
+                            <button type="submit" class="btn btn-success btn-sm">Duyệt</button>
+                        </form>
+                        <form action="{{ route('groups.reject', [$group->id, $request->user_id]) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-sm">Từ chối</button>
+                        </form>
+                    </li>
+                    @endforeach
+                </ul>
+                @endif
+
+                <!-- Hiển thị bài viết trong nhóm (nếu có) -->
+                @if($group->posts->isNotEmpty())
+                @php
+                // Lọc các bài viết có thể hiển thị
+                $visiblePosts = $group->posts->filter(function($post) {
+                return $post->group->visibility === 'public' ||
+                (Auth::check() && $post->group->members->contains(Auth::id()));
+                });
+                @endphp
+
+                @if ($visiblePosts->isNotEmpty())
+                <h3 class="mt-4">Bài viết trong nhóm:</h3>
+                <ul class="list-unstyled">
+                    @foreach ($visiblePosts as $post)
+                    <li>{{ $post->title }}</li>
+                    @endforeach
+                </ul>
+                @else
+                <p>Tất cả bài viết trong nhóm này đều là bài viết riêng tư.</p>
+                @endif
+                @else
+                <p>Nhóm này chưa đăng tải bài viết nào.</p>
+                @endif
             </div>
+
+            @else
+            <div class="right-sidebars p-3">
+                <h3 class="sidebar-title">Gợi ý theo dõi</h3>
+                <ul class="suggested-users-list list-unstyled">
+                    @forelse ($usersToFollow as $user)
+                    <li class="d-flex align-items-center mb-3 follow-item">
+                        <a href="{{ route('users.profile.index', ['user' => $user->id]) }}">
+                            <img
+                                src="{{ filter_var($user->profile_picture, FILTER_VALIDATE_URL) ? $user->profile_picture : asset('storage/' . ($user->profile_picture ?? 'images/avataricon.png')) }}"
+                                alt="Profile picture of {{ $user->username }}"
+                                class="rounded-circle"
+                                height="40"
+                                width="40"
+                                loading="lazy" />
+                        </a>
+                        <div class="info ms-2">
+                            <h5 class="mb-0">{{ $user->username }}</h5>
+                            <p class="mb-0 text-muted">{{ $user->role }}</p>
+                        </div>
+                        <div class="ms-auto">
+                            @php
+                            $currentUserId = Auth::id();
+                            $friendship = \App\Models\Friendship::where(function ($query) use ($currentUserId, $user) {
+                            $query->where('sender_id', $currentUserId)
+                            ->where('receiver_id', $user->id);
+                            })
+                            ->orWhere(function ($query) use ($currentUserId, $user) {
+                            $query->where('sender_id', $user->id)
+                            ->where('receiver_id', $currentUserId);
+                            })
+                            ->first();
+                            @endphp
+
+                            @if (!$friendship)
+                            <!-- Nút gửi yêu cầu kết bạn -->
+                            <form action="{{ route('friend.sendRequest', $user->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-success btn-sm">Thêm bạn</button>
+                            </form>
+                            @elseif ($friendship->status === 'pending' && $friendship->sender_id === Auth::id())
+                            <!-- Đã gửi yêu cầu kết bạn -->
+                            <p class="text-muted">Đã gửi yêu cầu</p>
+                            <form action="{{ route('friend.cancelRequest', $user->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-danger btn-sm">Hủy yêu cầu</button>
+                            </form>
+
+                            @elseif ($friendship->status === 'pending' && $friendship->receiver_id === $currentUserId)
+                            <!-- Nút chấp nhận yêu cầu kết bạn -->
+                            <form action="{{ route('friend.acceptRequest', $user->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-warning btn-sm">Chấp nhận</button>
+                            </form>
+                            <form action="{{ route('friend.declineRequest', $user->id) }}" method="POST" style="display:inline;">
+                                @csrf
+                                <button type="submit" class="btn btn-secondary btn-sm">Từ chối</button>
+                            </form>
+                            @elseif ($friendship->status === 'accepted')
+                            <!-- Đã là bạn bè -->
+                            <p class="text-muted">Bạn bè</p>
+                            @elseif ($friendship->status === 'declined')
+                            <!-- Đã từ chối yêu cầu -->
+                            <p class="text-muted">Yêu cầu đã bị từ chối</p>
+                            <form action="{{ route('friend.sendRequest', $user->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-success btn-sm">Gửi lại yêu cầu</button>
+                            </form>
+                            @elseif ($friendship->status === 'blocked')
+                            <!-- Đã bị chặn -->
+                            <p class="text-muted">Bạn đã bị chặn</p>
+                            @endif
+
+                        </div>
+                    </li>
+                    @empty
+                    <p class="text-center">Không có người dùng nào để theo dõi.</p>
+                    @endforelse
+                </ul>
+            </div>
+            @endif
         </div>
     </div>
+</div>
+</div>
 </div>
 
 <!-- Modal Bình Luận -->
@@ -618,7 +645,7 @@
                 </div>
                 @endforeach
                 @else
-                <p>Chưa có bình luận nào.</p>
+                <p>Bạn cần đăng nhập để xem được bình luận.</p>
                 @endif
             </div>
         </div>
@@ -650,8 +677,7 @@
     <input type="hidden" name="post_id" value="{{ $post->id }}">
     <input type="hidden" name="reason" id="reasonInput-{{ $post->id }}" value="">
 </form>
-@else
-<p class="text-danger">Không thể gửi báo cáo vì bài viết không tồn tại.</p>
+
 @endif
 
 @endsection

@@ -186,12 +186,12 @@
     <div class="chat-container">
         <div class="row">
             <!-- Danh sách nhóm bên trái -->
-            <div class="col-md-3 group-list">
+            <div class="col-md-3 group-list" style="height: 600px;">
                 <h3>Danh sách nhóm</h3>
                 @if($userGroups->isEmpty())
                 <p>Bạn cần tham gia nhóm để nhắn tin.</p>
                 @else
-                <ul class="list-group">
+                <ul class="list-group" style="overflow-y: auto;">
                     @foreach($userGroups as $userGroup)
                     <li class="list-group-item">
                         <a href="{{ route('groups.chat', ['group' => $userGroup->id]) }}">{{ $userGroup->name }}</a>
@@ -202,7 +202,7 @@
 
                 <!-- Danh sách bạn bè -->
                 <h3>Danh sách bạn bè</h3>
-                <ul class="list-group">
+                <ul class="list-group" style="overflow-y: auto;">
                     @foreach($friends as $friend)
                     <li class="list-group-item">
                         <a href="{{ route('chat.private.show', ['receiverId' => $friend->id, 'group' => $group->id ?? null]) }}">{{ $friend->username }}</a>
@@ -213,7 +213,7 @@
             </div>
 
             <!-- Khu vực chat bên phải -->
-            <div class="col-md-8 chat-area">
+            <div class="col-md-8 chat-area" style="height: 600px;">
                 @if(isset($group))
                 <h3 class="chat-title">Chat trong nhóm: {{ $group->name }}</h3>
                 <div class="chat-messages" id="group-chat-messages">

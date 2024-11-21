@@ -35,6 +35,9 @@ use App\Http\Controllers\GoogleController;
 Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.login');
 Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 
+Route::get('/privacy-policy', function () {
+    return view('privacy')->name('privacy');
+});
 
 // Route cho đăng nhập
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -145,7 +148,7 @@ Route::middleware(['auth'])->group(function () {
     // Route cho hồ sơ người dùng
     Route::prefix('users')->group(function () {
         // Hiển thị hồ sơ người dùng
-        Route::get('{user}', [UserController::class, 'show'])->name('users.profile.index'); // Hiển thị hồ sơ người dùng
+        Route::get('/{user}', [UserController::class, 'show'])->name('users.profile.index'); // Hiển thị hồ sơ người dùng
         // Định nghĩa route cho việc kết bạn
         Route::get('{user}/profile/friend/{section?}', [UserController::class, 'show'])->name('users.profile.friend');
         // Chỉnh sửa hồ sơ người dùng
