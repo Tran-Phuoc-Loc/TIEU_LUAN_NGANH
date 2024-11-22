@@ -29,6 +29,7 @@ class StorePostRequest extends FormRequest
             // Tệp đơn: Ảnh tối đa 5MB, Video tối đa 60MB
             'media_single' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:61200', // 60MB
             // Nhiều ảnh: Tối đa 5MB mỗi ảnh
+            'media_multiple.*' => 'nullable|array|max:10', // Số ượng tối đa có thể đăng lên
             'media_multiple.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB mỗi ảnh
             'status' => 'required|in:draft,published',
         ];

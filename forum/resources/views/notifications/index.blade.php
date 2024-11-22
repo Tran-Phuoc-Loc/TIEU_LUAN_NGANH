@@ -191,7 +191,7 @@
 
                             <!-- Kiểm tra thông báo bài viết -->
                             @elseif(isset($notification->data['post_id']))
-                            <a href="{{ route('users.index', $notification->data['post_id']) }}" class="btn btn-info btn-sm">
+                            <a href="{{ route('users.index', ['post_id' => $notification->data['post_id']]) }}" class="btn btn-info btn-sm">
                                 <i class="bi bi-eye"></i> Xem bài viết
                             </a>
 
@@ -224,6 +224,7 @@
                                     <i class="fas fa-check"></i> Đánh dấu là đã đọc
                                 </button>
                             </form>
+                            <small class="text-muted d-block mt-2">{{ $notification->created_at->diffForHumans() }}</small>
                         </div>
                         @endforeach
                         @endif

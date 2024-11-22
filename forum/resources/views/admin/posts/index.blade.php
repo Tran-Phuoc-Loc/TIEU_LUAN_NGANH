@@ -4,29 +4,49 @@
 <div class="container">
     <h2>Quản lý bài viết</h2>
 
-    <!-- Form tìm kiếm và bộ lọc -->
     <form method="GET" action="{{ route('admin.posts.index') }}">
         <div class="row">
-            <div class="col-md-3">
-                <input type="text" name="search" class="form-control" placeholder="Tìm kiếm tiêu đề...">
+            <!-- Tìm kiếm tiêu đề -->
+            <div class="col-md-4 mb-3">
+                <input type="text" name="search" class="form-control" placeholder="Tìm kiếm tiêu đề..." value="{{ request('search') }}">
             </div>
-            <div class="col-md-3">
+
+            <!-- Chọn tác giả -->
+            <div class="col-md-4 mb-3">
                 <select name="author" class="form-control">
                     <option value="">Tất cả tác giả</option>
                     @foreach($authors as $author)
-                    <option value="{{ $author->id }}">{{ $author->username }}</option>
+                    <option value="{{ $author->id }}" {{ request('author') == $author->id ? 'selected' : '' }}>
+                        {{ $author->username }}
+                    </option>
                     @endforeach
                 </select>
             </div>
-            <div class="col-md-3">
+
+            <!-- Chọn trạng thái -->
+            <div class="col-md-4 mb-3">
                 <select name="status" class="form-control">
                     <option value="">Tất cả trạng thái</option>
-                    <option value="draft">Nháp</option>
-                    <option value="published">Đã đăng</option>
+                    <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Nháp</option>
+                    <option value="published" {{ request('status') == 'published' ? 'selected' : '' }}>Đã đăng</option>
                 </select>
             </div>
-            <div class="col-md-3">
-                <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+
+            <!-- Ngày bắt đầu -->
+            <div class="col-md-4 mb-3">
+            <label for="start_date" class="form-label">Ngày bắt đầu</label>
+                <input type="date" name="start_date" class="form-control" placeholder="Ngày bắt đầu" value="{{ request('start_date') }}">
+            </div>
+
+            <!-- Ngày kết thúc -->
+            <div class="col-md-4 mb-3">
+            <label for="start_date" class="form-label">Ngày kết thúc</label>
+                <input type="date" name="end_date" class="form-control" placeholder="Ngày kết thúc" value="{{ request('end_date') }}">
+            </div>
+
+            <!-- Nút tìm kiếm -->
+            <div class="col-md-4 mb-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">Tìm kiếm</button>
             </div>
         </div>
     </form>
@@ -50,6 +70,7 @@
                     <th>Tiêu đề</th>
                     <th>Tác giả</th>
                     <th>Trạng thái</th>
+                    <th>Loại bài viết</th> <!-- Cột mới cho loại bài viết -->
                     <th>Ngày tạo</th>
                     <th>Hành động</th>
                 </tr>
@@ -63,6 +84,15 @@
                     <td>{{ $post->title }}</td>
                     <td>{{ optional($post->author)->username ?? 'Tác giả không tồn tại' }}</td>
                     <td>{{ ucfirst($post->status) }}</td>
+                    <td>
+                        @if($post->group_id)
+                        <!-- Nếu bài viết có group_id, hiển thị tên nhóm -->
+                        {{ $post->group->name }}
+                        @else
+                        <!-- Nếu không có group_id, hiển thị "Cá nhân" -->
+                        Cá nhân
+                        @endif
+                    </td>
                     <td>{{ $post->created_at->format('d-m-Y') }}</td>
                     <td>
                         <a href="{{ route('admin.posts.edit', $post->id) }}" class="btn btn-warning btn-sm">Chỉnh sửa</a>

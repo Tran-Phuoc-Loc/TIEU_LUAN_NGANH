@@ -25,6 +25,7 @@
         <thead>
             <tr>
                 <th>ID</th>
+                <th>Avatar</th> <!-- Cột avatar -->
                 <th>Tên Group</th>
                 <th>Mô tả</th>
                 <th>Chủ nhóm</th>
@@ -35,6 +36,13 @@
             @foreach($groups as $group)
             <tr>
                 <td>{{ $group->id }}</td>
+                <td>
+                    <!-- Hiển thị avatar -->
+                    <img src="{{ $group->avatar ? asset('storage/' . $group->avatar) : asset('groups/avatars/group_icon.png') }}"
+                        alt="Avatar"
+                        class="rounded thumbnail"
+                        style="width: 50px; height: 50px; object-fit: cover;">
+                </td>
                 <td>{{ $group->name }}</td>
                 <td>{{ Str::limit($group->description, 50) }}</td>
                 <td>{{ $group->creator->username ?? 'Không rõ' }}</td>

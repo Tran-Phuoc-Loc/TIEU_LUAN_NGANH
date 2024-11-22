@@ -41,13 +41,13 @@ class AdminGroupController extends Controller
     {
         // Lấy tất cả các thành viên của nhóm
         $members = $group->members;
-    
+
         // Tạo nội dung thông báo
         $notificationData = [
             'title' => 'Nhóm đã bị xóa',
             'message' => "Nhóm '{$group->name}' đã bị admin xóa.",
         ];
-    
+
         // Gửi thông báo cho từng thành viên
         foreach ($members as $member) {
             DB::table('notifications')->insert([
@@ -60,17 +60,25 @@ class AdminGroupController extends Controller
                 'updated_at' => now(),
             ]);
         }
-    
+
         // Xóa nhóm
         $group->delete();
-    
+
         return redirect()->route('admin.groups.index')->with('success', 'Xóa nhóm thành công.');
     }
 
     public function show($id)
     {
-        $group = Group::with(['members', 'creator'])->withCount('chats') // Đếm số lượng tin nhắn
-        ->findOrFail($id);
-        return view('admin.groups.show', compact('group'));
+        $group = Group::with(['members', 'creator', 'posts']) // Thêm bài viết nếu cần
+            ->withCount('chats') // Đếm số lượng tin nhắn
+            ->findOrFail($id);
+
+        // Lấy danh sách bài viết
+        $groupPosts = $group->posts()->paginate(10); // 10 bài viết mỗi trang
+
+        // Lấy danh sách thành viên
+        $groupMembers = $group->members()->paginate(20); // 20 thành viên mỗi trang
+
+        return view('admin.groups.show', compact('group', 'groupPosts', 'groupMembers'));
     }
 }
