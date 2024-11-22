@@ -18,6 +18,8 @@
     <table class="table table-striped">
         <thead>
             <tr>
+                <th>ID</th>
+                <th>Avatar</th>
                 <th>Tên người dùng</th>
                 <th>Email</th>
                 <th>Vai trò</th>
@@ -34,6 +36,13 @@
             @else
             @foreach ($users as $user)
             <tr>
+                <td>{{ $user->id }}</td>
+                <td>
+                    <img src="{{ $user->profile_picture ? (filter_var($user->profile_picture, FILTER_VALIDATE_URL) ? $user->profile_picture : asset('storage/' . $user->profile_picture)) : asset('storage/images/avataricon.png') }}"
+                        alt="Avatar" class="rounded thumbnail"
+                        loading="lazy"
+                        style="width: 50px; height: 50px; object-fit: cover;">
+                </td>
                 <td>{{ $user->username }}</td>
                 <td>{{ $user->email }}</td>
                 <td>{{ $user->role }}</td>

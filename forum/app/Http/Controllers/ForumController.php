@@ -27,6 +27,10 @@ class ForumController extends Controller
             if ($request->has('title') && $request->title != '') {
                 $query->where('title', 'like', '%' . $request->title . '%');
             }
+            // Lọc theo danh mục
+            if ($request->filled('category')) {
+                $query->where('forum_category_id', $request->category);
+            }
 
             // Sắp xếp bài viết
             $sort = $request->input('sort', 'new'); // Mặc định là sắp xếp theo "new"
@@ -61,7 +65,7 @@ class ForumController extends Controller
             default:
                 return $query->orderByRaw('COALESCE(updated_at, created_at) DESC'); // Sắp xếp giảm dần
         }
-    }    
+    }
 
     public function show($id)
     {

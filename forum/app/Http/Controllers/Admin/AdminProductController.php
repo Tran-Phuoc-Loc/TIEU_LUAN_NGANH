@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use Illuminate\Http\Request;
+use App\Models\User;
 
 class AdminProductController extends Controller
 {
@@ -100,8 +101,10 @@ class AdminProductController extends Controller
             'status' => 'required|in:pending,approved,rejected,sold',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-
         $data = $request->all();
+
+        $data['price'] = str_replace(',', '', $data['price']); // Xử lý giá (price) với định dạng chuỗi
+        
 
         // Kiểm tra và lưu ảnh nếu có
         if ($request->hasFile('image')) {
@@ -118,6 +121,23 @@ class AdminProductController extends Controller
         // Cập nhật thông tin sản phẩm
         $product->update($data);
 
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $imageName = \Str::uuid() . '.' . $image->extension();
+                $imagePath = $image->storeAs('products', $imageName, 'public');
+    
+                $product->additionalImages()->create([
+                    'image' => $imagePath,
+                ]);
+            }
+        }
+
+        // Gửi thông báo đến người dùng
+        $user = $product->user; // Bảng Product có liên kết với bảng User thông qua user_id
+        if ($user) {
+            $user->notify(new \App\Notifications\ProductUpdated($product));
+        }
+
         return redirect()->route('admin.products.index')->with('success', 'Product updated successfully.');
     }
 
@@ -129,6 +149,14 @@ class AdminProductController extends Controller
      */
     public function destroy(Product $product)
     {
+        $productName = $product->name;
+
+        // Gửi thông báo đến người dùng trước khi xóa
+        $user = $product->user; // Bảng Product có liên kết với bảng User thông qua user_id
+        if ($user) {
+            $user->notify(new \App\Notifications\ProductDeleted($productName));
+        }
+
         // Xóa sản phẩm
         $product->delete();
 

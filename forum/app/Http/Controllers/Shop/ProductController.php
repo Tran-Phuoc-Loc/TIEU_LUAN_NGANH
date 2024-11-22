@@ -78,6 +78,7 @@ class ProductController extends Controller
             'price' => 'required|numeric',
             'product_category_id' => 'nullable|exists:product_categories,id',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4048', // Ảnh đại diện
+            'images.*' => 'nullable|array|max:5', // Nhiều ảnh khác
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4048' // Nhiều ảnh khác
         ]);
 

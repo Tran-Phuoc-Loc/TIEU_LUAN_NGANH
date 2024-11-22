@@ -75,7 +75,6 @@
     }
 
     .content {
-        padding: 20px;
         background-color: #fff;
         border: 1px solid #ddd;
     }
@@ -110,7 +109,7 @@
             <!-- Profile -->
             <div class="col-lg-12 col-md-12 col-sm-12 col-12" style=" background-color: #fff">
                 <div class="cover-image position-relative">
-                    <img src="{{ $user->cover_image ? asset('storage/' . $user->cover_image) : asset('storage/images/covers/1200x300.png') }}" alt="Avatar" style="max-width:100%" class="rounded thumbnail">
+                    <img src="{{ $user->cover_image ? asset('storage/' . $user->cover_image) : asset('storage/images/covers/1200x300.png') }}" alt="Avatar" style="max-width:100%" class="rounded thumbnail" loading="lazy">
                 </div>
 
                 <!-- Ảnh đại diện và thông tin người dùng -->
@@ -124,7 +123,7 @@
                                     ? asset('storage/' . $user->profile_picture) 
                                     : asset('storage/images/avataricon.png')) 
                             }}"
-                            alt="Avatar" class="rounded thumbnail">
+                            alt="Avatar" class="rounded thumbnail" loading="lazy">
                     </div>
 
                     <!-- Thông tin người dùng -->
@@ -182,7 +181,7 @@
                     @endif
                     <!-- User Information -->
                     <div class="row">
-                        <div class="col-md-3 mx-auto mt-5">
+                        <div class="col-md-4">
                             <h1 class="text-center">Tất cả ảnh của bạn</h1>
 
                             @php
@@ -235,7 +234,7 @@
                                 <div class="d-flex flex-wrap gap-2 justify-content-center" style="overflow-y: auto; max-height: 400px;">
                                     @foreach ($images as $image)
                                     <div class="thumbnail-wrapper" style="width: 100px; height: 100px; position: relative;">
-                                        <img src="{{ $image }}" alt="Ảnh" class="rounded thumbnail" style="width: 100%; height: 100%; object-fit: cover;">
+                                        <img src="{{ $image }}" alt="Ảnh" class="rounded thumbnail" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
                                     </div>
                                     @endforeach
                                     @foreach ($videos as $video)
@@ -252,7 +251,7 @@
                             @endif
                         </div>
                         <!-- Khung chứa tất cả ảnh của người dùng -->
-                        <div class="col-md-6 mx-auto mt-4">
+                        <div class="col-md-8">
                             <h1>Chỉnh sửa hồ sơ</h1>
 
                             @if ($errors->any())
@@ -287,14 +286,14 @@
                                     <input type="file" class="form-control" id="avatar" name="avatar">
                                     @if($user->profile_picture)
                                     <img src="{{ 
-                    (filter_var(auth()->user()->profile_picture, FILTER_VALIDATE_URL)) 
-                    ? auth()->user()->profile_picture 
-                    : (auth()->user()->profile_picture 
-                        ? asset('storage/' . auth()->user()->profile_picture) 
-                        : asset('storage/images/avataricon.png')) 
-                }}"
+                                            (filter_var(auth()->user()->profile_picture, FILTER_VALIDATE_URL)) 
+                                            ? auth()->user()->profile_picture 
+                                            : (auth()->user()->profile_picture 
+                                                ? asset('storage/' . auth()->user()->profile_picture) 
+                                                : asset('storage/images/avataricon.png')) 
+                                        }}"
                                         alt="Profile picture of {{ auth()->user()->username }}"
-                                        class="rounded-circle" style="width: 45px; height: 50px;">
+                                        class="rounded-circle" style="width: 50px; height: 50px;" loading="lazy">
                                     @endif
                                 </div>
 
@@ -303,7 +302,7 @@
                                     <label for="cover_image" class="form-label">Ảnh nền</label>
                                     <input type="file" class="form-control" id="cover_image" name="cover_image">
                                     @if($user->cover_image)
-                                    <img src="{{ asset('storage/' . $user->cover_image) }}" alt="Ảnh nền hiện tại" class="mt-2" style="max-width: 100%; height: auto;" loading="lazy">
+                                    <img src="{{ asset('storage/' . $user->cover_image) }}" alt="Ảnh nền hiện tại" class="mt-2" style="max-width: 35%; height: auto;" loading="lazy">
                                     @endif
                                 </div>
 
@@ -315,28 +314,26 @@
             </div>
         </div>
     </div>
-    <footer class="mt-5 py-4">
-        <div class="container text-center">
+    <footer class="">
             <div class="row">
                 <div class="col-md-4 mb-3">
-                    <h5>Liên hệ với chúng tôi</h5>
+                    <h6>Liên hệ với chúng tôi</h5>
                     <p>Email: <a href="mailto:ttp6889@gmail.com">ttp6889@gmail.com</a></p>
                     <p>Phone: 038-531-5971</p>
                 </div>
                 <div class="col-md-4 mb-3">
-                    <h5>TechTalks</h5>
+                    <h6>TechTalks</h5>
                     <p>&copy; {{ date('Y') }} TechTalks. All rights reserved.</p>
                 </div>
                 <div class="col-md-4">
-                    <h5>Theo dõi chúng tôi</h5>
+                    <h6>Theo dõi chúng tôi</h5>
                     <a href="#" class="text-white me-3"><i class="fab fa-facebook fa-2x"></i></a>
                     <a href="#" class="text-white me-3"><i class="fab fa-twitter fa-2x"></i></a>
                     <a href="#" class="text-white"><i class="fab fa-linkedin fa-2x"></i></a>
                 </div>
             </div>
-            <hr class="my-4">
+            <hr>
             <p class="text-muted small">Trang web này được phát triển bởi TechTalks.</p>
-        </div>
     </footer>
 </div>
 @endsection

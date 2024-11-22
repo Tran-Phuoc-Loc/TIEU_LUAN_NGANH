@@ -124,7 +124,7 @@
                                     ? asset('storage/' . $user->profile_picture) 
                                     : asset('storage/images/avataricon.png')) 
                             }}"
-                            alt="Avatar" class="rounded thumbnail">
+                            alt="Avatar" class="rounded thumbnail" loading="lazy">
                     </div>
 
                     <!-- Thông tin người dùng -->
@@ -192,7 +192,7 @@
                                 <ul class="list-group">
                                     @foreach($favoritePosts as $post)
                                     <li class="list-group-item">
-                                        <a href="{{ route('users.index', ['post' => $post->id]) }}">{{ $post->title }}</a>
+                                        <a href="{{ route('users.index', ['post_id' => $post->id]) }}">{{ $post->title }}</a>
 
                                         <span class="badge bg-primary float-end">{{ $post->likes_count }} lượt thích</span>
                                     </li>

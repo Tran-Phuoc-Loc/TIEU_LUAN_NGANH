@@ -431,7 +431,7 @@ class PostController extends Controller
         // Xóa bài viết
         $post->delete();
 
-        return redirect()->route('users.posts.drafts')->with('success', 'Bài viết đã được xóa.');
+        return redirect()->route('users.index')->with('success', 'Bài viết đã được xóa.');
     }
 
     // Thu hồi bài viết

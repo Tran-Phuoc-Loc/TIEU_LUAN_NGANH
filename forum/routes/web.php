@@ -31,6 +31,8 @@ use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Admin\AdminMessageController;
 use App\Http\Controllers\Shop\ProductChatController;
 use App\Http\Controllers\GoogleController;
+use App\Http\Controllers\Admin\AdminForumController;
+use App\Http\Controllers\Admin\AdminForumCategoriesController;
 
 Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.login');
 Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
@@ -86,6 +88,25 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin'])->group(function ()
         Route::get('{category}/edit', [AdminCategoryController::class, 'edit'])->name('admin.categories.edit'); // Hiển thị trang chỉnh sửa danh mục
         Route::put('{category}', [AdminCategoryController::class, 'update'])->name('admin.categories.update'); // Cập nhật danh mục
         Route::delete('{category}', [AdminCategoryController::class, 'destroy'])->name('admin.categories.destroy'); // Xóa danh mục
+    });
+
+    // Quản lý danh mục diễn đàn
+    Route::prefix('admin/forum/categories')
+        ->name('admin.forum.categories.')
+        ->group(function () {
+            Route::get('/', [AdminForumCategoriesController::class, 'index'])->name('index');
+            Route::get('/create', [AdminForumCategoriesController::class, 'create'])->name('create');
+            Route::post('/', [AdminForumCategoriesController::class, 'store'])->name('store');
+            Route::get('/{id}/edit', [AdminForumCategoriesController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [AdminForumCategoriesController::class, 'update'])->name('update');
+            Route::delete('/{id}', [AdminForumCategoriesController::class, 'destroy'])->name('destroy');
+        });
+    // Quản lý diễn đàn
+    Route::prefix('admin/forum')->name('admin.forum.')->group(function () {
+        // Quản lý bài viết (AdminForumController)
+        Route::get('/', [AdminForumController::class, 'index'])->name('index');
+        Route::get('/{id}', [AdminForumController::class, 'show'])->name('show');
+        Route::delete('/{id}', [AdminForumController::class, 'destroy'])->name('destroy');
     });
 
     // Routes cho báo cáo

@@ -110,7 +110,7 @@
             <!-- Profile -->
             <div class="col-lg-12 col-md-12 col-sm-12 col-12" style=" background-color: #fff">
                 <div class="cover-image position-relative">
-                    <img src="{{ $user->cover_image ? asset('storage/' . $user->cover_image) : asset('storage/images/covers/1200x300.png') }}" alt="Avatar" style="max-width:100%" class="rounded thumbnail">
+                    <img src="{{ $user->cover_image ? asset('storage/' . $user->cover_image) : asset('storage/images/covers/1200x300.png') }}" alt="Avatar" style="max-width:100%; object-fit:cover;" class="rounded thumbnail">
                 </div>
 
                 <!-- Ảnh đại diện và thông tin người dùng -->
@@ -124,7 +124,7 @@
                                     ? asset('storage/' . $user->profile_picture) 
                                     : asset('storage/images/avataricon.png')) 
                             }}"
-                            alt="Avatar" class="rounded thumbnail">
+                            alt="Avatar" class="rounded thumbnail" loading="lazy">
                     </div>
 
                     <!-- Thông tin người dùng -->

@@ -406,10 +406,10 @@
 
             <!-- Các mục menu -->
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto" style="margin-top: 20px;">
+                <ul class="navbar-nav ms-auto" style="margin-top: 20px; display: flex; align-items: center;">
 
                     <!-- Mục Shop -->
-                    <li class="nav-item" style="padding-top: 7px;">
+                    <li class="nav-item">
                         <a href="{{ route('products.index') }}" class="dropdown-item">
                             <i class="bi bi-bag"></i> Shop
                         </a>
@@ -417,7 +417,7 @@
 
                     <!-- Thông báo -->
                     @auth
-                    <li class="nav-item dropdown" style="padding-top: 12px;">
+                    <li class="nav-item dropdown">
                         <a href="{{ route('notifications.index') }}"
                             class="dropdown-item {{ auth()->check() && auth()->user()->unreadNotifications->count() > 0 ? 'new-notification' : '' }}">
                             <i class="fas fa-bell"></i>

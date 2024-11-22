@@ -58,20 +58,19 @@
         <!-- Menu điều hướng cho màn hình lớn -->
         <div class="col-lg-2 col-md-1 sidebar d-none d-md-block" style="background-color: #fff; position: fixed; height: 100vh; overflow-y: auto;">
             <div class="vertical-navbar">
-                <!-- Thông tin người dùng -->
-                <div class="user-info text-center mb-4" style="background-color: black; background-image: linear-gradient(135deg, #52545f 0%, #383a45 50%);">
-                @if(Auth::check() && Auth::user()->profile_picture)
+            <div class="user-info text-center mb-4" style="background-color: black; background-image: linear-gradient(135deg, #52545f 0%, #383a45 50%);">
+                    @if(Auth::check())
                     <a class="dropdown-item" href="{{ route('users.profile.index', Auth::user()->id) }}">
                         <!-- Kiểm tra nếu profile_picture là URL hợp lệ, nếu không thì lấy ảnh trong storage -->
                         <img src="{{ 
-                    (filter_var(auth()->user()->profile_picture, FILTER_VALIDATE_URL)) 
-                    ? auth()->user()->profile_picture 
-                    : (auth()->user()->profile_picture 
-                        ? asset('storage/' . auth()->user()->profile_picture) 
-                        : asset('storage/images/avataricon.png')) 
-                }}"
+                                (filter_var(auth()->user()->profile_picture, FILTER_VALIDATE_URL)) 
+                                ? auth()->user()->profile_picture 
+                                : (auth()->user()->profile_picture 
+                                    ? asset('storage/' . auth()->user()->profile_picture) 
+                                    : asset('storage/images/avataricon.png')) 
+                            }}"
                             alt="Profile picture of {{ auth()->user()->username }}"
-                            class="rounded-circle" style="width: 45px; height: 50px;">
+                            class="rounded-circle" style="width: 50px; height: 50px;" loading="lazy">
                     </a>
                     <h5 class="d-none d-md-block" style="color: #fff;">{{ auth()->user()->username }}</h5>
                     <hr style="border-top: 1px solid black; margin: 10px 0;">
@@ -86,14 +85,12 @@
                                 <span class="d-none d-lg-inline">Trang chủ</span>
                             </a>
                         </li>
-                        @auth
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('users.index', ['user_posts' => 'true']) }}">
+                            <a class="nav-link" href="{{ route('users.index') }}">
                                 <i class="bi bi-pencil"></i>
                                 <span class="d-none d-lg-inline">Bài viết của bạn</span>
                             </a>
                         </li>
-                        @endauth
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('categories.index') }}">
                                 <i class="bi bi-folder"></i>
@@ -120,9 +117,9 @@
                 <nav class="navbar navbar-dark flex-column">
                     <ul class="navbar-nav">
                         <li class="nav-item" style="padding-bottom: 10px;">
-                            <a href="{{ route('users.posts.create') }}" class="btn btn-success">
+                            <a href="{{ route('products.create') }}" class="btn btn-success">
                                 <i class="fas fa-file-pen"></i>
-                                <span class="d-none d-lg-inline">Viết bài</span>
+                                <span class="d-none d-lg-inline">Tạo sản phẩm</span>
                             </a>
                         </li>
                         <li class="nav-item" style="padding-bottom: 10px;">
@@ -131,6 +128,16 @@
                                 <span class="d-none d-lg-inline">Tạo nhóm</span>
                             </a>
                         </li>
+
+                        <!-- Kiểm tra nếu người dùng đã đăng ít nhất 1 sản phẩm -->
+                        @auth
+                        @if(auth()->user()->products->count() > 0)
+                        <li class="nav-item">
+                            <a href="{{ route('chat.seller') }}" class="nav-link"><i class="bi bi-messenger"></i>Khách hàng</a>
+                        </li>
+                        @endif
+                        @endauth
+
                         <li class="nav-item" style="text-align: center;">
                             @if (isset($groups) && $groups->isNotEmpty())
                             @php $firstGroup = $groups->first(); @endphp

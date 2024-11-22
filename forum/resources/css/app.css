@@ -193,11 +193,9 @@ img.img-thumbnail:hover {
 }
 
 .btn-success {
-    font-size: 16px; /* Kích thước font cho nút thành công */
     background: linear-gradient(135deg, #ff57b9, #a704fd); /* Gradient cho nút thành công */
     border: none; /* Không có viền */
     color: #fff; /* Màu chữ trắng */
-    padding: 10px 15px; /* Khoảng cách bên trong nút */
     border-radius: 5px; /* Bo góc cho nút */
     transition: background 0.3s, transform 0.3s; /* Hiệu ứng chuyển màu và phóng to */
     text-decoration: none; /* Không có gạch chân */
@@ -222,7 +220,6 @@ img.img-thumbnail:hover {
 }
 
 .btn-danger {
-    font-size: 16px;
     background: linear-gradient(45deg, #ff4d4d, #cc0000);
     border: none;
 }
