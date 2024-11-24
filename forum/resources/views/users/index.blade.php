@@ -449,10 +449,6 @@
     </div>
     @endif
 </div>
-</div>
-</div>
-</div>
-</div>
 
 <!-- Modal Bình Luận -->
 <div class="modal" id="commentModal" style="display:none;">

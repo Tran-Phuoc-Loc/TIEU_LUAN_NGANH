@@ -506,33 +506,35 @@
     // Hàm chung cho gọi API
     function sendApiRequest(url, method = 'GET', bodyData = null) {
         const options = {
+            url: url,
             method: method,
+            dataType: 'json',
             headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.redirected) {
+                    // Nếu có chuyển hướng, điều hướng đến URL mới
+                    window.location.href = response.url; // Điều hướng đến URL mới
+                }
+            },
+            error: function(error) {
+                console.error('Error:', error);
             }
         };
 
         if (bodyData) {
-            options.body = JSON.stringify(bodyData);
+            options.data = JSON.stringify(bodyData); // Dữ liệu gửi đi trong body
+            options.contentType = 'application/json'; // Đảm bảo dữ liệu gửi đi là JSON
         }
 
-        return fetch(url, options)
-            .then(response => {
-                if (response.redirected) {
-                    // Nếu có chuyển hướng, có thể xử lý ở đây
-                    window.location.href = response.url; // Điều hướng đến URL mới
-                    return; // Dừng thực hiện tiếp
-                }
-                return response.json();
-            })
-            .catch(error => console.error('Error:', error));
+        $.ajax(options);
     }
 
     // Hàm gửi tin nhắn
     function sendMessage(id, isGroup = false) {
-        const messageInput = document.querySelector('input[name="message"]');
-        const message = messageInput.value;
+        const messageInput = $('input[name="message"]');
+        const message = messageInput.val();
 
         if (!message.trim()) return;
 
@@ -543,25 +545,25 @@
             })
             .then(data => {
                 updateMessages(data, isGroup);
-                messageInput.value = ''; // Xóa nội dung ô input sau khi gửi
+                messageInput.val(''); // Xóa nội dung ô input sau khi gửi
             });
     }
 
     // Hàm cập nhật giao diện với tin nhắn mới
     function updateMessages(data, isGroup = false) {
-        const messageContainer = document.getElementById(isGroup ? 'group-chat-messages' : 'private-chat-messages');
+        const messageContainer = $(`#${isGroup ? 'group-chat-messages' : 'private-chat-messages'}`);
         const messageClass = data.sender.id === currentUserId ? 'sent' : 'received';
 
         // Cập nhật nội dung tin nhắn
         const newMessageHTML = `
-            <div class="chat-message ${data.sender.id === currentUserId ? 'sent' : 'received'}">
-                <strong>${data.sender.username}:</strong>
-                <p>${data.content}</p>
-                <span class="timestamp">${new Date(data.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-            </div>
-        `;
+        <div class="chat-message ${data.sender.id === currentUserId ? 'sent' : 'received'}">
+            <strong>${data.sender.username}:</strong>
+            <p>${data.content}</p>
+            <span class="timestamp">${new Date(data.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+        </div>
+    `;
 
-        messageContainer.insertAdjacentHTML('beforeend', newMessageHTML);
+        messageContainer.append(newMessageHTML);
         scrollToBottom(messageContainer);
     }
 
@@ -571,30 +573,29 @@
 
         sendApiRequest(url)
             .then(data => {
-                const messageContainer = document.getElementById(isGroup ? 'group-chat-messages' : 'private-chat-messages');
-                messageContainer.innerHTML = ''; // Xóa nội dung cũ
+                const messageContainer = $(`#${isGroup ? 'group-chat-messages' : 'private-chat-messages'}`);
+                messageContainer.empty(); // Xóa nội dung cũ
 
                 const messagesHTML = data.messages.map(message => {
                     const messageClass = message.sender_id === currentUserId ? 'sent' : 'received';
                     return `
-                    <div class="chat-message ${messageClass}">
-                        <strong>${message.sender.username}:</strong>
-                        <p>${message.content}</p>
-                        <span class="timestamp">${message.created_at}</span>
-                    </div>
-                `;
+                <div class="chat-message ${messageClass}">
+                    <strong>${message.sender.username}:</strong>
+                    <p>${message.content}</p>
+                    <span class="timestamp">${message.created_at}</span>
+                </div>
+            `;
                 }).join('');
 
-                messageContainer.innerHTML = messagesHTML;
+                messageContainer.html(messagesHTML);
                 scrollToBottom(messageContainer);
             });
     }
 
     // Hàm cuộn xuống cuối chat
     function scrollToBottom(container) {
-        container.scrollTop = container.scrollHeight;
+        container.scrollTop(container[0].scrollHeight);
     }
-
 
     // Định nghĩa hàm redirectToLogin
     function redirectToLogin() {

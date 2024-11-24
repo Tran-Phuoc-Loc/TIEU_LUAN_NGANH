@@ -285,7 +285,7 @@
 
             // Tải dữ liệu mặc định (7 ngày) khi trang vừa được tải
             loadActivityData(7);
-            var ctx = $('#recentActivityChart'); // Giả sử bạn đã có ID của canvas là 'recentActivityChart'
+            var ctx = $('#recentActivityChart'); //  ID của canvas là 'recentActivityChart'
             var recentActivityChart = new Chart(ctx, {
                 type: 'line', // Biểu đồ dạng đường
                 data: {
