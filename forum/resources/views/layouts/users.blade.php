@@ -505,30 +505,34 @@
 
     // Hàm chung cho gọi API
     function sendApiRequest(url, method = 'GET', bodyData = null) {
-        const options = {
-            url: url,
-            method: method,
-            dataType: 'json',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                if (response.redirected) {
-                    // Nếu có chuyển hướng, điều hướng đến URL mới
-                    window.location.href = response.url; // Điều hướng đến URL mới
+        return new Promise((resolve, reject) => {
+            const options = {
+                url: url,
+                method: method,
+                dataType: 'json',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    if (response.redirected) {
+                        // Nếu có chuyển hướng, điều hướng đến URL mới
+                        window.location.href = response.url;
+                    }
+                    resolve(response); // Giải quyết Promise thành công
+                },
+                error: function(error) {
+                    console.error('Error:', error);
+                    reject(error); // Giải quyết Promise thất bại
                 }
-            },
-            error: function(error) {
-                console.error('Error:', error);
+            };
+
+            if (bodyData) {
+                options.data = JSON.stringify(bodyData);
+                options.contentType = 'application/json';
             }
-        };
 
-        if (bodyData) {
-            options.data = JSON.stringify(bodyData); // Dữ liệu gửi đi trong body
-            options.contentType = 'application/json'; // Đảm bảo dữ liệu gửi đi là JSON
-        }
-
-        $.ajax(options);
+            $.ajax(options); // Trả về Promise
+        });
     }
 
     // Hàm gửi tin nhắn
@@ -538,63 +542,74 @@
 
         if (!message.trim()) return;
 
-        const url = isGroup ? `/users/group/${id}/chat` : `/chat/private/${id}/store`;
+        const url = isGroup ? `/users/groups/${id}/chat` : `/chat/private/${id}/store`;
 
         sendApiRequest(url, 'POST', {
                 message
             })
             .then(data => {
-                updateMessages(data, isGroup);
+                updateMessages(data, isGroup); // Xử lý cập nhật giao diện
                 messageInput.val(''); // Xóa nội dung ô input sau khi gửi
+            })
+            .catch(error => {
+                console.error('Error sending message:', error);
+                alert('Không thể gửi tin nhắn. Vui lòng thử lại sau.');
             });
     }
 
     // Hàm cập nhật giao diện với tin nhắn mới
     function updateMessages(data, isGroup = false) {
-        const messageContainer = $(`#${isGroup ? 'group-chat-messages' : 'private-chat-messages'}`);
-        const messageClass = data.sender.id === currentUserId ? 'sent' : 'received';
+        const messageContainer = document.getElementById(isGroup ? 'group-chat-messages' : 'private-chat-messages');
 
-        // Cập nhật nội dung tin nhắn
+        // Kiểm tra xem người gửi tin nhắn có phải là người dùng hiện tại không
+        const isCurrentUser = data.sender.id === currentUserId;
+        console.log('Sender ID:', data.sender.id, 'Current User ID:', currentUserId);
+
+
+        // Tạo HTML cho tin nhắn
         const newMessageHTML = `
-        <div class="chat-message ${data.sender.id === currentUserId ? 'sent' : 'received'}">
-            <strong>${data.sender.username}:</strong>
+        <div class="chat-message ${isCurrentUser ? 'sent' : 'received'}">
+            <strong>${isCurrentUser ? 'You' : data.sender.username}:</strong>
             <p>${data.content}</p>
             <span class="timestamp">${new Date(data.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
         </div>
     `;
 
-        messageContainer.append(newMessageHTML);
+        // Thêm tin nhắn vào container
+        messageContainer.insertAdjacentHTML('beforeend', newMessageHTML);
+
+        // Cuộn xuống cuối để hiển thị tin nhắn mới
         scrollToBottom(messageContainer);
     }
 
     // Hàm tải lại danh sách tin nhắn
     function reloadMessages(id, isGroup) {
-        const url = isGroup ? `/users/group/${id}/chat` : `/chat/private/${id}`;
+        const url = isGroup ? `/users/groups/${id}/chat` : `/chat/private/${id}`;
 
         sendApiRequest(url)
             .then(data => {
-                const messageContainer = $(`#${isGroup ? 'group-chat-messages' : 'private-chat-messages'}`);
-                messageContainer.empty(); // Xóa nội dung cũ
+                const messageContainer = document.getElementById(isGroup ? 'group-chat-messages' : 'private-chat-messages');
+                messageContainer.innerHTML = ''; // Xóa nội dung cũ
 
                 const messagesHTML = data.messages.map(message => {
                     const messageClass = message.sender_id === currentUserId ? 'sent' : 'received';
                     return `
-                <div class="chat-message ${messageClass}">
-                    <strong>${message.sender.username}:</strong>
-                    <p>${message.content}</p>
-                    <span class="timestamp">${message.created_at}</span>
-                </div>
-            `;
+                    <div class="chat-message ${messageClass}">
+                        <strong>${message.sender.username}:</strong>
+                        <p>${message.content}</p>
+                        <span class="timestamp">${message.created_at}</span>
+                    </div>
+                `;
                 }).join('');
 
-                messageContainer.html(messagesHTML);
+                messageContainer.innerHTML = messagesHTML;
                 scrollToBottom(messageContainer);
             });
     }
 
     // Hàm cuộn xuống cuối chat
     function scrollToBottom(container) {
-        container.scrollTop(container[0].scrollHeight);
+        container.scrollTop = container.scrollHeight;
     }
 
     // Định nghĩa hàm redirectToLogin
