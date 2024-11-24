@@ -109,7 +109,7 @@
             <!-- Profile -->
             <div class="col-lg-12 col-md-12 col-sm-12 col-12" style=" background-color: #fff">
                 <div class="cover-image position-relative">
-                    <img src="{{ $user->cover_image ? asset('storage/' . $user->cover_image) : asset('storage/images/covers/1200x300.png') }}" alt="Avatar" style="max-width:100%" class="rounded thumbnail" loading="lazy">
+                    <img src="{{ $user->cover_image ? asset('storage/' . $user->cover_image) : asset('storage/images/covers/1200x300.png') }}" alt="Avatar" style="max-width:100%; object-fit:cover;" class="rounded thumbnail" loading="lazy">
                 </div>
 
                 <!-- Ảnh đại diện và thông tin người dùng -->
