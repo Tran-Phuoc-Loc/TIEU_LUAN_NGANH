@@ -135,10 +135,10 @@
                 </div>
 
                 <div class="profile-nav">
-                    <a href="{{ url('/') }}">Home</a>
-                    <a href="{{ route('users.profile.index', ['user' => $user->id]) }}">Frofile</a>
-                    <a href="{{ route('users.profile.friend', ['user' => $user->id, 'section' => 'friends']) }}">Friends</a>
-                    <a href="{{ route('users.groups.index') }}">Groups</a>
+                    <a href="{{ url('/') }}">Trang chủ</a>
+                    <a href="{{ route('users.profile.index', ['user' => $user->id]) }}">Hồ Sơ</a>
+                    <a href="{{ route('users.profile.friend', ['user' => $user->id, 'section' => 'friends']) }}">Bạn bè</a>
+                    <a href="{{ route('users.groups.index') }}">Nhóm</a>
 
                     <!-- Kiểm tra nếu người dùng là chủ nhóm hoặc thành viên trong ít nhất một nhóm -->
                     @if (isset($groups) && $groups->isNotEmpty())
@@ -151,11 +151,11 @@
 
                     <!-- Nếu là chủ nhóm hoặc thành viên của ít nhất một nhóm -->
                     @if ($isGroupOwnerOrMember)
-                    <a href="{{ route('groups.chat', $firstGroup->id) }}">Chat</a>
+                    <a href="{{ route('groups.chat', $firstGroup->id) }}">Tin nhắn</a>
                     @endif
                     @endif
 
-                    <a href="{{ route('forums.index') }}">Forums</a>
+                    <a href="{{ route('forums.index') }}">Diễn đàn</a>
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="navbarDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         Tùy Chọn
                     </button>
@@ -299,7 +299,7 @@
 
                             @if(Auth::check() && Auth::id() === $user->id)
                             <div class="mt-4">
-                                <a href="{{ route('users.profile.edit', $user->id) }}" class="btn btn-primary">Chỉnh Sửa Thông Tin</a>
+                                <a href="{{ route('users.profile.edit', $user->id) }}" class="btn btn-primary">Cập nhật Thông Tin</a>
                                 <a href="{{ url()->previous() }}" class="btn btn-secondary">Quay lại</a>
                             </div>
                             @endif

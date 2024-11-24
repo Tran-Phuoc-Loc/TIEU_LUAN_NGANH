@@ -19,11 +19,10 @@
                         <h5>Avatar của {{ $user->username }}</h5>
                         <!-- Hiển thị avatar -->
                         <div class="text-center">
-                            @if($user->profile_picture)
-                            <img src="{{ asset('storage/' . $user->profile_picture) }}" alt="Avatar" class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
-                            @else
-                            <img src="https://via.placeholder.com/150" alt="Avatar" class="rounded-circle" style="width: 150px; height: 150px;">
-                            @endif
+                            <img src="{{ $user->profile_picture ? (filter_var($user->profile_picture, FILTER_VALIDATE_URL) ? $user->profile_picture : asset('storage/' . $user->profile_picture)) : asset('storage/images/avataricon.png') }}"
+                                alt="Avatar" class="rounded thumbnail"
+                                loading="lazy"
+                                style="width: 50px; height: 50px; object-fit: cover;">
                         </div>
                     </div>
                     <!-- Thông tin người dùng -->

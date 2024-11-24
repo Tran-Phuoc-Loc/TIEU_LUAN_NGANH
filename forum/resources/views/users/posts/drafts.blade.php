@@ -26,7 +26,7 @@
             <!-- Thêm table-responsive để bảng có thể cuộn ngang trên thiết bị di động -->
             <div class="table-responsive">
                 <table class="table table-striped table-hover">
-                    <thead class="table-dark">
+                    <thead>
                         <tr>
                             <th>Tiêu Đề</th>
                             <th>Nội Dung</th>
