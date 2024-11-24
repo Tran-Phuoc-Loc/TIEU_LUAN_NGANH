@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Manage Users')
+@section('title', 'Quản lý người dùng')
 
 @section('content')
 <div class="container mt-4">

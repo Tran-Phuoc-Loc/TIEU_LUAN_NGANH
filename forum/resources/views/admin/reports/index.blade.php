@@ -3,12 +3,6 @@
 @section('title', 'Danh sách báo cáo')
 
 @section('content')
-<style>
-    .table th {
-        background-color: #000 !important;
-        color: #fff !important;
-    }
-</style>
 
 <div class="container">
     <h2 class="my-4 text-center">Danh sách báo cáo vi phạm</h2>
@@ -16,9 +10,9 @@
     @include('layouts.partials.search', ['action' => route('admin.reports.index'), 'placeholder' => 'Tìm kiếm sản phẩm...'])
     <!-- Bảng danh sách báo cáo -->
     <div class="table-responsive">
-        <table class="table table-bordered table-hover align-middle text-center">
-            <thead class="table-dark">
-                <tr class="bg-dark text-light">
+        <table class="table mt-4">
+            <thead>
+                <tr>
                     <th>Người báo cáo</th>
                     <th>Bài viết</th>
                     <th>Lý do</th>

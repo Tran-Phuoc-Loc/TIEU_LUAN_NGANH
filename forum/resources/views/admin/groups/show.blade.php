@@ -1,5 +1,7 @@
 @extends('layouts.admin')
 
+@section('title', 'Chi tiết nhóm')
+
 @section('content')
 <div class="container mt-4">
     <!-- Tiêu đề -->

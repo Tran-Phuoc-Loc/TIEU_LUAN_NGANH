@@ -1,5 +1,7 @@
 @extends('layouts.admin')
 
+@section('title', 'Quản lý bài viết diễn đàn')
+
 @section('content')
 <h1>Quản lý bài viết diễn đàn</h1>
 <div class="mb-3">

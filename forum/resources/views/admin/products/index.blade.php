@@ -1,5 +1,7 @@
 @extends('layouts.admin')
 
+@section('title', 'Quản Lý Sản Phẩm')
+
 @section('content')
 <h1 class="text-center">Quản Lý Sản Phẩm</h1>
 {{-- Bao gồm phần tìm kiếm --}}

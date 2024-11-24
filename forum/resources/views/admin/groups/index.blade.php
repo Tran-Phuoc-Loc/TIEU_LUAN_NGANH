@@ -1,5 +1,7 @@
 @extends('layouts.admin')
 
+@section('title', 'Quản lý Group')
+
 @section('content')
 <div class="container">
     <h1>Quản lý Group</h1>

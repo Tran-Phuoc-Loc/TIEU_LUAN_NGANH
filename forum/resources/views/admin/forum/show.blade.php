@@ -1,5 +1,7 @@
 @extends('layouts.admin')
 
+@section('title', 'Chi tiết bài viết')
+
 @section('content')
     <h1>Chi tiết bài viết</h1>
 

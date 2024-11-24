@@ -19,6 +19,23 @@
     .sidebar-open {
         left: 0;
     }
+
+    .group-header {
+        background-color: #495057;
+        /* Màu nền khác biệt */
+        color: #8c78f3 !important;
+        /* Màu chữ sáng */
+        padding: 8px 15px;
+        /* Khoảng cách bên trong */
+        margin-top: 10px;
+        /* Khoảng cách phía trên */
+        border-radius: 5px;
+        /* Góc bo tròn */
+        font-weight: bold;
+        /* Chữ đậm */
+        text-transform: uppercase;
+        /* Chữ in hoa */
+    }
 </style>
 
 <body style="background-color:#f1f5f9;">
@@ -32,13 +49,13 @@
             <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar" style="position: fixed; height:100%; overflow-y: auto; background-color:#0f172a;">
                 <div class="position-sticky">
                     <!-- Header -->
-                    <h4 class="text-center text-light py-3">Admin Dashboard</h4>
+                    <h4 class="text-center text-light py-3">{{ __('sidebar.admin_dashboard') }}</h4>
 
                     <!-- Thông tin người dùng -->
                     <div class="user-info text-center mb-4">
                         @if(auth()->check())
                         <img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : asset('storage/images/avataricon.png') }}"
-                            alt="Profile picture of {{ auth()->user()->username }}"
+                            alt="{{ __('sidebar.profile_picture_alt', ['username' => auth()->user()->username]) }}"
                             class="rounded-circle" style="width: 70px; height: 75px;">
                         <h5 class="mt-2" style="color:#fff;">{{ auth()->user()->username }}</h5>
                         <h6 style="color:#8192ba;">{{ auth()->user()->email }}</h6>
@@ -47,96 +64,97 @@
                     </div>
 
                     <!-- Nhóm: Tổng quan -->
-                    <h6 class="text-light px-3 mt-3">Tổng Quan</h6>
+                    <h6 class="text-light px-3 mt-3 group-header">{{ __('sidebar.overview') }}</h6>
                     <ul class="nav flex-column mb-4">
                         <li class="nav-item">
                             <a class="nav-link active text-light" href="{{ route('admin.dashboard') }}">
-                                <i class="fas fa-home me-2"></i> Home
+                                <i class="fas fa-home me-2"></i> {{ __('sidebar.home') }}
                             </a>
                         </li>
                     </ul>
+                    <hr class="bg-secondary">
 
                     <!-- Nhóm: Quản lý người dùng -->
-                    <h6 class="text-light px-3">Quản Lý Người Dùng</h6>
+                    <h6 class="text-light px-3 group-header">{{ __('sidebar.user_management') }}</h6>
                     <ul class="nav flex-column mb-4">
                         <li class="nav-item">
-                            <a class="nav-link text-light" href="{{ route('admin.users.index') }}">
-                                <i class="fas fa-users me-2"></i> Users
+                            <a class="nav-link text-light" href="{{ route('admin.users.index') }}" title="{{ __('sidebar.users_title') }}">
+                                <i class="fas fa-users me-2"></i> {{ __('sidebar.users') }}
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-light" href="{{ route('admin.groups.index') }}">
-                                <i class="fas fa-user-group me-2"></i> Groups
+                                <i class="fas fa-user-group me-2"></i> {{ __('sidebar.groups') }}
                             </a>
                         </li>
                     </ul>
                     <hr class="bg-secondary">
 
                     <!-- Nhóm: Quản lý nội dung -->
-                    <h6 class="text-light px-3">Quản Lý Bài Viết</h6>
+                    <h6 class="text-light px-3 group-header">{{ __('sidebar.content_management') }}</h6>
                     <ul class="nav flex-column mb-4">
                         <li class="nav-item">
                             <a class="nav-link text-light" href="{{ route('admin.posts.index') }}">
-                                <i class="fas fa-file-alt me-2"></i> Posts
+                                <i class="fas fa-file-alt me-2"></i> {{ __('sidebar.posts') }}
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-light" href="{{ route('admin.categories.index') }}">
-                                <i class="fas fa-book me-2"></i> Categories
+                                <i class="fas fa-book me-2"></i> {{ __('sidebar.categories') }}
                             </a>
                         </li>
                     </ul>
                     <hr class="bg-secondary">
 
-                    <!-- Nhóm: Quản lý diễn dàn -->
-                    <h6 class="text-light px-3">Quản Lý Diễn Đàn</h6>
+                    <!-- Nhóm: Quản lý diễn đàn -->
+                    <h6 class="text-light px-3 group-header">{{ __('sidebar.forum_management') }}</h6>
                     <ul class="nav flex-column mb-4">
                         <li class="nav-item">
                             <a class="nav-link text-light" href="{{ route('admin.forum.index') }}">
-                                <i class="fas fa-file-alt me-2"></i> Forums
+                                <i class="fas fa-file-alt me-2"></i> {{ __('sidebar.forums') }}
                             </a>
                         </li>
                     </ul>
                     <hr class="bg-secondary">
 
                     <!-- Nhóm: Sản phẩm -->
-                    <h6 class="text-light px-3">Quản Lý Sản Phẩm</h6>
+                    <h6 class="text-light px-3 group-header">{{ __('sidebar.product_management') }}</h6>
                     <ul class="nav flex-column mb-4">
                         <li class="nav-item">
                             <a class="nav-link text-light" href="{{ route('admin.product_categories.index') }}">
-                                <i class="bi bi-box-seam me-2"></i> Products
+                                <i class="bi bi-box-seam me-2"></i> {{ __('sidebar.products') }}
                             </a>
                         </li>
                     </ul>
                     <hr class="bg-secondary">
 
                     <!-- Nhóm: Tin nhắn và báo cáo -->
-                    <h6 class="text-light px-3">Tin Nhắn & Báo Cáo</h6>
+                    <h6 class="text-light px-3 group-header">{{ __('sidebar.messages_reports') }}</h6>
                     <ul class="nav flex-column mb-4">
                         <li class="nav-item">
                             <a class="nav-link text-light" href="{{ route('admin.messages.index') }}">
-                                <i class="bi bi-chat-left-text me-2"></i> Messages
+                                <i class="bi bi-chat-left-text me-2"></i> {{ __('sidebar.messages') }}
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-light" href="{{ route('admin.reports.index') }}">
-                                <i class="fas fa-file-alt me-2"></i> Reports
+                                <i class="fas fa-file-alt me-2"></i> {{ __('sidebar.reports') }}
                             </a>
                         </li>
                     </ul>
                     <hr class="bg-secondary">
 
                     <!-- Nhóm: Cài đặt & Đăng xuất -->
-                    <h6 class="text-light px-3">Cài Đặt & Hệ Thống</h6>
+                    <h6 class="text-light px-3 group-header">{{ __('sidebar.settings_system') }}</h6>
                     <ul class="nav flex-column mb-4">
                         <li class="nav-item">
                             <a class="nav-link text-light" href="#">
-                                <i class="fas fa-cogs me-2"></i> Settings
+                                <i class="fas fa-cogs me-2"></i> {{ __('sidebar.settings') }}
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-danger" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                <i class="fas fa-sign-out-alt me-2"></i> Logout
+                                <i class="fas fa-sign-out-alt me-2"></i> {{ __('sidebar.logout') }}
                             </a>
                         </li>
                     </ul>
@@ -144,7 +162,7 @@
                     <!-- Footer -->
                     <div class="text-center mt-4 mb-3" style="color:#8192ba; filter: invert(36%) sepia(100%) saturate(500%) hue-rotate(200deg) brightness(90%) contrast(90%);">
                         <img src="{{ asset('storage/images/bookicon.png') }}" alt="TechTalks" loading="lazy">
-                        <p>TechTalks</p>
+                        <p>{{ __('sidebar.footer_brand') }}</p>
                     </div>
 
                     <!-- Form đăng xuất -->
@@ -167,11 +185,13 @@
 
     @if(isset($statusLabels) && isset($statusCounts))
     @php
+    // Đảm bảo rằng biến PHP được mã hóa đúng định dạng JSON
     $statusLabelsJson = json_encode($statusLabels);
     $statusCountsJson = json_encode($statusCounts);
     @endphp
     @else
     @php
+    // Xử lý trường hợp không có dữ liệu (mảng rỗng)
     $statusLabelsJson = json_encode([]); // Mảng rỗng
     $statusCountsJson = json_encode([]); // Mảng rỗng
     @endphp

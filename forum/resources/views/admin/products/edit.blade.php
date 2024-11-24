@@ -1,5 +1,7 @@
 @extends('layouts.admin')
 
+@section('title', 'Chỉnh Sửa Sản Phẩm')
+
 @section('content')
 <h1>Chỉnh Sửa Sản Phẩm</h1>
 

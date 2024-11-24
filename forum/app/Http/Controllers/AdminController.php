@@ -57,6 +57,7 @@ class AdminController extends Controller
         $statusCounts = $postStatusData->pluck('count')->toArray();
 
 
+
         return view('admin.dashboard', compact(
             'totalUsers',
             'totalPosts',

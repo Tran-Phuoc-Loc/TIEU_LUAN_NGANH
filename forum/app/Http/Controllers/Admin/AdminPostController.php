@@ -46,8 +46,14 @@ class AdminPostController extends Controller
         // Phân trang 10 bài viết một trang
         $posts = $query->paginate(10);
 
+        // Sắp xếp bài viết theo danh mục trước
+        $posts = $query->with(['author', 'category'])
+            ->orderBy('category_id', 'asc') // Sắp xếp theo danh mục
+            ->paginate(10);
+
         // Lấy danh sách tác giả, loại bỏ những user có vai trò là 'admin'
         $authors = User::where('role', '!=', 'admin')->get();
+        $categories = Category::all(); // Lấy tất cả danh mục
 
         // Kiểm tra nếu không có bài viết nào được tìm thấy
         if ($posts->isEmpty() && $request->filled('search')) {
@@ -56,7 +62,7 @@ class AdminPostController extends Controller
             $message = null;  // Không có thông báo khi có bài viết
         }
 
-        return view('admin.posts.index', compact('posts', 'authors', 'message'));
+        return view('admin.posts.index', compact('posts', 'authors', 'message', 'categories'));
     }
 
     // Hiển thị form chỉnh sửa bài viết
@@ -79,7 +85,7 @@ class AdminPostController extends Controller
         if ($request->has('edit_reason') && $request->edit_reason !== $post->edit_reason) {
             session()->flash('edit_reason_changed', true);
         }
-        
+
         // Lưu đường dẫn cũ để xóa nếu có
         $oldImageUrl = $post->image_url;
         $oldImages = $post->images; // Mỗi bài viết có nhiều ảnh (dùng quan hệ với PostImage)

@@ -41,6 +41,15 @@ Route::get('/privacy-policy', function () {
     return view('privacy')->name('privacy');
 });
 
+Route::get('/lang/{lang}', function ($lang) {
+    if (in_array($lang, ['en', 'vi'])) {
+        session(['lang' => $lang]);
+    }
+    return redirect()->back();
+});
+
+
+
 // Route cho đăng nhập
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);

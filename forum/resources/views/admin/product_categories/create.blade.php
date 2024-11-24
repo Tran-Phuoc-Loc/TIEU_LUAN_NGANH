@@ -1,5 +1,7 @@
 @extends('layouts.admin')
 
+@section('title', 'Thêm Danh mục')
+
 @section('content')
     <div class="container mt-4">
         <h2>Thêm Danh mục Sản phẩm mới</h2>

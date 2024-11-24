@@ -1,5 +1,7 @@
 @extends('layouts.admin')
 
+@section('title', 'Chỉnh sửa bài viết (Admin)')
+
 @section('content')
 <div class="container">
     <!-- Thông báo cảnh báo dành cho admin -->

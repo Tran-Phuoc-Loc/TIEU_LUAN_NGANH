@@ -1,30 +1,45 @@
 @extends('layouts.admin')
 
+@section('title', 'Quản lý bài viết')
+
 @section('content')
-<div class="container">
+<div class="container mt-2">
     <h2>Quản lý bài viết</h2>
 
+    <!-- Form tìm kiếm và lọc -->
     <form method="GET" action="{{ route('admin.posts.index') }}">
         <div class="row">
             <!-- Tìm kiếm tiêu đề -->
-            <div class="col-md-4 mb-3">
+            <div class="col-md-3 mb-3">
                 <input type="text" name="search" class="form-control" placeholder="Tìm kiếm tiêu đề..." value="{{ request('search') }}">
             </div>
 
+            <!-- Chọn danh mục -->
+            <div class="col-md-3 mb-3">
+                <select name="category" class="form-control">
+                    <option value="">Tất cả danh mục</option>
+                    @foreach($categories as $category)
+                        <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
+                            {{ $category->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
             <!-- Chọn tác giả -->
-            <div class="col-md-4 mb-3">
+            <div class="col-md-3 mb-3">
                 <select name="author" class="form-control">
                     <option value="">Tất cả tác giả</option>
                     @foreach($authors as $author)
-                    <option value="{{ $author->id }}" {{ request('author') == $author->id ? 'selected' : '' }}>
-                        {{ $author->username }}
-                    </option>
+                        <option value="{{ $author->id }}" {{ request('author') == $author->id ? 'selected' : '' }}>
+                            {{ $author->username }}
+                        </option>
                     @endforeach
                 </select>
             </div>
 
             <!-- Chọn trạng thái -->
-            <div class="col-md-4 mb-3">
+            <div class="col-md-3 mb-3">
                 <select name="status" class="form-control">
                     <option value="">Tất cả trạng thái</option>
                     <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Nháp</option>
@@ -33,19 +48,19 @@
             </div>
 
             <!-- Ngày bắt đầu -->
-            <div class="col-md-4 mb-3">
-            <label for="start_date" class="form-label">Ngày bắt đầu</label>
-                <input type="date" name="start_date" class="form-control" placeholder="Ngày bắt đầu" value="{{ request('start_date') }}">
+            <div class="col-md-3 mb-3">
+                <label for="start_date" class="form-label">Ngày bắt đầu</label>
+                <input type="date" name="start_date" class="form-control" value="{{ request('start_date') }}">
             </div>
 
             <!-- Ngày kết thúc -->
-            <div class="col-md-4 mb-3">
-            <label for="start_date" class="form-label">Ngày kết thúc</label>
-                <input type="date" name="end_date" class="form-control" placeholder="Ngày kết thúc" value="{{ request('end_date') }}">
+            <div class="col-md-3 mb-3">
+                <label for="end_date" class="form-label">Ngày kết thúc</label>
+                <input type="date" name="end_date" class="form-control" value="{{ request('end_date') }}">
             </div>
 
             <!-- Nút tìm kiếm -->
-            <div class="col-md-4 mb-3 d-flex align-items-end">
+            <div class="col-md-3 mb-3 d-flex align-items-end">
                 <button type="submit" class="btn btn-primary w-100">Tìm kiếm</button>
             </div>
         </div>
@@ -64,13 +79,12 @@
         <table class="table mt-4">
             <thead>
                 <tr>
-                    <th>
-                        <input type="checkbox" id="select-all"> <!-- Chọn tất cả -->
-                    </th>
+                    <th><input type="checkbox" id="select-all"></th>
                     <th>Tiêu đề</th>
+                    <th>Danh mục</th>
                     <th>Tác giả</th>
                     <th>Trạng thái</th>
-                    <th>Loại bài viết</th> <!-- Cột mới cho loại bài viết -->
+                    <th>Loại bài viết</th>
                     <th>Ngày tạo</th>
                     <th>Hành động</th>
                 </tr>
@@ -78,21 +92,12 @@
             <tbody>
                 @foreach($posts as $post)
                 <tr>
-                    <td>
-                        <input type="checkbox" name="post_ids[]" value="{{ $post->id }}">
-                    </td>
+                    <td><input type="checkbox" name="post_ids[]" value="{{ $post->id }}"></td>
                     <td>{{ $post->title }}</td>
-                    <td>{{ optional($post->author)->username ?? 'Tác giả không tồn tại' }}</td>
+                    <td>{{ $post->category->name ?? 'Không có danh mục' }}</td>
+                    <td>{{ optional($post->author)->username ?? 'Không tồn tại' }}</td>
                     <td>{{ ucfirst($post->status) }}</td>
-                    <td>
-                        @if($post->group_id)
-                        <!-- Nếu bài viết có group_id, hiển thị tên nhóm -->
-                        {{ $post->group->name }}
-                        @else
-                        <!-- Nếu không có group_id, hiển thị "Cá nhân" -->
-                        Cá nhân
-                        @endif
-                    </td>
+                    <td>{{ $post->group_id ? $post->group->name : 'Cá nhân' }}</td>
                     <td>{{ $post->created_at->format('d-m-Y') }}</td>
                     <td>
                         <a href="{{ route('admin.posts.edit', $post->id) }}" class="btn btn-warning btn-sm">Chỉnh sửa</a>
@@ -121,15 +126,14 @@
     <div class="d-flex justify-content-center mt-4">
         {{ $posts->links() }}
     </div>
-
-    <script>
-        // Chức năng "Chọn tất cả"
-        document.getElementById('select-all').onclick = function() {
-            var checkboxes = document.querySelectorAll('input[name="post_ids[]"]');
-            for (var checkbox of checkboxes) {
-                checkbox.checked = this.checked;
-            }
+</div>
+<script>
+    // Chức năng "Chọn tất cả"
+    document.getElementById('select-all').onclick = function() {
+        var checkboxes = document.querySelectorAll('input[name="post_ids[]"]');
+        for (var checkbox of checkboxes) {
+            checkbox.checked = this.checked;
         }
-    </script>
-
-    @endsection
+    }
+</script>
+@endsection
