@@ -104,7 +104,7 @@ class AdminProductController extends Controller
         $data = $request->all();
 
         $data['price'] = str_replace(',', '', $data['price']); // Xử lý giá (price) với định dạng chuỗi
-        
+
 
         // Kiểm tra và lưu ảnh nếu có
         if ($request->hasFile('image')) {
@@ -125,7 +125,7 @@ class AdminProductController extends Controller
             foreach ($request->file('images') as $image) {
                 $imageName = \Str::uuid() . '.' . $image->extension();
                 $imagePath = $image->storeAs('products', $imageName, 'public');
-    
+
                 $product->additionalImages()->create([
                     'image' => $imagePath,
                 ]);
@@ -161,5 +161,13 @@ class AdminProductController extends Controller
         $product->delete();
 
         return redirect()->route('admin.products.index')->with('success', 'Product deleted successfully.');
+    }
+    public function show($id)
+    {
+        // Lấy thông tin sản phẩm theo ID
+        $product = Product::with(['category', 'user'])->findOrFail($id);
+
+        // Trả về view với dữ liệu sản phẩm
+        return view('admin.products.show', compact('product'));
     }
 }

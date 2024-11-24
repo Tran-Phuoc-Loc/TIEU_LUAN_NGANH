@@ -146,23 +146,60 @@ class ProductController extends Controller
     // Cập nhật sản phẩm trong cơ sở dữ liệu
     public function update(Request $request, Product $product)
     {
+        // Validate dữ liệu nhập vào
         $request->validate([
             'name' => 'required|string|max:255',
             'price' => 'required|numeric',
             'product_category_id' => 'nullable|exists:product_categories,id',
             'status' => 'required|in:in_stock,out_of_stock',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Ảnh đại diện
+            'images' => 'nullable|array|max:5', // Chắc chắn là mảng, tối đa 5 tệp
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4048' // Nhiều ảnh khác
         ]);
-        // Cập nhật thông tin sản phẩm
-        $data = $request->only('name', 'description', 'price', 'product_category_id');
 
-        // Xử lý cập nhật hình ảnh nếu có
+        // Cập nhật thông tin sản phẩm
+        $data = $request->only('name', 'description', 'price', 'product_category_id', 'status');
+
+        // Xử lý cập nhật ảnh đại diện
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('products', 'public');
+            // Xóa ảnh cũ nếu có
+            if ($product->image && Storage::disk('public')->exists($product->image)) {
+                Storage::disk('public')->delete($product->image);
+            }
+
+            // Lưu ảnh mới
+            $imageName = \Ramsey\Uuid\Guid\Guid::uuid4()->toString() . '.' . $request->file('image')->extension();
+            $imagePath = $request->file('image')->storeAs('products', $imageName, 'public');
+            $data['image'] = $imagePath;
         }
 
+        // Cập nhật thông tin sản phẩm
         $product->update($data);
 
+        // Xử lý thêm hoặc cập nhật ảnh phụ
+        if ($request->hasFile('images')) {
+            // Xóa các ảnh cũ liên quan đến sản phẩm
+            foreach ($product->images as $image) {
+                if (Storage::disk('public')->exists($image->image)) {
+                    Storage::disk('public')->delete($image->image);
+                }
+                $image->delete();
+            }
+
+            // Thêm các ảnh mới
+            foreach ($request->file('images') as $image) {
+                $filename = \Ramsey\Uuid\Guid\Guid::uuid4()->toString() . '.' . $image->extension();
+                $path = $image->storeAs('products', $filename, 'public');
+
+                // Tạo bản ghi cho từng ảnh
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'image' => $path,
+                ]);
+            }
+        }
+
+        // Chuyển hướng về trang danh sách sản phẩm
         return redirect()->route('products.index')->with('success', 'Sản phẩm đã được cập nhật thành công.');
     }
 

@@ -31,6 +31,7 @@
                     <td>{{ $product->category->name ?? 'Không xác định' }}</td>
                     <td>{{ $product->status }}</td>
                     <td>
+                        <a href="{{ route('admin.products.show', $product->id) }}" class="btn btn-primary"> xem chi tiết</a>
                         <a href="{{ route('admin.products.edit', $product) }}" class="btn btn-primary">Sửa</a>
                         <form action="{{ route('admin.products.destroy', $product) }}" method="POST" style="display: inline-block;">
                             @csrf

@@ -122,7 +122,7 @@
                 @endif
 
                 <!-- Form chỉnh sửa sản phẩm -->
-                <form action="{{ route('products.update', $product->id) }}" method="POST">
+                <form action="{{ route('products.update', $product->id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 
@@ -162,7 +162,7 @@
 
                     <div class="mb-3">
                         <label for="image">Ảnh đại diện</label>
-                        <input type="file" class="form-control" name="image">
+                        <input type="file" name="image" accept="image/*">
                         <div class="current-images d-flex flex-wrap">
                             <div class="image-wrapper me-3 mb-3" style="position: relative; width: 100px; height: 100px;">
                                 <img src="{{ asset('storage/' . $product->image) }}" alt="Product Image" style="width: 100%; height: 100%; object-fit: cover; border: 1px solid #ddd;">
@@ -172,7 +172,7 @@
 
                     <div class="mb-3">
                         <label for="images">Hình ảnh khác</label>
-                        <input type="file" class="form-control" name="images[]" multiple>
+                        <input type="file" name="images[]" accept="image/*" multiple>
                         <div class="current-images d-flex flex-wrap">
                             @foreach ($product->images as $image)
                             <div class="image-wrapper me-3 mb-3" style="position: relative; width: 100px; height: 100px;">
